@@ -11,10 +11,10 @@
 using namespace std;
 
 class host : public node {
-    void rcv_pkt(packet * inc_packet);
-	  vector<int> pkts_rcvd;
+	void rcv_pkt(packet * inc_packet);
+	vector<int> pkts_rcvd;
 
 public:
-	  host();
+	host();
 
 };
