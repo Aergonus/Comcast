@@ -30,7 +30,7 @@ public:
     vector<link *> get_links();
     // Gets the link connected to the given node
     link * get_link(node * next_node);
-    // Sends given packet through the given link
+    // Sends outgoing packet through the given link
     void send_pkt(packet * out_packet, link * out_link);
 };
 
