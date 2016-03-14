@@ -22,7 +22,6 @@ public:
     vector<link *> get_links();
     link * get_link(node * destination);
     void send_pkt(packet * out_packet, link * out_link);
-    void rcv_pkt(packet * inc_packet);
 };
 
 #endif
