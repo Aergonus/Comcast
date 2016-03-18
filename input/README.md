@@ -1,12 +1,15 @@
-// Sample Case Input Template
-// ----------------------------------------------------------------------------
-// NOTE: 	Input Units are specified as follows
-// RATE:	Mbps	(megabits per second)	(int)
-// DELAY:	ms		(milliseconds)			(float)
-// START:	s		(seconds)				(float)
-// DATA:	MB		(megabytes)				(int)
-// BUFFER:	KB		(kilobytes)				(int)
+# Sample Case Input Template
 
+| Input	| Unit Symbol	| Unit name 		| Data Type	|
+| :-----| :-------------| :--------------------:| :-------------|
+| RATE 	| Mbps		| (megabits per second) | int		|
+| DELAY	| ms		| (milliseconds) 	| float		|
+| START	| s		| (seconds) 		| float		|
+| DATA	| MB		| (megabytes) 		| int		|
+| BUFFER| KB		| (kilobytes) 		| int		|
+
+``` 
+// RapidJson supports comments
 {
     "hosts": [ "H1", "H2", ... , "H<h>" ],
     "routers": [ "R1", "R2", ... , "R<r>" ],
@@ -38,3 +41,4 @@
           "start": <flow start time in sec> } ],
 	"end": <end simulation time in sec>
 }
+```
