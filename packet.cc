@@ -1,13 +1,7 @@
 #include <string>
-#include <node.h>
+//#include "node.h"
+#include "packet.h"
 class packet{
-    private:
-        node* origin;
-        node* dest;
-        int size;
-        int seqNum;
-        std::string data;
-
     public:
         packet(node* origin, node* dest, int size, int seqNum, std::string data){
             this.origin = origin;
@@ -42,3 +36,4 @@ class packet{
         std::string data(){
             return data;
         }
+};
