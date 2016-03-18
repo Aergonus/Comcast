@@ -1,9 +1,5 @@
-#ifndef PACKET_H
-#define PACKET_H
-
 #include <string>
-//#include "node.h"
-class node;
+#include <node.h>
 class packet{
     private:
         node* origin;//sender of the packet(same as the sender of the flow)
@@ -18,10 +14,9 @@ class packet{
         packet(int size, int seqNum);
         packet(int size);
 
-        node* getOrigin(); //returns the sender info
-        node* getDest(); //returns the destination info
-        int getSize(); //returns the size of the packet
-        int getSeqNum(); //returns the sequence number of the packet
-        std::string getData(); //returns the data inside the packet (whatever it is)
-};
-#endif
+        node* origin(); //returns the sender info
+        node* dest(); //returns the destination info
+        int size(); //returns the size of the packet
+        int seqNum(); //returns the sequence number of the packet
+        std::string data(); //returns the data inside the packet (whatever it is)
+}
