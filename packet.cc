@@ -1,39 +1,48 @@
 #include <string>
-//#include "node.h"
+
 #include "packet.h"
-class packet{
-    public:
-        packet(node* origin, node* dest, int size, int seqNum, std::string data){
-            this.origin = origin;
-            this.dest = dest;
-            this.size = size;
-            this.seqNum = seqNum;
-            this.data = data;
-        }
-        packet(node* origin, node* dest, int size, int seqNum){
-            packet(origin, dest, size, seqNum, "");
+
+//CONSTRUCTORS
+packet::packet(node* origin, node* dest, int size, int seqNum, std::string data){
+    this->origin = origin;
+    this->dest = dest;
+    this->size = size;
+    this->seqNum = seqNum;
+    this->data = data;
+}
+packet::packet(node* origin, node* dest, int size, int seqNum){
+    packet(origin, dest, size, seqNum, "");
+}
+
+packet::packet(int size, int seqNum){
+    packet(0, 0, size, seqNum);
+}
+packet::packet(int size){
+    packet(0, 0, size, 0);
+}
+
+//FUNCTIONS
+//returns the origin node pointer
+node* packet::getOrigin(){
+     return origin;
+}
+
+//returns the destination node pointer
+node* packet::getDest(){
+    return dest;
         }
 
-        packet(int size, int seqNum){
-            packet(null, null, size, seqNum);
+//returns the size of the packet in bits
+int packet::getSize(){
+    return size;
         }
-        packet(int size){
-            packet(null, null, size, 0);
+
+//returns the sequenence number of the packet
+int packet::getSeqNum(){
+    return seqNum;
         }
-        
-        node* origin(){
-            return origin;
-        }
-        node* dest(){
-            return dest;
-        }
-        int size(){
-            return size;
-        }
-        int seqNum(){
-            return seqNum;
-        }
-        std::string data(){
-            return data;
-        }
-};
+
+//returns the data inside the packet(whatever it is)
+std::string packet::getData(){
+    return data;
+    }

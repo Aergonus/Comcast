@@ -1,36 +1,33 @@
 #include <vector>
 #include <string>
+#include <iostream>
 
-//#include "flow.h"
-//#include "node.h"
-//#include "link.h"
-//#include "packet.h"
-//#include "util.h"
+#include "link.h"
 #include "host.h"
-class host : public node {
-	 public: 
-		// The constructor creates the host,
-		// which is initially unconnected and without flows.
-		//host(std::string name,int address):node(name),address(address){
-		//	this.name = name;
-		//	this.address = address;
-		//} // TODO: remove address and autoassign?
-		
-		// Initialize and link the host to the network as an endpoint
 
-		// Create a link to a Router
-		//int linkRouter(Router){}
-		// Add a flow for the Host
-		/*int addFlow(flow f){
-			return flow.add(f);
-		}*/
-		// Sends a packet into the network via the host's link
-		// Called by the Flow and the TLA
+//FUNCTIONS
+//add link pointer in link vector
+void host::addLink(link* l){
+	links.push_back(l);
+}
 
-		
+//add flow pointer in flows vector
+void host::addFlow(flow* f){
+	flows.push_back(f);
+}
 
-		
-		// Debug print host name and address
-		void print(){}
- };
- 
+//sends a packet into the network via the host's link
+bool host::sendPak(){
+	for(int i=0; i < flows[0]->numPack(); i++ ){
+		if (! links[0]->receive_pkt(flows[0]->getPacket(i), this)){
+			return false;
+		}
+	}
+	return true;
+}
+
+//receives packet fro a Link
+int host::receive_packet(packet* p){
+	std::cout<< "Packet number "<<p->getSeqNum()<<" received from "<< p->getOrigin()->getName()<<std::endl;
+	return 1;
+}

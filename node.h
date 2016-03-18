@@ -16,7 +16,7 @@ class packet;
 class node {
 	private:
 		std::string name;
-		std::vector<link *> links; 
+		//std::vector<link *> links; 
 		// bool routerorhostnode?
 	public: 
 		virtual int receive_packet(packet*) = 0;
@@ -25,6 +25,9 @@ class node {
 		int addLink(link &plugInLink);
 		std::vector<link *> getLinks();
 		void print();
+		std::string getName(){
+			return name;
+		}
 };
 
 #endif

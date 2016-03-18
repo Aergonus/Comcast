@@ -1,58 +1,47 @@
 #include <string>
 #include <vector>
-#include <iterator>
-//#include "node.h"
-//#include "packet.h"
+#include <iostream>
+
 #include "flow.h"
-class flow{
-    friend class packet;
-    private:
-        int mySize; //Total size of the flow. Unit: bit
-        std::vector<packet*> packetList; //List of the packets that comprise the flow
-    public:
-        //Constructors
-        /*flow(std::string id, node* origin, node* dest, int flowSize){
-            myId = id;
-            myOrigin = origin;
-            myDest = dest;
-            mySize = flowSize;
-        }
-        flow(node* origin, node* dest, int flowSize){
-            flow( "0000", origin, dest, flowSize);   
-        }
-        flow(std::vector<packet> data){
-            flow ( "0000", data[0].getOrigin, data[0].getDest, data.size()*data[0].packetSize());
-        }*/
-       
 
+//function to obtain the origin of the flow
+node* flow::getOrigin(){
+    return myOrigin;
+}
 
-        //function to obtain the size of the flow
-        int getSize(){
-            return mySize;
-        }
+//returns destination node pointer of the flow
+node* flow::getDest(){
+    return myDest;
+}
 
+//returns id string of the flow
+std::string flow::getId(){
+    return myID;
+}
 
-        private void packUp(){
-            int tmp = mySize;
-            int i =0;
-            while (tmp>0){
-                packetList.add(new packet(i));
-                tmp = tmp - packet::defaultSize;
-                ++i;
-            }
-        }
+//returns int number of bits of the flow
+int flow::getSize(){
+    return mySize;
+}
+
+//returns number of packets of the flow
+int flow::numPack(){
+    return packetList.size();
+}
+
+//returns ith packet pointer of the flow
+packet* flow::getPacket(int i){
+    return packetList[i];
+}
+
+void flow::packUp(){
+    int tmp = mySize;
+    int i =0;
+    while (tmp>0){
+        packetList.push_back(new packet(i));
+        //tmp = tmp - packet::getSize();
+        ++i;
+        std::cout <<"I KNOW HOW TO WRITE AN ERROR MESSAGE" << std::endl; 
+        break;
+    }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
