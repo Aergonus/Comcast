@@ -2,11 +2,12 @@
 
 | Input	| Unit Symbol	| Unit name 		| Data Type	|
 | :-----| :-------------| :--------------------:| :-------------|
-| RATE 	| Mbps		| (megabits per second) | int		|
+| RATE 	| Mbps		| (megabits per second) | float		|
 | DELAY	| ms		| (milliseconds) 	| float		|
 | START	| s		| (seconds) 		| float		|
-| DATA	| MB		| (megabytes) 		| int		|
-| BUFFER| KB		| (kilobytes) 		| int		|
+| DATA	| MB		| (megabytes) 		| float		|
+| BUFFER| KB		| (kilobytes) 		| float		|
+| END 	| s		| (seconds)		| float		|
 
 ``` 
 // RapidJson supports comments
