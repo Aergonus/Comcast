@@ -34,9 +34,9 @@ int main(int argc, char *argv[]) {
 	string inputFile, outputFile;
 	Document root; // root is a JSON value represents the root of DOM.
 	
-	#ifndef NDEBUG
+#ifndef NDEBUG
     printf("Parsing options if they exist.\n");
-	#endif
+#endif
 	while ((c = getopt(argc, argv, "i:o:d")) != -1) {
 		switch (c) {
             case 'i':
@@ -61,9 +61,9 @@ int main(int argc, char *argv[]) {
 		getline(cin, inputFile);
 	}
 
-	#ifndef NDEBUG
+#ifndef NDEBUG
     printf("Parse a JSON file to document root.\n");
-	#endif
+#endif
 	
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
 	if (input!=NULL) {
@@ -81,22 +81,22 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	
-	#ifndef NDEBUG
+#ifndef NDEBUG
     printf("Parsing to root succeeded.\n");
-	#endif
+#endif
 	
-	#ifndef NDEBUG
+#ifndef NDEBUG
     printf("Access values in root:\n");
     // Iterating object members
     static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
     for (Value::ConstMemberIterator itr = root.MemberBegin(); itr != root.MemberEnd(); ++itr)
         printf("Type of member %s is %s\n", itr->name.GetString(), kTypeNames[itr->value.GetType()]);
-	#endif
+#endif
 
     assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
     Value::MemberIterator hosts = root.FindMember("hosts"); // assert(root.HasMember("hosts")); // Old version
     assert(hosts != root.MemberEnd());
-	#ifndef NDEBUG
+#ifndef NDEBUG
     {
         const Value& hosts = root["hosts"]; // Using a reference for consecutive access is handy and faster.
         assert(hosts.IsArray());
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
             printf("%s ", itr->GetString());
         printf("\n");
     }
-	#endif
+#endif
 
     return 0;
 }
