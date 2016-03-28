@@ -1,5 +1,11 @@
-// Hello World example
-// This example shows basic usage of DOM-style API.
+/**
+ * ECE408 
+ * node.h
+ * Purpose: Nodes are points of the network, i.e. hosts and routers
+ * 
+ * @author Kangqiao Lei
+ * @version 0.1 03/28/16
+ */
 
 #include <cstdio>
 #include <string>
@@ -104,113 +110,6 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
 	#endif
-	/*
-	{
-        const Value& a = root["hosts"]; // Using a reference for consecutive access is handy and faster.
-        assert(a.IsArray());
-        for (SizeType i = 0; i < a.Size(); i++) // rapidjson uses SizeType instead of size_t.
-            printf("a[%d] = %d\n", i, a[i].GetInt());
-        
-        int y = a[0].GetInt();
-        (void)y;
 
-        // Iterating array with iterators
-        printf("a = ");
-        for (Value::ConstValueIterator itr = a.Begin(); itr != a.End(); ++itr)
-            printf("%d ", itr->GetInt());
-        printf("\n");
-    }
-	*/
-	
-	
-	/*
-    // Since version 0.2, you can use single lookup to check the existing of member and its value:
-	Value::MemberIterator hello = root.FindMember("hosts");
-    assert(hello != root.MemberEnd());
-    assert(hello->value.IsString());
-    assert(strcmp("world", hello->value.GetString()) == 0);
-    (void)hello;
-
-    assert(root["t"].IsBool());     // JSON true/false are bool. Can also uses more specific function IsTrue().
-    printf("t = %s\n", root["t"].GetBool() ? "true" : "false");
-
-    assert(root["f"].IsBool());
-    printf("f = %s\n", root["f"].GetBool() ? "true" : "false");
-
-    printf("n = %s\n", root["n"].IsNull() ? "null" : "?");
-
-    assert(root["i"].IsNumber());   // Number is a JSON type, but C++ needs more specific type.
-    assert(root["i"].IsInt());      // In this case, IsUint()/IsInt64()/IsUInt64() also return true.
-    printf("i = %d\n", root["i"].GetInt()); // Alternative (int)root["i"]
-
-    assert(root["pi"].IsNumber());
-    assert(root["pi"].IsDouble());
-    printf("pi = %g\n", root["pi"].GetDouble());
-
-
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // 3. Modify values in root.
-
-    // Change i to a bigger number
-    {
-        uint64_t f20 = 1;   // compute factorial of 20
-        for (uint64_t j = 1; j <= 20; j++)
-            f20 *= j;
-        root["i"] = f20;    // Alternate form: root["i"].SetUint64(f20)
-        assert(!root["i"].IsInt()); // No longer can be cast as int or uint.
-    }
-
-    // Adding values to array.
-    {
-        Value& a = root["a"];   // This time we uses non-const reference.
-        Document::AllocatorType& allocator = root.GetAllocator();
-        for (int i = 5; i <= 10; i++)
-            a.PushBack(i, allocator);   // May look a bit strange, allocator is needed for potentially realloc. We normally uses the root's.
-
-        // Fluent API
-        a.PushBack("Lua", allocator).PushBack("Mio", allocator);
-    }
-
-    // Making string values.
-
-    // This version of SetString() just store the pointer to the string.
-    // So it is for literal and string that exists within value's life-cycle.
-    {
-        root["hello"] = "rapidjson";    // This will invoke strlen()
-        // Faster version:
-        // root["hello"].SetString("rapidjson", 9);
-    }
-
-    // This version of SetString() needs an allocator, which means it will allocate a new buffer and copy the the string into the buffer.
-    Value author;
-    {
-        char buffer2[10];
-        int len = sprintf(buffer2, "%s %s", "Milo", "Yip");  // synthetic example of dynamically created string.
-
-        author.SetString(buffer2, static_cast<SizeType>(len), root.GetAllocator());
-        // Shorter but slower version:
-        // root["hello"].SetString(buffer, root.GetAllocator());
-
-        // Constructor version: 
-        // Value author(buffer, len, root.GetAllocator());
-        // Value author(buffer, root.GetAllocator());
-        memset(buffer2, 0, sizeof(buffer2)); // For demonstration purpose.
-    }
-    // Variable 'buffer' is unusable now but 'author' has already made a copy.
-    root.AddMember("author", author, root.GetAllocator());
-
-    assert(author.IsNull());        // Move semantic for assignment. After this variable is assigned as a member, the variable becomes null.
-
-    ////////////////////////////////////////////////////////////////////////////
-    // 4. Stringify JSON
-
-    //printf("\nModified JSON with reformatting:\n");
-    //StringBuffer sb;
-    //PrettyWriter<StringBuffer> writer(sb);
-    //root.Accept(writer);    // Accept() traverses the DOM and generates Handler events.
-    //puts(sb.GetString());
-	*/
     return 0;
 }
