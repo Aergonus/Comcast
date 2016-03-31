@@ -1,38 +1,151 @@
 /**
  * ECE408 
- * node.h
- * Purpose: Nodes are points of the network, i.e. hosts and routers
+ * comcast.cpp
+ * Purpose: Network Simulator Entry Point
  * 
  * @author Kangqiao Lei
  * @version 0.1 03/28/16
  */
 
+//#define NDEBUG // Comment out to turn on debug information and assertions
+
 #include <cstdio>
 #include <string>
 #include <iostream>
 #include <unistd.h>
-
-//#define NDEBUG // Comment out to turn on debug information and assertions
-
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
 
+//#include "net.h"
 
 //#include <iostream>
 //#include <fstream>
 
 //#include "rapidjson/prettywriter.h" // for stringify JSON
 
-using namespace rapidjson;
 using namespace std;
+
+int parseInputs(net &Network, string inputFile) {
+	using namespace rapidjson;
+	Document root; // root is a JSON value represents the root of DOM.
+#ifndef NDEBUG
+    printf("Parse a JSON file to document root.\n");
+#endif
+	
+	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
+	if (input!=NULL) {
+		char readBuffer[65536];
+		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
+		printf("Original JSON:\n %s\n", json);
+		if (root.ParseStream(json).HasParseError()) {
+			fprintf(stderr, "\nError(offset %u): %s\n", 
+				(unsigned)root.GetErrorOffset(),
+				GetParseError_En(root.GetParseError()));
+			return 1;
+		}
+	} else {
+		cout << "Unable to open file " << inputFile << endl; 
+		return -1;
+	}
+#ifndef NDEBUG
+    printf("Parsing to root succeeded.\n");
+#endif
+
+    assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
+	
+	Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("hosts")); // Old version
+	float endtime = (end != root.MemberEnd()) ? end.GetDouble() : 0;
+	assert(endtime >= 0);
+	Network.setEnd(endtime);
+#ifndef NDEBUG
+    printf("Set end time of simulator: %f.\n", endtime);
+#endif	
+	
+    {
+		assert(root.HasMember("hosts"));
+        const Value& hosts = root["hosts"]; // Using a reference for consecutive access is handy and faster.
+        assert(hosts.IsArray());
+
+        // Iterating array with iterators
+        for (Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
+			Network.addHost(itr->GetString());
+#ifndef NDEBUG
+			printf("Added Host %s\n", itr->GetString());
+#endif
+		}
+    }
+#ifndef NDEBUG
+    printf("Finished Adding Hosts.\n");
+#endif	
+
+    {
+		assert(root.HasMember("routers"));
+        const Value& routers = root["routers"]; // Using a reference for consecutive access is handy and faster.
+        assert(routers.IsArray());
+
+        // Iterating array with iterators
+        for (Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
+			Network.addRouter(itr->GetString());
+#ifndef NDEBUG
+			printf("Added Router %s\n", itr->GetString());
+#endif
+		}
+    }
+#ifndef NDEBUG
+    printf("Finished Adding Routers.\n");
+#endif	
+
+
+    {
+		assert(root.HasMember("links"));
+        const Value& links = root["links"]; // Using a reference for consecutive access is handy and faster.
+        assert(links.IsArray());
+
+        // Iterating array with iterators
+		for (SizeType i = 0; i < links.Size(); ++i) {
+			assert(links[i].IsObject());
+			const Value& clink = links[i];
+			Network.addLink(clink.[id].GetString(), clink.[node_id1].GetString(), clink[node_id2].GetString(), ...
+				(float) clink[rate].GetDouble(), (float) clink[delay].GetDouble(), (float) clink[buffer].GetDouble());
+#ifndef NDEBUG
+			printf("Added Link %s\n", clink.[id].GetString());
+#endif
+		}
+    }
+#ifndef NDEBUG
+    printf("Finished Adding Links.\n");
+#endif	
+
+
+    {
+		assert(root.HasMember("flows"));
+        const Value& flows = root["flows"]; // Using a reference for consecutive access is handy and faster.
+        assert(flows.IsArray());
+
+        // Iterating array with iterators
+		for (SizeType i = 0; i < flows.Size(); ++i) {
+			assert(flows[i].IsObject());
+			const Value& cflow = flows[i];
+			Network.addLink(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
+				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble());
+#ifndef NDEBUG
+			printf("Added Flow %s\n", cflow.[id].GetString());
+#endif
+		}
+    }
+#ifndef NDEBUG
+    printf("Finished Adding Flows.\n");
+#endif
+	
+	return 0;
+}
 
 int main(int argc, char *argv[]) {
 	bool debug = false;
 	int c = -1, b = 0; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
 	string inputFile, outputFile;
-	Document root; // root is a JSON value represents the root of DOM.
 	
 #ifndef NDEBUG
     printf("Parsing options if they exist.\n");
@@ -61,55 +174,19 @@ int main(int argc, char *argv[]) {
 		getline(cin, inputFile);
 	}
 
+	// Create Network Simulator object 
+	net Network();
 #ifndef NDEBUG
-    printf("Parse a JSON file to document root.\n");
+    printf("Created Network Simulator object.\n");
+#endif	
+	
+	// Load JSON Input File
+	parseInputs(Network, inputFile);
+#ifndef NDEBUG
+    printf("Loaded Network Topology.\n");
 #endif
 	
-	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
-	if (input!=NULL) {
-		char readBuffer[65536];
-		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
-		printf("Original JSON:\n %s\n", json);
-		if (root.ParseStream(json).HasParseError()) {
-			fprintf(stderr, "\nError(offset %u): %s\n", 
-				(unsigned)root.GetErrorOffset(),
-				GetParseError_En(root.GetParseError()));
-			return 1;
-		}
-	} else {
-		cout << "Unable to open file " << inputFile << endl; 
-		return -1;
-	}
-	
-#ifndef NDEBUG
-    printf("Parsing to root succeeded.\n");
-#endif
-	
-#ifndef NDEBUG
-    printf("Access values in root:\n");
-    // Iterating object members
-    static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
-    for (Value::ConstMemberIterator itr = root.MemberBegin(); itr != root.MemberEnd(); ++itr)
-        printf("Type of member %s is %s\n", itr->name.GetString(), kTypeNames[itr->value.GetType()]);
-#endif
-
-    assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
-    Value::MemberIterator hosts = root.FindMember("hosts"); // assert(root.HasMember("hosts")); // Old version
-    assert(hosts != root.MemberEnd());
-#ifndef NDEBUG
-    {
-        const Value& hosts = root["hosts"]; // Using a reference for consecutive access is handy and faster.
-        assert(hosts.IsArray());
-        for (SizeType i = 0; i < hosts.Size(); i++) // rapidjson uses SizeType instead of size_t.
-            printf("hosts[%d] = %s\n", i, hosts[i].GetString());
-        
-        // Iterating array with iterators
-        printf("Host inputs: ");
-        for (Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr)
-            printf("%s ", itr->GetString());
-        printf("\n");
-    }
-#endif
+	Network.run();
 
     return 0;
 }
