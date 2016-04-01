@@ -16,8 +16,7 @@
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
-
-//#include "net.h"
+#include "net.h"
 
 //#include <iostream>
 //#include <fstream>
@@ -64,10 +63,9 @@ int parseInputs(net &Network, string inputFile) {
 	
     {
 		assert(root.HasMember("hosts"));
-        const Value& hosts = root["hosts"]; // Using a reference for consecutive access is handy and faster.
+        const Value& hosts = root["hosts"]; 
         assert(hosts.IsArray());
 
-        // Iterating array with iterators
         for (Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
@@ -81,10 +79,9 @@ int parseInputs(net &Network, string inputFile) {
 
     {
 		assert(root.HasMember("routers"));
-        const Value& routers = root["routers"]; // Using a reference for consecutive access is handy and faster.
+        const Value& routers = root["routers"]; 
         assert(routers.IsArray());
 
-        // Iterating array with iterators
         for (Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
@@ -99,10 +96,9 @@ int parseInputs(net &Network, string inputFile) {
 
     {
 		assert(root.HasMember("links"));
-        const Value& links = root["links"]; // Using a reference for consecutive access is handy and faster.
+        const Value& links = root["links"]; 
         assert(links.IsArray());
 
-        // Iterating array with iterators
 		for (SizeType i = 0; i < links.Size(); ++i) {
 			assert(links[i].IsObject());
 			const Value& clink = links[i];
@@ -120,10 +116,9 @@ int parseInputs(net &Network, string inputFile) {
 
     {
 		assert(root.HasMember("flows"));
-        const Value& flows = root["flows"]; // Using a reference for consecutive access is handy and faster.
+        const Value& flows = root["flows"]; 
         assert(flows.IsArray());
 
-        // Iterating array with iterators
 		for (SizeType i = 0; i < flows.Size(); ++i) {
 			assert(flows[i].IsObject());
 			const Value& cflow = flows[i];
