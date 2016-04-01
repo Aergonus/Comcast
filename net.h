@@ -9,34 +9,46 @@
 
 #ifndef NET_H
 #define NET_H
+#include <iostream>
 #include <algorithm>
-
 #include <vector>
 #include <queue>
-#include "link.h"
-#include "flow.h"
-#include "host.h"
-#include "event.h" 
+
+// Forward declarations.
+class event;
+class host;
+class router;
+class link;
+class flow;
+
+// External Variables 
+extern bool debug;
+extern ostream &debugSS;
+extern ostream &errorSS;
+
+#include "event.h"
 
 class net {
 	private:
-	float time, endtime, nflows;
-	//std::vector<std::string> ids; 
-	//std::vector<node *> nodes; 
+	int nflows;
+	bool fiveever; // 5ever? or is there a stop time
+	float time, endtime;
 	
 	std::priority_queue<event, vector<event>, compareEvents> events;
-	std::vector<host> hosts; 
-	std::vector<router> routers; 
-	std::vector<link> links; 
-	std::vector<flow> flows; 
+	std::vector<host *> hosts; 
+	std::vector<router *> routers; 
+	std::vector<link *> links; 
+	std::vector<flow *> flows; 
 	
 	public: 
 	net();
+	~net();
 	
-	float getTime(){return time;}
-	float setEnd(float stop);
-	
-	bool usedID(std::string id);
+	float getTime(){return time;};
+	float setTime(float ntime){return time = ntime;};
+	float getEnd(float stop){return endtime;};
+	float setEnd(float stop){fiveever = true; return endtime = stop;};
+	bool isEnd(float stop){return (fiveever && time > endtime);};
 	
 	bool nodeExists(std::string id);
 	bool hostExists(std::string id);
@@ -56,7 +68,7 @@ class net {
 	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time);
 	
 	int flowFinished();
-	int addEvent(event e, float delay);
+	int addEvent(event e);
 	int run();
 	
 	void print();
