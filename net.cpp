@@ -24,6 +24,83 @@ float net::setEnd(float stop) {
 	return endtime;
 }
 
+//Overloading  == operators
+//Return true if two objects have same id
+bool operator == (const &node a, const &node b){
+    return (a.getID() == b.getID());
+}
+
+bool operator == (const &link a, const &link b){
+    return (a.getID() == b.getID());
+}
+
+bool operator == (const &flow a, const &flow b){
+    return (a.getID() == b.getID());
+}
+
+node* getNode(std::string id){
+    if (hostExists(id)){
+        return getHost(id);
+    }
+    else if (routerExists(id)){
+        return getRouter(id);
+    }
+    else
+        return NULL;
+}
+
+host* getHost(std::string id){
+    std::vector<host>::iterator itr = std::find(hosts.begin(), hosts.end(), host(id)) 
+    if (itr == hosts.end()){
+        return NULL;
+    }
+    return &(*itr);
+}
+
+router* getRouter(std::string id){
+    std::vector<router>::iterator itr = std::find(routers.begin(), routers.end(), router(id));
+    if (itr == routers.end()){
+        return NULL;
+    }
+    return &(*itr);
+}
+
+link* getLink(std::string id){
+    std::vector<link>::iterator itr = std::find(links.begin(), links.end(), link(id));
+    if (itr == link.end()){
+        return NULL;
+    }
+    return &(*itr);
+}
+
+flow* getFlow(std::string id){
+    std::vector<flow>::iterator itr = std::find(flows.begin(), flows.end(), flow(id));
+    if (itr == flows.end()){
+        return NULL;
+    }
+    return &(*itr);
+}
+
+bool nodeExists(std::string id){
+    return (getNode(id) != NULL);    
+}
+
+bool hostExists(std::string id){
+    return (getHost(id) != NULL);    
+}
+
+bool routerExists(std::string id){
+    return (getRouter(id) != NULL);
+}
+
+bool linkExists(std::string id){
+    return (getLink(id) !=NULL);
+}
+
+bool flowExists(std::string id){
+    return (getFlow(id) != NULL);
+}
+
 int net::addHost(std::string id){
 	if (!usedID(id)) {
 		// Create a new host object
