@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/28/16
+ * @version 0.1.5 04/05/16
  */
 
 #include "net.h"
@@ -156,14 +156,14 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 		// Check if both IDs are valid nodes
 		if(nodeExists(node_id1) && nodeExists(node_id2)){
 			// Get the nodes
-			n1 = nodes[node_id1];
-			n2 = nodes[node_id2];
+			node *n1 = nodes[node_id1];
+			node *n2 = nodes[node_id2];
 		
-			links[id] = Link(id, n1, n2, rate, delay, buffer);
+			links[id] = link(id, n1, n2, rate, delay, buffer);
 		
 			// Update relations
-			n1.addLink(links[id]);
-			n2.addLink(links[id]);
+			n1->addLink(links[id]);
+			n2->addLink(links[id]);
 
 		} else if(!nodeExists(node_id1)){
 			errorSS << "Failed to create Link with id " << id << ". Node " << node_id1 << " does not exist." << endl;
@@ -238,4 +238,5 @@ int net::run(){
 		to_handle->handle_event();
 		delete to_handle;
 	}
+	return 0;
 }

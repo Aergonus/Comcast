@@ -4,11 +4,12 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/28/16
+ * @version 0.1.5 04/05/16
  */
 
 #ifndef NET_H
 #define NET_H
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -26,6 +27,7 @@ extern bool debug;
 extern ostream &debugSS;
 extern ostream &errorSS;
 
+// Custom Libraries
 #include "event.h"
 
 class net {
@@ -72,4 +74,5 @@ class net {
 	int run();
 	
 	void print();
-}
+};
+#endif

@@ -1,11 +1,29 @@
+/**
+ * ECE408 
+ * flow.h
+ * Purpose: 
+ * 
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
+ * @version 0.1.5 04/05/16
+ */
+
+#ifndef FLOW_H
+#define FLOW_H
+
 #include <string>
 #include <vector>
-#include <iterator>
-#include "node.h"
+
 #include "packet.h"
-class flow{
-    friend class packet;
-    
+
+class host;
+
+class flow {
+	private:
+        node* src;
+        node* dst;
+        std::string name;
+        int size;
+
     public:
     //Constructors
     flow(std::string id, node origin, node dest, int flowSize);
@@ -30,4 +48,5 @@ class flow{
     int flowSize; //Total size of the flow. Unit: bit
     std::vector<packet> packetList; //List of the packets that comprise the flow
     void packup(); // when only the flow size is given (not the actual list of packets), divide the entire data into packets and store them as a vector "packetList"   
-}
+};
+#endif

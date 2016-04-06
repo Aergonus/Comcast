@@ -1,44 +1,8 @@
-#include <string>
-#include <node.h>
-class packet{
-    private:
-        node* origin;
-        node* dest;
-        int size;
-        int seqNum;
-        std::string data;
-
-    public:
-        packet(node* origin, node* dest, int size, int seqNum, std::string data){
-            this.origin = origin;
-            this.dest = dest;
-            this.size = size;
-            this.seqNum = seqNum;
-            this.data = data;
-        }
-        packet(node* origin, node* dest, int size, int seqNum){
-            packet(origin, dest, size, seqNum, "");
-        }
-
-        packet(int size, int seqNum){
-            packet(null, null, size, seqNum);
-        }
-        packet(int size){
-            packet(null, null, size, 0);
-        }
-        
-        node* origin(){
-            return origin;
-        }
-        node* dest(){
-            return dest;
-        }
-        int size(){
-            return size;
-        }
-        int seqNum(){
-            return seqNum;
-        }
-        std::string data(){
-            return data;
-        }
+/**
+ * ECE408 
+ * packet.cpp
+ * Purpose: 
+ * 
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
+ * @version 0.1.5 04/05/16
+ */

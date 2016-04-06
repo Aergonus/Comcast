@@ -4,10 +4,10 @@
  * Purpose: Barebones Base Event Object
  * 
  * @author Kangqiao Lei
- * @version 0.1 04/01/16
+ * @version 0.1.5 04/05/16
  */
 
-include "event.h"
+#include "event.h"
 
 event::event(float time, net* Network){
 	start = time;

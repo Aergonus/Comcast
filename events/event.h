@@ -4,10 +4,19 @@
  * Purpose: Barebones Base Event Object
  * 
  * @author Kangqiao Lei
- * @version 0.1 04/01/16
+ * @version 0.1.5 04/05/16
  */
 
-class net; // Forward Declaration
+#ifndef EVENT_H
+#define EVENT_H
+
+// Forward Declaration
+class net;
+
+// External Variables 
+extern bool debug;
+extern ostream &debugSS;
+extern ostream &errorSS;
 
 class event {
 	private:
@@ -20,7 +29,7 @@ class event {
 	virtual void handle_event();
 	float getStart(){return start;};
 	float setStart(float delay){start = delay;};
-}
+};
 
 // Sorting rule for the event* priority queue 
 struct compareEvents {
@@ -28,3 +37,4 @@ struct compareEvents {
     return eventA->get_start() > eventB->get_start();
   }
 };
+#endif

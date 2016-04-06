@@ -1,3 +1,12 @@
+/**
+ * ECE408 
+ * flow.cpp
+ * Purpose: 
+ * 
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
+ * @version 0.1.5 04/05/16
+ */
+ 
 #include <string>
 #include <vector>
 #include <iterator>
@@ -10,7 +19,7 @@ class flow{
     node* myOrigin;
     node* myDest;
     string myId;
-    int mySize; //Total size of the flow. Unit: bit
+    int size; 
     std::vector<packet> packetList; //List of the packets that comprise the flow
 
     public:

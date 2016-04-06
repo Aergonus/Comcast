@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Entry Point
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/28/16
+ * @version 0.1.5 04/05/16
  */
 
 //#define NDEBUG // Comment out to turn on debug information and assertions
@@ -13,17 +13,22 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
+
 #include "net.h"
 
-//#include <iostream>
 //#include <fstream>
 
 //#include "rapidjson/prettywriter.h" // for stringify JSON
 
 using namespace std;
+
+bool debug = false;
+ostream &debugSS = cout;
+ostream &errorSS = cerr;
 
 int parseInputs(net &Network, string inputFile) {
 	using namespace rapidjson;
@@ -137,7 +142,6 @@ int parseInputs(net &Network, string inputFile) {
 }
 
 int main(int argc, char *argv[]) {
-	bool debug = false;
 	int c = -1, b = 0; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
 	string inputFile, outputFile;
@@ -176,7 +180,7 @@ int main(int argc, char *argv[]) {
 #endif	
 	
 	// Load JSON Input File
-	parseInputs(Network, inputFile);
+	parseInputs(&Network, inputFile);
 #ifndef NDEBUG
     printf("Loaded Network Topology.\n");
 #endif
