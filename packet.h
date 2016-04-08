@@ -10,6 +10,8 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include "util.h"
+
 class node;
 
 class packet{
@@ -17,14 +19,15 @@ class packet{
         node *src;//sender of the packet(same as the sender of the flow)
         node *dst;//dstination of the packet (same as the dstination of the flow)
         flow *pFlow;//parent flow 
+		packet_type type; // ENUM
 		int size; //size of the packet. Unit: bits
         int seqNum; //The sequence number of the packet.
 		int ackNum; //The acknowledgement number of the packet. 
 		int killswitch;
     public:
         //constructors
-        packet(node *src, node *dst, flow *f, int size, int seqNum, int ackNum, int ks)...
-			:src(src), dst(dst), pFlow(f), size(size), seqNum(seqNum), ackNum(ackNum), killswitch(killswitch);
+        packet(node *src, node *dst, flow *f, packet_type type, int size, int seqNum, int ackNum, int ks)...
+			:src(src), dst(dst), pFlow(f), type(type), size(size), seqNum(seqNum), ackNum(ackNum), killswitch(killswitch);
 		
         //FUNCTIONS
         //returns the src node pointer

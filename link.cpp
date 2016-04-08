@@ -56,3 +56,7 @@ void link::send_pak(){
 	}
 	return;
 }
+
+node* getOtherNode(node *n){
+	return (n1 == n) ? n2 : n1;
+};

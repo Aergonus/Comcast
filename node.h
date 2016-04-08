@@ -18,13 +18,18 @@ class packet;
 class node {
 	private:
 		std::string name;
+		std::vector<link *> links; 
+
 	public: 
-		virtual int receive_packet(packet*) = 0;
+		
 		node(const std::string name):name(name){};
-		node* getConnectedNode(link &connection);
-		int addLink(link &plugInLink);
-		std::vector<link *> getLinks(){return links;};
-		void print();
+		
 		std::string getName(){return name;}
+		std::vector<link *> getLinks(){return links;};
+		virtual int receive_packet(packet *p) = 0;
+		node* getConnectedNode(link *connection);
+		int addLink(link *l);
+		
+		void print();
 };
 #endif

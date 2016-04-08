@@ -61,6 +61,8 @@ class link {
 		// origin is a pointer to the packet's transmitting node;
 		bool receive_pak(packet *p, node *n);
 		
+		node* getOtherNode(node *n);
+		
 		// Called when packet has propogated and arrived at at node
 		void send_pak();
 
