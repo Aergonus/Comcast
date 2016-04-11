@@ -10,6 +10,7 @@
 #ifndef FLOW_H
 #define FLOW_H
 
+#include <set>
 #include <string>
 
 class node;
@@ -24,7 +25,20 @@ class flow {
         int size;
 		float start;
 		
-		int seq, ack, expectedSeq, expectedAck, acksReceived, outstandingPaks;
+		// TCP Parameters
+		std::string mode;
+		
+		// Reliable Data Transfer 
+		int seq, expectedSeq, sendBase;
+		std::set<int> ackStack; // Really AckVec or AckList, but it rhymes
+		
+		// Congestion Control
+		int CWND, ssThresh;
+		
+		// TimeOut Calculations
+		float estRTT, devRTT, sampRTT, TO;
+		event *tcpTO;
+		
     public:
     //Constructors
     flow(std::string id, node src, node dst, int flowSize, float startTime)...
