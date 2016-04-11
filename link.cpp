@@ -26,10 +26,8 @@ bool link::receive_pak(packet *p, node *n){
 		buffer.push(make_pair(p, (n == n1) ? n2 : n1));
 		occupancy += p->getSize();
 		float pDelay = calcDelay();
-/* TODODODODODODODODODODODODO ****!!!*!*!*!*!*!*!*
-		event aksjdflakjsld;fj 
-		Network.addEvent(...);
-*/
+		event_send_pak e(pDelay, Network, &this);
+		Network.addEvent(&e);
 		return true;
 	} else if (occupancy + p->getSize() <= buffer_size) {
 		// Stamp destination 
@@ -49,10 +47,8 @@ void link::send_pak(){
 	buffer.pop();
 	if(!buffer.empty()){
 		float pDelay = calcDelay();
-/* TODODODODODODODODODODODODO ****!!!*!*!*!*!*!*!*
-		event aksjdflakjsld;fj 
-		Network.addEvent(...);
-*/
+		event_send_pak e(pDelay, Network, &this);
+		Network.addEvent(&e);
 	}
 	return;
 }

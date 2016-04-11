@@ -32,3 +32,4 @@ class event_send_pak : public event {
 		l->send_pak();
 	};
 };
+#endif

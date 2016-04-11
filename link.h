@@ -44,7 +44,7 @@ class link {
 		// Link Buffer
 		std::queue<std::pair<packet*,node*>> buffer;
 		// Network Simulator 
-		net Network;
+		net *Network;
 
 	public:
 		// CONSTRUCTOR
