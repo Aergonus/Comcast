@@ -22,9 +22,12 @@ class event {
 	private:
 	float start;
 	net* sim;
+	bool valid;
 	
 	public:
-	event(float time, net* Network);
+	event(float time, net* Network):start(time), sim(Network) {
+		valid = true;
+	} ;
 	
 	virtual void handle_event();
 	float getStart(){return start;};
