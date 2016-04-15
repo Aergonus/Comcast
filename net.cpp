@@ -232,10 +232,11 @@ int net::run(){
 			break;
 		}
 		//TODO: Establish precedence order? Drain buffers before pushing to them etc
-		Event *to_handle = events.top();
-		time = to_handle->start;
-		events.pop();
-		to_handle->handle_event();
+		Event *to_handle = events.pop();//events.top();
+		if(to_handle.valid) {
+			time = to_handle->start;
+			to_handle->handle_event();
+		}
 		delete to_handle;
 	}
 	return 0;
