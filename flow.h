@@ -11,7 +11,9 @@
 #define FLOW_H
 
 #include <set>
+#include <cctype>
 #include <string>
+#include <algorithm>
 
 class node;
 
@@ -26,7 +28,7 @@ class flow {
 		float start;
 		
 		// TCP Parameters
-		std::string mode;
+		tcp 
 		
 		// Reliable Data Transfer 
 		int seq, expectedSeq, sendBase;
@@ -41,8 +43,15 @@ class flow {
 		
     public:
     //Constructors
-    flow(std::string id, node src, node dst, int flowSize, float startTime)...
-	: name(id), src(src), dst(dst), size(flowSize), start(startTime);
+    flow(std::string id, node src, node dst, int flowSize, float startTime, std::string tcp)...
+	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
+		transform(tcp.begin(), tcp.end(), tcp.begin(), toupper);
+		if (mode == "TAHOE") {
+			// init tcp obj
+		} else if (mode == "RENO") {
+			// init tcp obj
+		}
+	};
 
     //function to obtain the origin of the flow
     node* getSrc(){return src;};
