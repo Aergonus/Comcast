@@ -1,33 +1,82 @@
+/**
+ * ECE408 
+ * flow.h
+ * Purpose: 
+ * 
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
+ * @version 0.1.7.5 04/19/16
+ */
+
+#ifndef FLOW_H
+#define FLOW_H
+
+#include <set>
+#include <cctype>
 #include <string>
-#include <vector>
-#include <iterator>
-#include "node.h"
-#include "packet.h"
-class flow{
-    friend class packet;
-    
+#include <algorithm>
+#include "tcp.h"
+#include "util.h"
+
+class node;
+
+class flow {
+	friend class packet;
+	
+	private:
+        node* src;
+        node* dst;
+        std::string name;
+        int size;
+		float start;
+		
+		// TCP Parameters
+		TCP_type mode;
+		
+		// Reliable Data Transfer 
+		// Sender
+		int nextSeq, sendBase, dupAcks;
+		std::priority_queue<int, vector<int>, greater<int>> ackStack; // Really AckVec or AckList, but it rhymes
+		// Receiver
+		bool gapDetected;
+		int maxGapSeq, expectedSeq; // Currently implemented Go-Back-N 
+		
+		// Fun project: Code Sliding Window selective-repeat
+		// If smart application create dataGap with <expectedSeq, maxReceivedSeq> => recieve part of gap in middle! <expectedSeq, receivedSeq> <receivedSeq+size,maxRecceivedSeq>. 
+		
+		// Congestion Control
+		int CWND, ssThresh;
+		
+		// TimeOut Calculations
+		float estRTT, devRTT, sampRTT, TO;
+		event *tcpTO;
+		
+		int calcPakSize();
+		
     public:
     //Constructors
-    flow(std::string id, node origin, node dest, int flowSize);
-    flow(node origin, node dest, int flowSize);
-    flow(std::vector<packet> data);
+    flow(std::string id, node src, node dst, int flowSize, float startTime, TCP_type tcp)...
+	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
+		if (mode == TAHOE) {
+			// init tcp obj
+		} else if (mode == RENO) {
+			// init tcp obj
+		}
+	};
+
     //function to obtain the origin of the flow
-    node getOrigin();
+    node* getSrc(){return src;};
     //function to obtain the destination of the flow
-    node getDest();
+    node* getDst(){return dst;};
     //function to obtain the id of the flow
-    string getID();
+    string getID(){return id;};
     //function to obtain the size of the flow
-    int getSize();
-    //function to obtain the number of packets in the flow
-    int numPacks();
-    //function to obtain ith packet in the flow
-    packet& getPacket(int i);
-    private:
-    node myOrigin;
-    node myDest;
-    string myID;
-    int flowSize; //Total size of the flow. Unit: bit
-    std::vector<packet> packetList; //List of the packets that comprise the flow
-    void packup(); // when only the flow size is given (not the actual list of packets), divide the entire data into packets and store them as a vector "packetList"   
-}
+    int getSize(){return size;};
+	
+	
+	void start_Flow();
+	packet* send_Pak();
+	packet* recieve_Pak();
+	void nolove();
+	
+};
+#endif

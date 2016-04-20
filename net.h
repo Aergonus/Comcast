@@ -4,39 +4,55 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/28/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef NET_H
 #define NET_H
-#include <algorithm>
 
+#include <iostream>
+#include <algorithm>
 #include <vector>
 #include <queue>
-#include "link.h"
-#include "flow.h"
-#include "host.h"
-#include "event.h" 
+
+// Forward declarations.
+class event;
+class host;
+class router;
+class link;
+class flow;
+
+// External Variables 
+extern bool debug;
+extern ostream &debugSS;
+extern ostream &errorSS;
+extern ostream &outputSS;
+
+// Custom Libraries
+#include "event.h"
+#include "util.h"
 
 class net {
 	private:
-	float time, endtime, nflows;
-	//std::vector<std::string> ids; 
-	//std::vector<node *> nodes; 
+	int nflows;
+	bool fiveever; // 5ever? or is there a stop time
+	float time, endtime;
 	
 	std::priority_queue<event, vector<event>, compareEvents> events;
-	std::vector<host> hosts; 
-	std::vector<router> routers; 
-	std::vector<link> links; 
-	std::vector<flow> flows; 
+	std::vector<host *> hosts; 
+	std::vector<router *> routers; 
+	std::vector<link *> links; 
+	std::vector<flow *> flows; 
 	
 	public: 
 	net();
+	~net();
 	
-	float getTime(){return time;}
-	float setEnd(float stop);
-	
-	bool usedID(std::string id);
+	float getTime(){return time;};
+	float setTime(float ntime){return time = ntime;};
+	float getEnd(float stop){return endtime;};
+	float setEnd(float stop){fiveever = true; return endtime = stop;};
+	bool isEnd(float stop){return (fiveever && time > endtime);};
 	
 	bool nodeExists(std::string id);
 	bool hostExists(std::string id);
@@ -53,11 +69,12 @@ class net {
 	int addHost(std::string id);
 	int addRouter(std::string id);
 	int addLink(std::string id, std::string node_id1, std::string node_id2, float rate, float delay, float buffer);
-	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time);
+	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum);
 	
 	int flowFinished();
-	int addEvent(event e, float delay);
+	int addEvent(event e);
 	int run();
 	
 	void print();
-}
+};
+#endif

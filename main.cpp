@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Entry Point
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/28/16
+ * @version 0.2.0 04/19/16
  */
 
 //#define NDEBUG // Comment out to turn on debug information and assertions
@@ -13,17 +13,24 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+
 #include "rapidjson/document.h"     // rapidjson's DOM-style API
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
-#include "net.h"
 
-//#include <iostream>
+#include "net.h"
+#include "util.h"
+
 //#include <fstream>
 
 //#include "rapidjson/prettywriter.h" // for stringify JSON
 
 using namespace std;
+
+bool debug = false;
+ostream &debugSS = cout;
+ostream &errorSS = cerr;
+ostream &outputSS;
 
 int parseInputs(net &Network, string inputFile) {
 	using namespace rapidjson;
@@ -122,8 +129,20 @@ int parseInputs(net &Network, string inputFile) {
 		for (SizeType i = 0; i < flows.Size(); ++i) {
 			assert(flows[i].IsObject());
 			const Value& cflow = flows[i];
-			Network.addLink(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
-				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble());
+			if (cflow->HasMember("TCP")) {
+				TCP_type tcp_enum;
+				string tcp_string = cflow[TCP].GetString();
+				transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), toupper);
+				if (tcp_string == "TAHOE") {
+					tcp_enum = TAHOE;
+				} else if (tcp_string == "RENO") {
+					tcp_enum = RENO;
+				}
+			} else {
+				tcp_enum = TAHOE;
+			}
+			Network.addFlow(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
+				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble(), tcp_enum);
 #ifndef NDEBUG
 			printf("Added Flow %s\n", cflow.[id].GetString());
 #endif
@@ -137,7 +156,6 @@ int parseInputs(net &Network, string inputFile) {
 }
 
 int main(int argc, char *argv[]) {
-	bool debug = false;
 	int c = -1, b = 0; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
 	string inputFile, outputFile;
@@ -176,7 +194,7 @@ int main(int argc, char *argv[]) {
 #endif	
 	
 	// Load JSON Input File
-	parseInputs(Network, inputFile);
+	parseInputs(&Network, inputFile);
 #ifndef NDEBUG
     printf("Loaded Network Topology.\n");
 #endif

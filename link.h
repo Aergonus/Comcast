@@ -1,53 +1,72 @@
+/**
+ * ECE408 
+ * link.h
+ * Purpose: 
+ * 
+ * @author Eric Nguyen, Kangqiao Lei
+ * @version 0.2.0 04/19/16
+ */
+
+#ifndef LINK_H
+#define LINK_H
+
 #include <iostream>
 #include <string>
 #include <queue>
-#include "node.h"
-#include "packet.h"
+#include <utility>
 
+#include "util.h"
 
-class Link {
+// Forward Declaration
+class node;
+//class host;
+class packet;
+class net;
+
+// External Variables 
+extern bool debug;
+extern ostream &debugSS;
+extern ostream &errorSS;
+
+class link {
 	private:
-		// throughput in bits per second & propagation in seconds
-		float throughput, propagation; 
-		// Maximum number of packets allowed
-		int max_buffer_size;
+		std::string name;
 		// Node 1 and Node 2 endpoints of link
-		Node* n1,n2;
+		node *n1, *n2;
+		// Link Rate in bits per second (throughput)
+		float rate;
+		// Link Delay in seconds (propogation)
+		float delay; 
+		// Maximum number of bytes allowed
+		int buffer_size;
+		// Current amount of bytes in buffer
+		int occupancy;
 		// Link Buffer
-		std::queue<packet*> link_buffer;
-		std::queue<Node*> destination;
+		std::queue<std::pair<packet*,node*>> buffer;
+		// Network Simulator 
+		net *Network;
 
 	public:
+		// CONSTRUCTOR
+		link(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim)...
+			:name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
+		
+		// FUNCTIONS
+
+		//Calculate delay for first packet in queue
+		float calcDelay();
+		
 		// Pushes packet onto Link Buffer from end node; 
 		// returns TRUE on success; FALSE on full buffer;
 		// origin is a pointer to the packet's transmitting node;
-		bool recieve_pkt(packet* pkt, Node* origin){
-			if ((orig,in != n1)&&(origin != n2)){
-				std::cerr <<"FATAL ERROR: NICE TRY. node is not connected to this link." << endl; 
-				return false;
-			}
-			if (link_buffer.size() < max_buffer_size){
-				link_buffer.push(pkt);
-				destination.push( (origin == n1) ? n2 : n1);
-				return true;
-			}	
-			return false;
-		}
-		// Pops packet off Link Buffer and gives to end node
-		void transmit_pkt(packet& pkt){
+		bool receive_pak(packet *p, node *n);
+		
+		node* getOtherNode(node *n);
+		
+		// Called when packet has propogated and arrived at at node
+		void send_pak();
 
-		}
-		//Calculate delay for first packet in queue
-		float current_delay() {
-			return (float) (link_buffer.front()->size())/throughput + propagation;
-		}
-
-		// CONSTRUCTOR
-		Link(float t, float p, int b, Node* node1, Node* node2) {
-			throughput = t; 
-			propagation = p; 
-			max_buffer_size = b;
-			n1 = node1;
-			n2 = node2;
-		}
+		//DEBUG/LOGGING FUNCTIONS
+		void print(){};
 };
+#endif
