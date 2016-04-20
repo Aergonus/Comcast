@@ -5,7 +5,7 @@
  * for constants used in the simulation
  * 
  * @author Kangqiao Lei
- * @version 0.1 03/13/16
+ * @version 0.1.7.5 04/19/16
  */
  
 #ifndef UTIL_H
@@ -13,10 +13,19 @@
 
 /** Types of packets in this simulation. */
 enum packet_type {
-	FLOW,
+	DATA,
 	ACK,
 	ROUTING
 };
+
+/** Type of TCP implemented */
+enum TCP_type {
+	TAHOE,
+	RENO
+};
+
+/** Default Max No of hops for Packets */
+static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
 
 /** Size of a flow packet in bytes. */
 static const long FLOW_PACKET_SIZE = 512;

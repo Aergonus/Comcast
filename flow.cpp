@@ -3,56 +3,90 @@
  * flow.cpp
  * Purpose: 
  * 
- * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
+ * @version 0.1.7.5 04/19/16
  */
 
+#include <queue>
+#include <limits.h>
 #include "flow.h"
 #include "packet.h"
+#include "util.h"
 
-void start_Flow(){
-
-	// Poke TCP and send event 
-	// Start timeout for TCP 
-	// Increment flows active 
-	// Generates first send_pak event 
-/* TODODODODODODODODODODODODO ****!!!*!*!*!*!*!*!*
-		event aksjdflakjsld;fj 
-		Network.addEvent(...);
-*/
-	
+int calcPakSize(int currSeq){
+	int nPakSize = (size - currSeq <= FLOW_PACKET_SIZE) ? (size - currSeq) : FLOW_PACKET_SIZE;
+	return nPakSize;
 }
 
-packet* send_Pak(int nSeqNum, int nAckNum, int, pSize, node *n){
-	packet *p = new packet(src, dst, &this, DATA, pSize, nSeqNum, nAckNum, KS_POISION_CONSTANT); // gotta have correct #s
+packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
+	packet p*;
+	node *pakDst = (n == src) ? dst : src;
+	if (ptype == DATA) {
+		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
+	} else if (ptype == ACK {
+		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
+	}
 	link->receive_pak(p, n);
 	return p;
 }
 
-void send_Data(){
-	int pSize = left > DATA_PACKET_SIZE ? DATA_PACKET_SIZE : left;
+void start_Flow(){
+	nextSeq = 0;
+	sendBase = 0;
+	expectedSeq = 0;
+	gapDetected = false;
+	dupAcks = 1;
+	CWND = 1;
+	ssThresh = INT_MAX;
 	
-	// calculate nSeqNum and nAckNum
+	estRTT = 1;
+	devRTT = 1;
+	sampRTT = 1;
+	TO = 1;
 	
-	send_Pak(nSeqNum, nAckNum, pSize, src);
-};
-
-void send_Ack(packet *p){
-	// calculate nSeqNum and nAckNum
-	
-	send_Pak(nSeqNum, nAckNum, pSize, dst);
-};
+	// Poke TCP and send event *tcpTO, i.e. start timeout for TCP
+	send_Pak(nextSeq, calcPakSize(nextSeq), dst, DATA);
+	nextSeq += pakSize;
+	ackStack.push(nextSeq);
+}
 
 void receive_Pak(packet *p){
 	if(p->type == DATA){
 		// Would have to add 500ms timeout if waiting to send delayed acks
-		// Make ack_packet
-		// Send packet
+		if(p->getSeqNum() > expectedSeq) {
+			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
+			if(!gapDetected) {
+				gapDectected = true;
+				maxGapSeq = p->getAckNum();
+			}
+		} else {
+			send_Pak(p->getAckNum(), ACK_PACKET_SIZE, src, ACK);
+			expectedSeq += p->getSize;
+			if(gapDetected && expectedSeq >= maxGapSeq) {
+				gapDetected = false;
+			}
+		}
 	} else if (p->type == ACK) {
 		// Tell TCP that ack received
+		if(p->getAckNum() > sendBase) {
+			sendBase = p->getAckNum();
+			send_Pak(nextSeq, calcPakSize(nextSeq), dst, DATA);
+			nextSeq += pakSize;
+			dupAcks = 1;
+			// Reset timer;
+		} else if (p->getAckNum() = sendBase) {
+			dupAcks += 1;
+			if(dupAcks == 3) {
+				//TCP fast retransmit
+				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
+				nextSeq = sendBase + pakSize; // Go-Back-N
+			}
+		}
 	} 
+	delete p;
 }
 
+// if timer timeout retransmit not-yet-acked seg with smalles seq #, make new timeout event
 
 // If loss, set ssThresh to CWND/2
 // TCP

@@ -3,8 +3,8 @@
  * flow.h
  * Purpose: 
  * 
- * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
+ * @version 0.1.7.5 04/19/16
  */
 
 #ifndef FLOW_H
@@ -14,6 +14,8 @@
 #include <cctype>
 #include <string>
 #include <algorithm>
+#include "tcp.h"
+#include "util.h"
 
 class node;
 
@@ -28,11 +30,18 @@ class flow {
 		float start;
 		
 		// TCP Parameters
-		tcp 
+		TCP_type mode;
 		
 		// Reliable Data Transfer 
-		int seq, expectedSeq, sendBase;
-		std::set<int> ackStack; // Really AckVec or AckList, but it rhymes
+		// Sender
+		int nextSeq, sendBase, dupAcks;
+		std::priority_queue<int, vector<int>, greater<int>> ackStack; // Really AckVec or AckList, but it rhymes
+		// Receiver
+		bool gapDetected;
+		int maxGapSeq, expectedSeq; // Currently implemented Go-Back-N 
+		
+		// Fun project: Code Sliding Window selective-repeat
+		// If smart application create dataGap with <expectedSeq, maxReceivedSeq> => recieve part of gap in middle! <expectedSeq, receivedSeq> <receivedSeq+size,maxRecceivedSeq>. 
 		
 		// Congestion Control
 		int CWND, ssThresh;
@@ -41,14 +50,15 @@ class flow {
 		float estRTT, devRTT, sampRTT, TO;
 		event *tcpTO;
 		
+		int calcPakSize();
+		
     public:
     //Constructors
-    flow(std::string id, node src, node dst, int flowSize, float startTime, std::string tcp)...
+    flow(std::string id, node src, node dst, int flowSize, float startTime, TCP_type tcp)...
 	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
-		transform(tcp.begin(), tcp.end(), tcp.begin(), toupper);
-		if (mode == "TAHOE") {
+		if (mode == TAHOE) {
 			// init tcp obj
-		} else if (mode == "RENO") {
+		} else if (mode == RENO) {
 			// init tcp obj
 		}
 	};
@@ -61,6 +71,7 @@ class flow {
     string getID(){return id;};
     //function to obtain the size of the flow
     int getSize(){return size;};
+	
 	
 	void start_Flow();
 	packet* send_Pak();
