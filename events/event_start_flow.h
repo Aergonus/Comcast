@@ -1,14 +1,14 @@
 /**
  * ECE408 
- * event_send_pak.h
- * Purpose: Send Packet Event
+ * event_start_flow.h
+ * Purpose: Initializes flow for packet sending
  * 
  * @author Kangqiao Lei
  * @version 0.2.0 04/19/16
  */
 
-#ifndef EVENT_SEND_PAK_H
-#define EVENT_SEND_PAK_H
+#ifndef EVENT_START_FLOW_H
+#define EVENT_START_FLOW_H
 
 #include "event.h"
 #include "link.h"
@@ -16,20 +16,15 @@
 // Forward Declaration
 class net;
 
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
-class event_send_pak : public event {
+class event_start_flow : public event {
 	private:
-	link *l;
+	link *f;
 	
 	public:
 	event(float time, net *Network, link *l):start(time), sim(Network), l(l);
 	
 	void handle_event(){
-		l->send_pak();
+		f->start_flow();
 	};
 };
 #endif

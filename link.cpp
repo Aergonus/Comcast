@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #include <vector>
@@ -16,6 +16,7 @@
 //FUNCTIONS
 
 float link::calcDelay(){
+	// need to check for packet! Or create one for Routers to call
 	return (float)((buffer.front().first->getSize())/rate + delay);
 }
 

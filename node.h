@@ -4,7 +4,7 @@
  * Purpose: Nodes are points of the network, i.e. hosts and routers
  * 
  * @author Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef NODE_H

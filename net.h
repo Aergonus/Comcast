@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef NET_H
@@ -26,9 +26,11 @@ class flow;
 extern bool debug;
 extern ostream &debugSS;
 extern ostream &errorSS;
+extern ostream &outputSS;
 
 // Custom Libraries
 #include "event.h"
+#include "util.h"
 
 class net {
 	private:
@@ -67,7 +69,7 @@ class net {
 	int addHost(std::string id);
 	int addRouter(std::string id);
 	int addLink(std::string id, std::string node_id1, std::string node_id2, float rate, float delay, float buffer);
-	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time);
+	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum);
 	
 	int flowFinished();
 	int addEvent(event e);

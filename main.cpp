@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Entry Point
  * 
  * @author Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 //#define NDEBUG // Comment out to turn on debug information and assertions
@@ -19,6 +19,7 @@
 #include "rapidjson/filereadstream.h"
 
 #include "net.h"
+#include "util.h"
 
 //#include <fstream>
 
@@ -29,6 +30,7 @@ using namespace std;
 bool debug = false;
 ostream &debugSS = cout;
 ostream &errorSS = cerr;
+ostream &outputSS;
 
 int parseInputs(net &Network, string inputFile) {
 	using namespace rapidjson;
@@ -127,8 +129,20 @@ int parseInputs(net &Network, string inputFile) {
 		for (SizeType i = 0; i < flows.Size(); ++i) {
 			assert(flows[i].IsObject());
 			const Value& cflow = flows[i];
-			Network.addLink(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
-				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble());
+			if (cflow->HasMember("TCP")) {
+				TCP_type tcp_enum;
+				string tcp_string = cflow[TCP].GetString();
+				transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), toupper);
+				if (tcp_string == "TAHOE") {
+					tcp_enum = TAHOE;
+				} else if (tcp_string == "RENO") {
+					tcp_enum = RENO;
+				}
+			} else {
+				tcp_enum = TAHOE;
+			}
+			Network.addFlow(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
+				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble(), tcp_enum);
 #ifndef NDEBUG
 			printf("Added Flow %s\n", cflow.[id].GetString());
 #endif

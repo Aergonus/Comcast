@@ -5,7 +5,7 @@
  * They send packets from flows through Links to another Host.
  * 
  * @author Kangqiao Lei, Eric Nguyen
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef HOST_H
@@ -28,7 +28,6 @@ class host : public node {
 		// The constructor creates the host, initially unconnected and without flows.
 		host(std::string name): node(name){};
 		
-		int addLink(link *l);
 		// Add a flow for the Host
 		int addFlow(flow *f);
 		

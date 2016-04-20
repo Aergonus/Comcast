@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef PACKET_H
@@ -42,16 +42,29 @@ class packet{
 class data_pak : public packet{
 	private:
 		int seqNum; //The sequence number of the packet.
+		flow *pFlow;//parent flow 
+		
+	public: 
+		data_pak(node *src, node *dst, packet_type type, int killswitch, ...
+			int size, int seqNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum);
+		
+		flow* getFlow(){return pFlow;};
+		//returns the sequence number of the packet
+        int getSeqNum(){return seqNum;};
+        //returns the ack number of the packet
+        int getAckNum(){return seqNum+size;};
+}
+
+class ack_pak : public packet{
+	private:
 		int ackNum; //The acknowledgement number of the packet. 
 		flow *pFlow;//parent flow 
 		
 	public: 
 		data_pak(node *src, node *dst, packet_type type, int killswitch, ...
-			int size, int seqNum, int ackNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum), ackNum(ackNum);
+			int size, int ackNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), ackNum(ackNum);
 		
 		flow* getFlow(){return pFlow;};
-		//returns the sequence number of the packet
-        int getSeqNum(){return seqNum;};
         //returns the ack number of the packet
         int getAckNum(){return ackNum;};
 }

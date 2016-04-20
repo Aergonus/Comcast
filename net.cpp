@@ -4,10 +4,11 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #include "net.h"
+#include "event_start_flow.h"
 
 net::net(){
 	time = 0;
@@ -180,7 +181,7 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 }
 
 // TODO: Add TCP param and alter addFlow accordingly
-int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, float start_time){
+int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, float start_time, TCP_type tcp_enum){
 	// Check if there exists a flow with this id already
 	if (!flowExists(id)){
 		// Check if both IDs are valid nodes
@@ -190,7 +191,7 @@ int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, 
 			dst = nodes[node_dst];
 		
 			//TODO: Implement TCP Algo
-			flows[id] = flow(id, src, dst, data_size, start_time);
+			flows[id] = flow(id, src, dst, data_size, start_time, tcp_enum);
 			nflows++;
 		
 			// Update relations
@@ -198,7 +199,7 @@ int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, 
 			dst.addFlow(flows[id]);
 			
 			// TODO: Create initial events
-			event_startFlow *flowStart = new flowStart(start_time, *this, flows[id]);
+			event_start_flow *flowStart = new flowStart(start_time, *this, flows[id]);
 			// for TCP protocols update windows and other various events. Case statement here
 
 		} else if(!nodeExists(node_src)){

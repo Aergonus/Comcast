@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef LINK_H
@@ -15,10 +15,10 @@
 #include <queue>
 #include <utility>
 
-#include "node.h"
 #include "util.h"
 
 // Forward Declaration
+class node;
 //class host;
 class packet;
 class net;

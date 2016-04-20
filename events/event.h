@@ -4,7 +4,7 @@
  * Purpose: Barebones Base Event Object
  * 
  * @author Kangqiao Lei
- * @version 0.1.5 04/05/16
+ * @version 0.2.0 04/19/16
  */
 
 #ifndef EVENT_H
