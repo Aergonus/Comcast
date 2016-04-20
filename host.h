@@ -4,7 +4,7 @@
  * Purpose: Hosts represent access points.
  * They send packets from flows through Links to another Host.
  * 
- * @author Kangqiao Lei, Eric Nguyen
+ * @author Jaeryung Song, Kangqiao Lei, Eric Nguyen
  * @version 0.2.0 04/19/16
  */
 
@@ -35,6 +35,7 @@ class host : public node {
 		// Called by the Flow and the TLA
 		//virtual bool send_Pak(packet);
 		
+		// Receives incoming packet
 		virtual int receive_packet(packet *p);
 };
 #endif
