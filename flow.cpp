@@ -10,6 +10,7 @@
 #include <queue>
 #include <math.h>
 #include <limits.h>
+#include <utility>
 #include "flow.h"
 #include "packet.h"
 #include "event_TO.h"
@@ -73,6 +74,16 @@ void start_Flow(){
 void receive_Pak(packet *p){
 	if(p->type == DATA){
 	// Receiver
+		if (ackStack.empty()) {
+			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
+		} else if(p->getSeqNum() == ackStack.top().second) {
+			ackStack.pop();
+			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
+		} else if(p->getSeqNum() > ackStack.top().second) {
+			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
+		}
+			
+	//TODO: Selective repeat? sliding window? USE ACKSTACK
 		// Would have to add 500ms timeout if waiting to send delayed acks
 		if(p->getSeqNum() > expectedSeq) {
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
@@ -82,13 +93,14 @@ void receive_Pak(packet *p){
 			}
 		} else {
 			send_Pak(p->getAckNum(), ACK_PACKET_SIZE, src, ACK);
-			expectedSeq += p->getSize;
+			assert(expectedSeq + p->getSize == p->getAckNum());
+			expectedSeq = p->getAckNum();
 			if(gapDetected && expectedSeq >= maxGapSeq) {
 				gapDetected = false;
 			}
 		}
 	} else if (p->type == ACK) {
-	// Transmitter //TODO: Selective repeat? sliding window? USE ACKSTACK
+	// Transmitter
 		// Tell TCP that ack received
 		if(p->getAckNum() > sendBase) {
 			sendBase = p->getAckNum();
