@@ -8,9 +8,11 @@
  */
 
 #include <queue>
+#include <math.h>
 #include <limits.h>
 #include "flow.h"
 #include "packet.h"
+#include "event_TO.h"
 #include "util.h"
 
 int calcPakSize(int currSeq){
@@ -31,10 +33,16 @@ packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 }
 
 void send_All_Paks(){
+	if (timedAck = -1) {
+		// pak about to be sent, get the ack #, nseq#+pakSize, set nextseq
 	while(((nextSeq - sendBase)/FLOW_PACKET_SIZE) < CWND && !noflow()) {
 		int pakSize = calcPakSize(nextSeq);
 		send_Pak(nextSeq, pakSize, dst, DATA);
 		nextSeq += pakSize;
+		if (timedAck = -1) {
+			timedAck = nextSeq;
+			// record time
+		}
 		dupAcks = 1;
 	}
 }
@@ -49,6 +57,7 @@ void start_Flow(){
 	CWND = 1;
 	ssThresh = INT_MAX;
 	
+	timedAck = -1;
 	estRTT = 1;
 	devRTT = 1;
 	sampRTT = 1;
@@ -58,7 +67,9 @@ void start_Flow(){
 	int pakSize = calcPakSize(nextSeq);
 	send_Pak(nextSeq, pakSize, dst, DATA);
 	nextSeq += pakSize;
-	ackStack.push(nextSeq);
+	timedAck = nextSeq;
+	recordTime = time;
+	tcpTO = new event_TO(TO,&this);
 }
 
 void receive_Pak(packet *p){
@@ -79,10 +90,19 @@ void receive_Pak(packet *p){
 			}
 		}
 	} else if (p->type == ACK) {
-	// Transmitter
+	// Transmitter //TODO: Selective repeat? sliding window? USE ACKSTACK
 		// Tell TCP that ack received
 		if(p->getAckNum() > sendBase) {
 			sendBase = p->getAckNum();
+			if (sendBase >= timedAck) {
+				sampRTT = recordTime - timedAck;
+				estRTT = (1-ALPHA_TIMEOUT) * estRTT + ALPHA_TIMEOUT * sampRTT;
+				devRTT = (1-BETA_TIMEOUT) * devRTT + BETA_TIMEOUT * abs(sampRTT - estRTT);
+				TO = estRTT + 4 * devRTT;
+				tcpTO->invalidate();
+				tcpTO = new event_TO(TO,&this);
+				timedAck = -1;
+			}
 			if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
 				if (sendBase == nextSeq - gotAcks*FLOW_PACKET_SIZE) {
@@ -103,7 +123,7 @@ void receive_Pak(packet *p){
 				//TCP fast retransmit
 				ssThresh = tcp.tripSS(CWND);
 				CWND = tcp.tripCWND(CWND);
-				send_All_Paks();
+				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
 			} else {
 				CWND = tcp.fastCWND(CWND);
 				send_All_Paks();
@@ -115,10 +135,10 @@ void receive_Pak(packet *p){
 	delete p;
 }
 
-// if timer timeout retransmit not-yet-acked seg with smalles seq #, make new timeout event
-
-// If loss, set ssThresh to CWND/2
-// TCP
-// If CWND >= ssThresh, then no longer slow start but congestion avoidance
-// Increment cwnd for ack, and check to send packet if not ignoring
-// 
+void flow_Timeout() {
+	ssThresh = CWND/2;
+	CWND = 1;
+	dupAcks = 0;
+	tcpTO = new event_TO(TO,&this);
+	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
+}

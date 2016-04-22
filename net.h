@@ -26,11 +26,13 @@ class flow;
 #include "event.h"
 #include "util.h"
 
+float time;
+
 class net {
 	private:
 	int nflows;
 	bool fiveever; // 5ever? or is there a stop time
-	float time, endtime;
+	float endtime;
 	
 	std::priority_queue<event, vector<event>, compareEvents> events;
 	std::vector<host *> hosts; 
@@ -42,7 +44,7 @@ class net {
 	net();
 	~net();
 	
-	float getTime(){return time;};
+	//float getTime(){return time;};
 	float setTime(float ntime){return time = ntime;};
 	float getEnd(float stop){return endtime;};
 	float setEnd(float stop){fiveever = true; return endtime = stop;};

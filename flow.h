@@ -18,6 +18,7 @@
 #include "util.h"
 
 class node;
+class event;
 
 class flow {
 	friend class packet;
@@ -47,7 +48,8 @@ class flow {
 		int CWND, ssThresh, gotAcks;
 		
 		// TimeOut Calculations
-		float estRTT, devRTT, sampRTT, TO;
+		int timedAck;
+		float recordTime, estRTT, devRTT, sampRTT, TO;
 		event *tcpTO;
 		
 		int calcPakSize();
@@ -74,6 +76,7 @@ class flow {
 	
 	
 	void start_Flow();
+	void flow_Timeout();
 	packet* send_Pak();
 	packet* recieve_Pak();
 	bool noflow(){return nextSeq >= size;};

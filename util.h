@@ -12,6 +12,7 @@
 #define UTIL_H
 
 // External Variables 
+extern float time;
 extern bool debug;
 extern ostream &debugSS;
 extern ostream &errorSS;
@@ -41,6 +42,12 @@ static const long ACK_PACKET_SIZE = 64;
 
 /** Size of a routing packet in bytes. */
 static const long ROUTING_PACKET_SIZE = 64;
+
+/** Size of a flow packet in bytes. */
+static const float ALPHA_TIMEOUT = .125;
+
+/** Size of a flow packet in bytes. */
+static const float BETA_TIMEOUT = .25;
 
 /** Conversion factor between bits and bytes. */
 const int BITS_PER_BYTE = 1 << 3;
