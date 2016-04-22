@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.1.8 04/21/16
+ * @version 0.2.0 04/21/16
  */
 
 #include <queue>
@@ -17,7 +17,7 @@
 #include "util.h"
 
 int calcPakSize(int currSeq){
-	int nPakSize = (size - currSeq <= FLOW_PACKET_SIZE) ? (size - currSeq) : FLOW_PACKET_SIZE;
+	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
 	return nPakSize;
 }
 
@@ -35,7 +35,7 @@ packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 
 void send_All_Paks(){
 	if (timedAck = -1) {
-	while(((nextSeq - sendBase)/FLOW_PACKET_SIZE) < CWND && !noflow()) {
+	while(((nextSeq - sendBase)/MAX_SEG_SIZE) < CWND && !noflow()) {
 		int pakSize = calcPakSize(nextSeq);
 		send_Pak(nextSeq, pakSize, dst, DATA);
 		nextSeq += pakSize;
@@ -110,7 +110,7 @@ void receive_Pak(packet *p){
 			}
 			if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
-				if (sendBase == nextSeq - gotAcks*FLOW_PACKET_SIZE) {
+				if (sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
 					CWND = tcp.probeCWND(CWND);
 					gotAcks = -1;
 				}

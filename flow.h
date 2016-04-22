@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.1.8 04/21/16
+ * @version 0.2.0 04/21/16
  */
 
 #ifndef FLOW_H

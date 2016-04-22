@@ -5,7 +5,7 @@
  * for constants used in the simulation
  * 
  * @author Kangqiao Lei
- * @version 0.1.8 04/21/16
+ * @version 0.2.0 04/21/16
  */
  
 #ifndef UTIL_H
@@ -34,8 +34,8 @@ enum TCP_type {
 /** Default Max No of hops for Packets */
 static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
 
-/** Size of a flow packet in bytes. */
-static const long FLOW_PACKET_SIZE = 512;
+/** Size of a flow packet MSS in bytes. */
+static const long MAX_SEG_SIZE = 512;
 
 /** Size of an ACK packet in bytes. */
 static const long ACK_PACKET_SIZE = 64;
