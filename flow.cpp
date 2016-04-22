@@ -74,35 +74,25 @@ void start_Flow(){
 void receive_Pak(packet *p){
 	if(p->type == DATA){
 	// Receiver
+		// Would have to add 500ms timeout if waiting to send delayed acks
 		if (ackStack.empty()) {
 			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
-		} else if(ackStack.find(p->getSeqNum()) != ackStack.end()) {
+		} else if(ackStack.find(p->getSeqNum()) == ackStack.begin()->second) {
 			ackStack.pop();
-			std::pair<int,int> tempAck = make_pair(p->getSeqNum(),p->getAckNum());
-			ackStack.push(tempAck);
-			while (ackStack.find(tempAck.second) != ackStack.end()) {
-				
-				
+			std::map<int,int>::iterator it;
+			ackStack[p->getSeqNum()] = p->getAckNum();
+			it = ackStack.find(p->getSeqNum());
+			while (ackStack.find(it->second) != ackStack.end()) {
+				int nAck = it->second;
+				ackStack.erase(it);
+				it = ackStack.find(nAck);
 			}
-		} else if(p->getSeqNum() > ackStack.top().second) {
-			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
-		}
-			
-	//TODO: Selective repeat? sliding window? USE ACKSTACK
-		// Would have to add 500ms timeout if waiting to send delayed acks
-		if(p->getSeqNum() > expectedSeq) {
+			expectedSeq = it->second;
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
-			if(!gapDetected) {
-				gapDectected = true;
-				maxGapSeq = p->getAckNum();
-			}
-		} else {
-			send_Pak(p->getAckNum(), ACK_PACKET_SIZE, src, ACK);
-			assert(expectedSeq + p->getSize == p->getAckNum());
-			expectedSeq = p->getAckNum();
-			if(gapDetected && expectedSeq >= maxGapSeq) {
-				gapDetected = false;
-			}
+		} else if(ackStack.find(p->getSeqNum()) > ackStack.begin()->second) {
+			// Gap Detected
+			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
+			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
 		}
 	} else if (p->type == ACK) {
 	// Transmitter

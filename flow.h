@@ -10,7 +10,7 @@
 #ifndef FLOW_H
 #define FLOW_H
 
-#include <set>
+#include <map>
 #include <cctype>
 #include <string>
 #include <algorithm>
@@ -36,13 +36,9 @@ class flow {
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
-		std::set<std::pair<int,int>> ackStack; // Really AckVec or AckList, but it rhymes
+		std::map<std::pair<int,int>> ackStack; // Really AckVec or AckList, but it rhymes
 		// Receiver
-		bool gapDetected;
-		int maxGapSeq, expectedSeq; // Currently implemented Go-Back-N 
-		
-		// Fun project: Code Sliding Window selective-repeat
-		// If smart application create dataGap with <expectedSeq, maxReceivedSeq> => recieve part of gap in middle! <expectedSeq, receivedSeq> <receivedSeq+size,maxRecceivedSeq>. 
+		int expectedSeq;
 		
 		// Congestion Control
 		int CWND, ssThresh, gotAcks;
