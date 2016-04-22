@@ -13,15 +13,12 @@
 #include "event.h"
 #include "flow.h"
 
-// Forward Declaration
-class net;
-
 class event_start_flow : public event {
 	private:
 	flow *f;
 	
 	public:
-	event(float time, net *Network, flow *f):start(time), sim(Network), f(f);
+	event_start_flow(float time, flow *f):event(time), f(f);
 	
 	void handle_event(){
 		f->start_flow();
