@@ -12,7 +12,7 @@
 #define UTIL_H
 
 // External Variables 
-extern float time;
+extern float simtime;
 extern bool debug;
 extern ostream *debugSS;
 extern ostream *errorSS;
