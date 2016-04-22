@@ -13,9 +13,10 @@
 // External Variables 
 extern float simtime;
 extern bool debug;
-extern std::ostream &debugSS;
-extern std::ostream &errorSS;
-extern std::ostream &outputSS;
+
+extern std::ostream *debugSS;
+extern std::ostream *errorSS;
+extern std::ostream *outputSS;
 
 /** Types of packets in this simulation. */
 enum packet_type {
