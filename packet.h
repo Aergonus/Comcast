@@ -10,21 +10,22 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include "util.h"
-
 class node;
 
 class packet{
+    friend class flow;
     private:
         node *src;//sender of the packet(same as the sender of the flow)
         node *dst;//dstination of the packet (same as the dstination of the flow)
 		packet_type type; // ENUM
-		int size; //size of the packet. Unit: bits
 		int ks;
+
+    protected:	
+                int size; //size of the packet. Unit: bits
     public:
         //constructors
-        packet(node *src, node *dst, packet_type type, int killswitch)...
-			:src(src), dst(dst), type(type), size(size), ks(killswitch);
+        packet(node *src, node *dst, packet_type type, int killswitch)
+			:src(src), dst(dst), type(type), size(size), ks(killswitch){};
 		
         //FUNCTIONS
         //returns the src node pointer
@@ -41,19 +42,18 @@ class packet{
 
 class data_pak : public packet{
 	private:
-		int seqNum; //The sequence number of the packet.
-		flow *pFlow;//parent flow 
+        	int seqNum; //The sequence number of the packet.
+        	flow *pFlow;//parent flow 
 		
 	public: 
-		data_pak(node *src, node *dst, packet_type type, int killswitch, ...
-			int size, int seqNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum);
+		data_pak(node *src, node *dst, packet_type type, int killswitch, int size, int seqNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum){};
 		
 		flow* getFlow(){return pFlow;};
 		//returns the sequence number of the packet
         int getSeqNum(){return seqNum;};
         //returns the ack number of the packet
         int getAckNum(){return seqNum+size;};
-}
+};
 
 class ack_pak : public packet{
 	private:
@@ -61,13 +61,12 @@ class ack_pak : public packet{
 		flow *pFlow;//parent flow 
 		
 	public: 
-		data_pak(node *src, node *dst, packet_type type, int killswitch, ...
-			int size, int ackNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), ackNum(ackNum);
+		data_pak(node *src, node *dst, packet_type type, int killswitch, int size, int ackNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), ackNum(ackNum){};
 		
 		flow* getFlow(){return pFlow;};
         //returns the ack number of the packet
         int getAckNum(){return ackNum;};
-}
+};
 
-//TODO: Routing Packet
+//TODO: Roting Packet
 #endif

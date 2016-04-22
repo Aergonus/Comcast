@@ -16,39 +16,36 @@
 #include <queue>
 
 // Forward declarations.
-class event;
-class host;
-class router;
-class link;
-class flow;
-
-// Custom Libraries
-#include "event.h"
+#include "events/event.h"
 #include "util.h"
+class host;
+class flow;
+class Link;
+class node;
 
-float time;
+float simtime;
 
-class net {
+class net{
 	private:
 	int nflows;
 	bool fiveever; // 5ever? or is there a stop time
 	float endtime;
 	
-	std::priority_queue<event, vector<event>, compareEvents> events;
-	std::vector<host *> hosts; 
-	std::vector<router *> routers; 
-	std::vector<link *> links; 
-	std::vector<flow *> flows; 
-	
+	std::priority_queue<event*, std::vector<event*>, compareEvents> events;
+	std::vector<host*> hosts; 
+	//std::vector<router *> routers; 
+	std::vector<flow*> flows; 
+	std::vector<Link*> links; 
+
 	public: 
 	net();
 	~net();
 	
-	//float getTime(){return time;};
-	float setTime(float ntime){return time = ntime;};
+        float getTime(){return simtime;};
+	float setTime(float ntime){return simtime = ntime;};
 	float getEnd(float stop){return endtime;};
 	float setEnd(float stop){fiveever = true; return endtime = stop;};
-	bool isEnd(float stop){return (fiveever && time > endtime);};
+	bool isEnd(float stop){return (fiveever && simtime > endtime);};
 	
 	bool nodeExists(std::string id);
 	bool hostExists(std::string id);
@@ -58,8 +55,8 @@ class net {
 	
 	node* getNode(std::string id);
 	host* getHost(std::string id);
-	router* getRouter(std::string id);
-	link* getLink(std::string id);
+	//router* getRouter(std::string id);
+	Link* getLink(std::string id);
 	flow* getFlow(std::string id);
 	
 	int addHost(std::string id);
@@ -68,9 +65,11 @@ class net {
 	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum);
 	
 	int flowFinished();
-	int addEvent(event e);
+	int addEvent(event*);
 	int run();
 	
 	void print();
 };
+
+
 #endif

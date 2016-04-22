@@ -13,25 +13,24 @@
 #include <vector>
 #include <string>
 #include "util.h"
+#include "packet.h"
 
 class link;
-class packet;
 
 class node {
 	private:
 		std::string name;
-		std::vector<link *> links; 
+		std::vector<link*> links; 
 
 	public: 
 		// Constructor
 		node(const std::string name):name(name){};
 		
-		std::string getName(){return name;} // Gets address of the node
-		int addLink(link *l); // Add link to the node
-		std::vector<link *> getLinks(){return links;}; // Gets list of links connected to the node
-		virtual int receive_packet(packet *p) = 0;
-		node* getConnectedNode(link *connection); // Gets the link connected to the given node
-		
+		std::string getName(){return name;}; // Gets address of the node
+		int addLink(link*); // Add link to the node
+		std::vector<link*> getLinks(){return links;}; // Gets list of links connected to the node
+		virtual int receive_packet(packet*) = 0;
+		node* getConnectedNode(link*); // Gets the link connected to the given node
 		void print();
 };
 #endif

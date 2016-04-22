@@ -23,13 +23,13 @@ class event {
 	virtual void handle_event();
 	bool isValid(){return valid;};
 	bool invaldiate(){return valid = false;}
-	float getStart(){return start;};
-	float setStart(float stime){return start = stime;};
+	float get_start(){return start;};
+	float set_start(float stime){return start = stime;};
 };
 
 // Sorting rule for the event* priority queue 
 struct compareEvents {
-  bool operator() (Event * eventA, Event * eventB) {
+  bool operator() (event * eventA, event * eventB) {
     return eventA->get_start() > eventB->get_start();
   }
 };

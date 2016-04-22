@@ -11,7 +11,7 @@
 #include "event_start_flow.h"
 
 net::net(){
-	time = 0;
+	global_time = 0;
 	fiveever = false;
 }
 
@@ -42,7 +42,7 @@ bool operator == (const &node a, const &node b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const &link a, const &link b){
+bool operator == (const &Link a, const &Link b){
     return (a.getID() == b.getID());
 }
 
@@ -77,9 +77,9 @@ router* getRouter(std::string id){
     return &(*itr);
 }
 
-link* getLink(std::string id){
-    std::vector<link>::iterator itr = std::find(links.begin(), links.end(), link(id));
-    if (itr == link.end()){
+Link* getLink(std::string id){
+    std::vector<Link*>::iterator itr = std::find(links.begin(), links.end(), Link(id));
+    if (itr == links.end()){
         return NULL;
     }
     return &(*itr);
@@ -160,7 +160,7 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 			node *n1 = nodes[node_id1];
 			node *n2 = nodes[node_id2];
 		
-			links[id] = link(id, n1, n2, rate, delay, buffer);
+			links[id] = Link(id, n1, n2, rate, delay, buffer);
 		
 			// Update relations
 			n1->addLink(links[id]);
@@ -181,7 +181,7 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 }
 
 // TODO: Add TCP param and alter addFlow accordingly
-int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, float start_time, TCP_type tcp_enum){
+int net::addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum){
 	// Check if there exists a flow with this id already
 	if (!flowExists(id)){
 		// Check if both IDs are valid nodes

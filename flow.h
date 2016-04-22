@@ -26,17 +26,17 @@ class flow {
 	private:
         node* src;
         node* dst;
-        std::string name;
+        std::string id;
         int size;
 		float start;
 		
 		// TCP Parameters
 		TCP_type mode;
-		TCP algo;
+		TCP *algo;
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
-		std::map<std::pair<int,int>> ackStack; // Really AckVec or AckList, but it rhymes
+		std::map<int,int> ackStack; // Really AckVec or AckList, but it rhymes
 		// Receiver
 		int expectedSeq;
 		
@@ -52,8 +52,8 @@ class flow {
 		
     public:
     //Constructors
-    flow(std::string id, node src, node dst, int flowSize, float startTime, TCP_type tcp)...
-	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
+    flow(std::string id, node *src, node *dst, int flowSize, float startTime, TCP_type tcp)
+	: id(id), src(src), dst(dst), size(flowSize), start(startTime), mode(tcp){
 		if (mode == TAHOE) {
 			algo = new TAHOE_TCP();
 		} else if (mode == RENO) {
@@ -66,7 +66,7 @@ class flow {
     //function to obtain the destination of the flow
     node* getDst(){return dst;};
     //function to obtain the id of the flow
-    string getID(){return id;};
+    std::string getID(){return id;};
     //function to obtain the size of the flow
     int getSize(){return size;};
 	

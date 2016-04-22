@@ -14,7 +14,7 @@
 #include "flow.h" // Included because we call one of flow's functions
 
 // Initialize and link the host to the network as an endpoint
-void host::addLink(link* l){
+void host::addLink(Link* l){
 	// Hosts should only have one connection
 	assert(links.empty());
 	links.push_back(l);
@@ -31,6 +31,10 @@ int host::receive_pak(packet* p){
     assert(!itr == flows.end());
 	(*itr)->receive_pak(p);
 	return 0;
+}
+
+Link* getLink(){
+  return l;
 }
 
 node* getConnectedNode(link *connection){

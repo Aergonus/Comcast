@@ -16,21 +16,21 @@
 #include "node.h"
 #include "util.h"
 
-class link;
+class Link;
 class flow;
 class packet;
 
 class host : public node {
 	 private: 
 		std::vector<flow *> flows; 
-
+                Link* l;
 	 public: 
 		// The constructor creates the host, initially unconnected and without flows.
 		host(std::string name): node(name){};
 		
 		// Add a flow for the Host
 		int addFlow(flow *f);
-		
+		Link* getLink();
 		// Sends a packet into the network via the host's link
 		// Called by the Flow and the TLA
 		//virtual bool send_Pak(packet);

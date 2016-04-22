@@ -15,15 +15,14 @@
 #include <queue>
 #include <utility>
 
-#include "util.h"
 
 // Forward Declaration
 class node;
-//class host;
+class host;
 class packet;
 class net;
 
-class link {
+class Link{
 	private:
 		std::string name;
 		// Node 1 and Node 2 endpoints of link
@@ -43,8 +42,7 @@ class link {
 
 	public:
 		// CONSTRUCTOR
-		link(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim)...
-			:name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
+		Rink(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim): name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
 		
 		// FUNCTIONS
 
@@ -62,6 +60,6 @@ class link {
 		void send_pak();
 
 		//DEBUG/LOGGING FUNCTIONS
-		void print(){};
+		void print();
 };
 #endif

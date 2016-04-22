@@ -23,13 +23,13 @@ int calcPakSize(int currSeq){
 
 packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 	packet p*;
-	node *pakDst = (n == src) ? dst : src;
+	node *pakDst = dst;
 	if (ptype == DATA) {
 		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
 	} else if (ptype == ACK {
 		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
 	}
-	link->receive_pak(p, n);
+	src->getLink()->receive_pak(p, packDst);
 	return p;
 }
 

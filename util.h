@@ -10,13 +10,12 @@
  
 #ifndef UTIL_H
 #define UTIL_H
-
 // External Variables 
-extern float time;
+extern float simtime;
 extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-extern ostream &outputSS;
+extern std::ostream &debugSS;
+extern std::ostream &errorSS;
+extern std::ostream &outputSS;
 
 /** Types of packets in this simulation. */
 enum packet_type {
