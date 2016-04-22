@@ -22,12 +22,6 @@ class router;
 class link;
 class flow;
 
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-extern ostream &outputSS;
-
 // Custom Libraries
 #include "event.h"
 #include "util.h"

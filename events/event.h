@@ -13,11 +13,6 @@
 // Forward Declaration
 class net;
 
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
 class event {
 	private:
 	float start;

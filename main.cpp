@@ -36,26 +36,26 @@ int parseInputs(net &Network, string inputFile) {
 	using namespace rapidjson;
 	Document root; // root is a JSON value represents the root of DOM.
 #ifndef NDEBUG
-    printf("Parse a JSON file to document root.\n");
+    debugSS << "Parse a JSON file to document root." << endl;
 #endif
 	
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
 	if (input!=NULL) {
 		char readBuffer[65536];
 		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
-		printf("Original JSON:\n %s\n", json);
+		debugSS << "Original JSON:\n" << json << endl;
 		if (root.ParseStream(json).HasParseError()) {
-			fprintf(stderr, "\nError(offset %u): %s\n", 
+			fprintf(errorSS, "\nError(offset %u): %s\n", 
 				(unsigned)root.GetErrorOffset(),
 				GetParseError_En(root.GetParseError()));
 			return 1;
 		}
 	} else {
-		cout << "Unable to open file " << inputFile << endl; 
+		errorSS << "Unable to open file " << inputFile << endl; 
 		return -1;
 	}
 #ifndef NDEBUG
-    printf("Parsing to root succeeded.\n");
+    debugSS "Parsing to root succeeded." << endl;
 #endif
 
     assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
@@ -65,7 +65,7 @@ int parseInputs(net &Network, string inputFile) {
 	assert(endtime >= 0);
 	Network.setEnd(endtime);
 #ifndef NDEBUG
-    printf("Set end time of simulator: %f.\n", endtime);
+    debugSS << "Set end time of simulator: " << endtime << endl;
 #endif	
 	
     {
@@ -76,12 +76,12 @@ int parseInputs(net &Network, string inputFile) {
         for (Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
-			printf("Added Host %s\n", itr->GetString());
+			debugSS << "Added Host " << itr->GetString() << endl;;
 #endif
 		}
     }
 #ifndef NDEBUG
-    printf("Finished Adding Hosts.\n");
+    debugSS << "Finished Adding Hosts." << endl;
 #endif	
 
     {
@@ -92,12 +92,12 @@ int parseInputs(net &Network, string inputFile) {
         for (Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
-			printf("Added Router %s\n", itr->GetString());
+			debugSS << "Added Router " << itr->GetString() << endl;
 #endif
 		}
     }
 #ifndef NDEBUG
-    printf("Finished Adding Routers.\n");
+    debugSS << "Finished Adding Routers." << endl;
 #endif	
 
 
@@ -112,12 +112,12 @@ int parseInputs(net &Network, string inputFile) {
 			Network.addLink(clink.[id].GetString(), clink.[node_id1].GetString(), clink[node_id2].GetString(), ...
 				(float) clink[rate].GetDouble(), (float) clink[delay].GetDouble(), (float) clink[buffer].GetDouble());
 #ifndef NDEBUG
-			printf("Added Link %s\n", clink.[id].GetString());
+			debugSS <<"Added Link " << clink.[id].GetString() << endl;
 #endif
 		}
     }
 #ifndef NDEBUG
-    printf("Finished Adding Links.\n");
+    debugSS << "Finished Adding Links." << endl;
 #endif	
 
 
@@ -144,12 +144,12 @@ int parseInputs(net &Network, string inputFile) {
 			Network.addFlow(cflow.[id].GetString(), cflow.[node_src].GetString(), cflow[node_dst].GetString(), ...
 				(float) cflow[data_size].GetDouble(), (float) cflow[start_time].GetDouble(), tcp_enum);
 #ifndef NDEBUG
-			printf("Added Flow %s\n", cflow.[id].GetString());
+			debugSS << "Added Flow " << cflow.[id].GetString() << endl;
 #endif
 		}
     }
 #ifndef NDEBUG
-    printf("Finished Adding Flows.\n");
+    debugSS << "Finished Adding Flows." << endl;
 #endif
 	
 	return 0;
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
 	string inputFile, outputFile;
 	
 #ifndef NDEBUG
-    printf("Parsing options if they exist.\n");
+    debugSS << "Parsing options if they exist." << endl;
 #endif
 	while ((c = getopt(argc, argv, "i:o:d")) != -1) {
 		switch (c) {
@@ -175,11 +175,11 @@ int main(int argc, char *argv[]) {
             	debug = true;
             	break;
 			case '?':
-                fprintf(stderr, "Error Invalid option: %c\n", c);
+                fprintf(errorSS, "Error Invalid option: %c\n", c);
                 return -1;
 				break;
             default:
-                fprintf(stderr, "Usage: %s %s", argv[0], usageInfo);
+                fprintf(errorSS, "Usage: %s %s", argv[0], usageInfo);
 		}
 	}
 	if (inputFile.empty()) {
@@ -190,13 +190,13 @@ int main(int argc, char *argv[]) {
 	// Create Network Simulator object 
 	net Network();
 #ifndef NDEBUG
-    printf("Created Network Simulator object.\n");
+    debugSS << "Created Network Simulator object." << endl;
 #endif	
 	
 	// Load JSON Input File
 	parseInputs(&Network, inputFile);
 #ifndef NDEBUG
-    printf("Loaded Network Topology.\n");
+    debugSS << "Loaded Network Topology." << endl;
 #endif
 	
 	Network.run();

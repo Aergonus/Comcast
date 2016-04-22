@@ -16,11 +16,6 @@
 // Forward Declaration
 class net;
 
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
 class event_send_pak : public event {
 	private:
 	link *l;

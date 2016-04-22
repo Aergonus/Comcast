@@ -5,11 +5,17 @@
  * for constants used in the simulation
  * 
  * @author Kangqiao Lei
- * @version 0.1.7.5 04/19/16
+ * @version 0.1.8 04/21/16
  */
  
 #ifndef UTIL_H
 #define UTIL_H
+
+// External Variables 
+extern bool debug;
+extern ostream &debugSS;
+extern ostream &errorSS;
+extern ostream &outputSS;
 
 /** Types of packets in this simulation. */
 enum packet_type {

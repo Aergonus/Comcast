@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.1.7.5 04/19/16
+ * @version 0.1.8 04/21/16
  */
 
 #ifndef FLOW_H
@@ -31,7 +31,7 @@ class flow {
 		
 		// TCP Parameters
 		TCP_type mode;
-		
+		TCP algo;
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
@@ -44,7 +44,7 @@ class flow {
 		// If smart application create dataGap with <expectedSeq, maxReceivedSeq> => recieve part of gap in middle! <expectedSeq, receivedSeq> <receivedSeq+size,maxRecceivedSeq>. 
 		
 		// Congestion Control
-		int CWND, ssThresh;
+		int CWND, ssThresh, gotAcks;
 		
 		// TimeOut Calculations
 		float estRTT, devRTT, sampRTT, TO;
@@ -57,9 +57,9 @@ class flow {
     flow(std::string id, node src, node dst, int flowSize, float startTime, TCP_type tcp)...
 	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
 		if (mode == TAHOE) {
-			// init tcp obj
+			algo = new TAHOE_TCP();
 		} else if (mode == RENO) {
-			// init tcp obj
+			algo = new RENO_TCP();
 		}
 	};
 
@@ -76,6 +76,7 @@ class flow {
 	void start_Flow();
 	packet* send_Pak();
 	packet* recieve_Pak();
+	bool noflow(){return nextSeq >= size;};
 	void nolove();
 	
 };

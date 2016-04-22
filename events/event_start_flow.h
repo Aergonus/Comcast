@@ -11,17 +11,17 @@
 #define EVENT_START_FLOW_H
 
 #include "event.h"
-#include "link.h"
+#include "flow.h"
 
 // Forward Declaration
 class net;
 
 class event_start_flow : public event {
 	private:
-	link *f;
+	flow *f;
 	
 	public:
-	event(float time, net *Network, link *l):start(time), sim(Network), l(l);
+	event(float time, net *Network, flow *f):start(time), sim(Network), f(f);
 	
 	void handle_event(){
 		f->start_flow();
