@@ -11,21 +11,20 @@
 #define PACKET_H
 
 class node;
+class flow;
 
 class packet{
-    friend class flow;
     private:
         node *src;//sender of the packet(same as the sender of the flow)
         node *dst;//dstination of the packet (same as the dstination of the flow)
-		packet_type type; // ENUM
-		int ks;
+	packet_type type; // ENUM
+	int ks;
 
     protected:	
-                int size; //size of the packet. Unit: bits
+        int size; //size of the packet. Unit: bits
     public:
         //constructors
-        packet(node *src, node *dst, packet_type type, int killswitch)
-			:src(src), dst(dst), type(type), size(size), ks(killswitch){};
+        packet(node *src, node *dst, packet_type type, int killswitch): src(src), dst(dst), type(type), size(size), ks(killswitch){};
 		
         //FUNCTIONS
         //returns the src node pointer
@@ -46,8 +45,7 @@ class data_pak : public packet{
         	flow *pFlow;//parent flow 
 		
 	public: 
-		data_pak(node *src, node *dst, packet_type type, int killswitch, int size, int seqNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum){};
-		
+        	data_pak(node *src, node *dst, packet_type type, int killswitch, int size, int seqNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), seqNum(seqNum){};
 		flow* getFlow(){return pFlow;};
 		//returns the sequence number of the packet
         int getSeqNum(){return seqNum;};
@@ -62,7 +60,6 @@ class ack_pak : public packet{
 		
 	public: 
 		data_pak(node *src, node *dst, packet_type type, int killswitch, int size, int ackNum, flow *f) : packet(src, dst, type, killswitch), pFlow(f), ackNum(ackNum){};
-		
 		flow* getFlow(){return pFlow;};
         //returns the ack number of the packet
         int getAckNum(){return ackNum;};

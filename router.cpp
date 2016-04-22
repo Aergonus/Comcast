@@ -9,35 +9,35 @@
  
 #include <iostream>
 #include <algorithm>
-#include "host.h"
+#include "router.h"
 //#include "link.h"
-#include "flow.h" // Included because we call one of flow's functions
+#include "flow.h"// Included because we call one of flow's functions
 
 // Initialize and link the host to the network as an endpoint
-void host::addLink(Link* l){
+void router::addLink(Link* l){
 	// Hosts should only have one connection
 	assert(links.empty());
 	links.push_back(l);
 }
 
-void host::addFlow(flow* f){
+void router::addFlow(flow* f){
 	flows.push_back(f);
 }
 
 // Upon receive_packet event, process and send to associated flow
-int host::receive_packet(packet* p){
+int router::receive_packet(packet* p){
 	// Add check if packet is routing, drop
     std::vector<flow *>::iterator itr = std::find(flows.begin(), flows.end(), p->getFlow());
     assert(!itr == flows.end());
-	(*itr)->receive_packet(p);
+	(*itr)->receive_pak(p);
 	return 0;
 }
 
-Link* host::getLink(){
+Link* router::getLink(){
   return l;
 }
 
-node* host::getConnectedNode(Link *connection){
+node* router::getConnectedNode(Link *connection){
 	return connection->getOtherNode(&this);
 }
 

@@ -18,7 +18,9 @@
 // Forward declarations.
 #include "events/event.h"
 #include "util.h"
-class host;
+#include "host.h"
+#include "router"
+
 class flow;
 class Link;
 class node;
@@ -33,13 +35,13 @@ class net{
 	
 	std::priority_queue<event*, std::vector<event*>, compareEvents> events;
 	std::vector<host*> hosts; 
-	//std::vector<router *> routers; 
+	std::vector<router *> routers; 
 	std::vector<flow*> flows; 
 	std::vector<Link*> links; 
 
 	public: 
-	net();
-	~net();
+        net();
+        ~net();
 	
         float getTime(){return simtime;};
 	float setTime(float ntime){return simtime = ntime;};
@@ -55,7 +57,7 @@ class net{
 	
 	node* getNode(std::string id);
 	host* getHost(std::string id);
-	//router* getRouter(std::string id);
+	router* getRouter(std::string id);
 	Link* getLink(std::string id);
 	flow* getFlow(std::string id);
 	

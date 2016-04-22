@@ -8,10 +8,9 @@
  */
 
 #include "net.h"
-#include "event_start_flow.h"
 
 net::net(){
-	global_time = 0;
+	simtime = 0;
 	fiveever = false;
 }
 
@@ -38,19 +37,19 @@ net::~net(){
 
 //Overloading  == operators
 //Return true if two objects have same id
-bool operator == (const &node a, const &node b){
+bool operator == (const node &a, const node &b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const &Link a, const &Link b){
+bool operator == (const Link &a, const Link &b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const &flow a, const &flow b){
+bool operator == (const flow &a, const flow &b){
     return (a.getID() == b.getID());
 }
 
-node* getNode(std::string id){
+node* net::getNode(std::string id){
     if (hostExists(id)){
         return getHost(id);
     }
@@ -61,7 +60,7 @@ node* getNode(std::string id){
         return NULL;
 }
 
-host* getHost(std::string id){
+host* net::getHost(std::string id){
     std::vector<host>::iterator itr = std::find(hosts.begin(), hosts.end(), host(id)) 
     if (itr == hosts.end()){
         return NULL;
@@ -69,7 +68,7 @@ host* getHost(std::string id){
     return &(*itr);
 }
 
-router* getRouter(std::string id){
+router* net::getRouter(std::string id){
     std::vector<router>::iterator itr = std::find(routers.begin(), routers.end(), router(id));
     if (itr == routers.end()){
         return NULL;
@@ -77,7 +76,7 @@ router* getRouter(std::string id){
     return &(*itr);
 }
 
-Link* getLink(std::string id){
+Link* net::getLink(std::string id){
     std::vector<Link*>::iterator itr = std::find(links.begin(), links.end(), Link(id));
     if (itr == links.end()){
         return NULL;
@@ -85,7 +84,7 @@ Link* getLink(std::string id){
     return &(*itr);
 }
 
-flow* getFlow(std::string id){
+flow* net::getFlow(std::string id){
     std::vector<flow>::iterator itr = std::find(flows.begin(), flows.end(), flow(id));
     if (itr == flows.end()){
         return NULL;
@@ -93,23 +92,23 @@ flow* getFlow(std::string id){
     return &(*itr);
 }
 
-bool nodeExists(std::string id){
+bool net::nodeExists(std::string id){
     return (getNode(id) != NULL);    
 }
 
-bool hostExists(std::string id){
+bool net::hostExists(std::string id){
     return (getHost(id) != NULL);    
 }
 
-bool routerExists(std::string id){
+bool net::routerExists(std::string id){
     return (getRouter(id) != NULL);
 }
 
-bool linkExists(std::string id){
+bool net::linkExists(std::string id){
     return (getLink(id) !=NULL);
 }
 
-bool flowExists(std::string id){
+bool net::flowExists(std::string id){
     return (getFlow(id) != NULL);
 }
 

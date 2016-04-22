@@ -22,6 +22,7 @@
 #include "rapidjson/writer.h"
 
 #include "net.h"
+#include "util.h"
 #include "tcp.h"
 
 //#include <fstream>
@@ -197,13 +198,13 @@ outputFile = "./output.csv";
 #endif	
 	
 	// Load JSON Input File
-        net *Network = new net();
-	parseInputs(*Network, inputFile);
+        net Network;
+	parseInputs(Network, inputFile);
 #ifndef NDEBUG
     debugSS << "Loaded Network Topology." << std::endl;
 #endif
 	
-	Network->run();
+	Network.run();
 
     return 0;
 }
