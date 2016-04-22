@@ -14,9 +14,9 @@
 // External Variables 
 extern float time;
 extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-extern ostream &outputSS;
+extern ostream *debugSS;
+extern ostream *errorSS;
+extern ostream *outputSS;
 
 /** Types of packets in this simulation. */
 enum packet_type {
