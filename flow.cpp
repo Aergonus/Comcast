@@ -76,9 +76,14 @@ void receive_Pak(packet *p){
 	// Receiver
 		if (ackStack.empty()) {
 			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
-		} else if(p->getSeqNum() == ackStack.top().second) {
+		} else if(ackStack.find(p->getSeqNum()) != ackStack.end()) {
 			ackStack.pop();
-			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
+			std::pair<int,int> tempAck = make_pair(p->getSeqNum(),p->getAckNum());
+			ackStack.push(tempAck);
+			while (ackStack.find(tempAck.second) != ackStack.end()) {
+				
+				
+			}
 		} else if(p->getSeqNum() > ackStack.top().second) {
 			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
 		}

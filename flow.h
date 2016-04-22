@@ -20,12 +20,6 @@
 class node;
 class event;
 
-struct comparePackets {
-  bool operator() (std::pair<int,int> pakA, std::pair<int,int> pakB) {
-	return pakA.first > pakB.first;
-  }
-};
-
 class flow {
 	friend class packet;
 	
@@ -42,7 +36,7 @@ class flow {
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
-		std::priority_queue<std::pair<int,int>, std::vector<std::pair<int,int>>, comparePackets> ackStack; // Really AckVec or AckList, but it rhymes
+		std::set<std::pair<int,int>> ackStack; // Really AckVec or AckList, but it rhymes
 		// Receiver
 		bool gapDetected;
 		int maxGapSeq, expectedSeq; // Currently implemented Go-Back-N 
