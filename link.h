@@ -23,11 +23,6 @@ class node;
 class packet;
 class net;
 
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
 class link {
 	private:
 		std::string name;

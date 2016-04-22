@@ -13,20 +13,12 @@
 #include "event.h"
 #include "link.h"
 
-// Forward Declaration
-class net;
-
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
 class event_send_pak : public event {
 	private:
 	link *l;
 	
 	public:
-	event(float time, net *Network, link *l):start(time), sim(Network), l(l);
+	event_send_pak(float time, link *l):event(time), l(l);
 	
 	void handle_event(){
 		l->send_pak();

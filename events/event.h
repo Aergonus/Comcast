@@ -10,28 +10,21 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-// Forward Declaration
-class net;
-
-// External Variables 
-extern bool debug;
-extern ostream &debugSS;
-extern ostream &errorSS;
-
 class event {
 	private:
 	float start;
-	net* sim;
 	bool valid;
 	
 	public:
-	event(float time, net* Network):start(time), sim(Network) {
+	event(float stime):start(stime) {
 		valid = true;
 	} ;
 	
 	virtual void handle_event();
+	bool isValid(){return valid;};
+	bool invaldiate(){return valid = false;}
 	float getStart(){return start;};
-	float setStart(float delay){start = delay;};
+	float setStart(float stime){return start = stime;};
 };
 
 // Sorting rule for the event* priority queue 
