@@ -26,7 +26,7 @@ class flow;
 #include "event.h"
 #include "util.h"
 
-float time;
+float simtime;
 
 class net {
 	private:
@@ -71,6 +71,7 @@ class net {
 	int addEvent(event e);
 	int run();
 	
-	void print();
+	// debug
+	string print();
 };
 #endif

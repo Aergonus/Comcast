@@ -31,7 +31,13 @@ class link {
 		// Link Rate in bits per second (throughput)
 		float rate;
 		// Link Delay in seconds (propogation)
-		float delay; 
+		float delay;
+		// Time elapsed
+		float time_elapsed;
+		// Last update time
+		float update_time;
+		// Bytes sent
+		float bytes_sent;
 		// Maximum number of bytes allowed
 		int buffer_size;
 		// Current amount of bytes in buffer
@@ -50,6 +56,8 @@ class link {
 
 		//Calculate delay for first packet in queue
 		float calcDelay();
+
+		float currentflowrate();
 		
 		// Pushes packet onto Link Buffer from end node; 
 		// returns TRUE on success; FALSE on full buffer;
@@ -62,6 +70,6 @@ class link {
 		void send_pak();
 
 		//DEBUG/LOGGING FUNCTIONS
-		void print(){};
+		std::string print();
 };
 #endif

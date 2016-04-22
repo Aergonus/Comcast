@@ -21,15 +21,30 @@ int calcPakSize(int currSeq){
 	return nPakSize;
 }
 
+float Flow::flow_rate() {
+	// Time elapsed since last update
+	float time_elapsed = simtime - update_time;
+	// Flow rate is bytes sent over elapsed time (s)
+	flow_rate = bytes_sent/time_elapsed;
+	// Reset the bytes sent and most recent update time
+	bytes_sent = 0;
+	update_time = simtime;
+	return flow_rate;
+}
+
 packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 	packet p*;
-	node *pakDst = (n == src) ? dst : src;
+	//
+	node *pakDst = (pakSrc == src) ? dst : src;
+	//Packet Generation depending on type
 	if (ptype == DATA) {
-		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
+		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);	
 	} else if (ptype == ACK {
 		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
 	}
-	link->receive_pak(p, n);
+	bytes_sent += p->getSize();
+	outputSS << getFlow(&this) << ", " << flow_rate() << ", " << simtime << ", flow_rate" << endl; //record flowrate after packet insertion event 
+	link->receive_pak(p, getConnectedNode(pakSrc));
 	return p;
 }
 
@@ -45,7 +60,7 @@ void send_All_Paks(){
 		}
 		dupAcks = 1;
 	}
-}
+}	
 
 void start_Flow(){
 	gotAcks = 0;
@@ -67,7 +82,7 @@ void start_Flow(){
 	send_Pak(nextSeq, pakSize, dst, DATA);
 	nextSeq += pakSize;
 	timedAck = nextSeq;
-	recordTime = time;
+	recordTime = simtime;
 	tcpTO = new event_TO(TO,&this);
 }
 
@@ -94,6 +109,7 @@ void receive_Pak(packet *p){
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
 			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
 		}
+
 	} else if (p->type == ACK) {
 	// Transmitter
 		// Tell TCP that ack received
@@ -107,6 +123,7 @@ void receive_Pak(packet *p){
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,&this);
 				timedAck = -1;
+				outputSS << getFlow(&this) << ", " << estRTT << ", " << simtime << ", estimated_rtt" << endl; // Estimated RTT
 			}
 			if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
@@ -130,15 +147,28 @@ void receive_Pak(packet *p){
 				ssThresh = tcp.tripSS(CWND);
 				CWND = tcp.tripCWND(CWND);
 				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
-			} else {
-				CWND = tcp.fastCWND(CWND);
+
+				// More than 3 dupAcks go into cwnd increase
+			} else if(dupAcks > 3) {
+				if (CWND >= ssThresh) {
+				// Max Probing/Congestion avoidance
+					if (sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
+					CWND = tcp.probeCWND(CWND);
+					gotAcks = -1;
+					}
+				gotAcks++;
+				} else {
+				// Slow Start
+				CWND = tcp.slowCWND(CWND);  
 				send_All_Paks();
+				}
 			}
 		} else if (p->getAckNum() < sendBase) {
-			// Log ignored ack @Namu
+			debugSS << p->print() << endl; //record out of order acks
 		}
 	} 
-	delete p;
+	outputSS << getFlow(&this) << ", " << CWND << ", " << simtime << ", window_size" << endl;
+	delete p; // Packet fkn useless now
 }
 
 void flow_Timeout() {
@@ -148,4 +178,5 @@ void flow_Timeout() {
 	tcpTO = new event_TO(TO,&this);
 	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
 	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
+	debugSS << "ACK" << (sendbase + calcPakSize(sendBase)) << " timed out at " << simtime << endl; //
 }

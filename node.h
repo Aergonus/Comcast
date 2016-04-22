@@ -32,6 +32,7 @@ class node {
 		virtual int receive_packet(packet *p) = 0;
 		node* getConnectedNode(link *connection); // Gets the link connected to the given node
 		
-		void print();
+		// Debug
+		std::string print();
 };
 #endif

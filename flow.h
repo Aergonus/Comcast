@@ -29,7 +29,12 @@ class flow {
         std::string name;
         int size;
 		float start;
-		
+		// Time elapsed
+		float time_elapsed;
+		// Last update time
+		float update_time;
+		// Bytes sent
+		float bytes_sent;
 		// TCP Parameters
 		TCP_type mode;
 		TCP algo;
@@ -70,7 +75,7 @@ class flow {
     //function to obtain the size of the flow
     int getSize(){return size;};
 	
-	
+	float currentflowrate();
 	void start_Flow();
 	void flow_Timeout();
 	packet* send_Pak();

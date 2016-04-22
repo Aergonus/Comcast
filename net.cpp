@@ -11,7 +11,7 @@
 #include "event_start_flow.h"
 
 net::net(){
-	time = 0;
+	simtime = 0;
 	fiveever = false;
 }
 
@@ -49,6 +49,7 @@ bool operator == (const &link a, const &link b){
 bool operator == (const &flow a, const &flow b){
     return (a.getID() == b.getID());
 }
+
 
 node* getNode(std::string id){
     if (hostExists(id)){

@@ -55,7 +55,7 @@ int parseInputs(net &Network, string inputFile) {
 		return -1;
 	}
 #ifndef NDEBUG
-    debugSS "Parsing to root succeeded." << endl;
+    debugSS << "Parsing to root succeeded." << endl;
 #endif
 
     assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
