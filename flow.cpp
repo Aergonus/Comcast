@@ -34,14 +34,13 @@ packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 
 void send_All_Paks(){
 	if (timedAck = -1) {
-		// pak about to be sent, get the ack #, nseq#+pakSize, set nextseq
 	while(((nextSeq - sendBase)/FLOW_PACKET_SIZE) < CWND && !noflow()) {
 		int pakSize = calcPakSize(nextSeq);
 		send_Pak(nextSeq, pakSize, dst, DATA);
 		nextSeq += pakSize;
 		if (timedAck = -1) {
 			timedAck = nextSeq;
-			// record time
+			recordTime = time;
 		}
 		dupAcks = 1;
 	}
@@ -63,7 +62,6 @@ void start_Flow(){
 	sampRTT = 1;
 	TO = 1;
 	
-	// Poke TCP and send event *tcpTO, i.e. start timeout for TCP
 	int pakSize = calcPakSize(nextSeq);
 	send_Pak(nextSeq, pakSize, dst, DATA);
 	nextSeq += pakSize;
@@ -116,7 +114,8 @@ void receive_Pak(packet *p){
 			}
 			send_All_Paks();
 			dupAcks = 0;
-			// Reset timer;
+			tcpTO->invalidate();
+			tcpTO = new event_TO(TO,&this);
 		} else if (p->getAckNum() = sendBase) {
 			dupAcks++;
 			if(dupAcks == 3) {
@@ -141,4 +140,5 @@ void flow_Timeout() {
 	dupAcks = 0;
 	tcpTO = new event_TO(TO,&this);
 	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
+	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
 }
