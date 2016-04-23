@@ -20,6 +20,7 @@ void host::addLink(link* l){
 	links.push_back(l);
 }
 
+// Add flow to the host
 void host::addFlow(flow* f){
 	flows.push_back(f);
 }
@@ -33,6 +34,7 @@ int host::receive_pak(packet* p){
 	return 0;
 }
 
+// Gets the other node connected to the link
 node* getConnectedNode(link *connection){
 	return connection->getOtherNode(&this);
 }

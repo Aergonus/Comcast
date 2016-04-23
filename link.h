@@ -32,12 +32,6 @@ class link {
 		float rate;
 		// Link Delay in seconds (propogation)
 		float delay;
-		// Time elapsed
-		float time_elapsed;
-		// Last update time
-		float update_time;
-		// Bytes sent
-		float bytes_sent;
 		// Maximum number of bytes allowed
 		int buffer_size;
 		// Current amount of bytes in buffer
@@ -46,6 +40,14 @@ class link {
 		std::queue<std::pair<packet*,node*>> buffer;
 		// Network Simulator 
 		net *Network;
+		
+		// Link flow rate calculation
+		// Time elapsed
+		float time_elapsed;
+		// Last update time
+		float update_time;
+		// Bytes sent
+		float bytes_sent;
 
 	public:
 		// CONSTRUCTOR
@@ -56,14 +58,16 @@ class link {
 
 		//Calculate delay for first packet in queue
 		float calcDelay();
-
-		float currentflowrate();
+		
+		// Calculate flowrate in link
+		float link_flow_rate();
 		
 		// Pushes packet onto Link Buffer from end node; 
 		// returns TRUE on success; FALSE on full buffer;
 		// origin is a pointer to the packet's transmitting node;
 		bool receive_pak(packet *p, node *n);
 		
+		// Find node on the other side of the link
 		node* getOtherNode(node *n);
 		
 		// Called when packet has propogated and arrived at at node
