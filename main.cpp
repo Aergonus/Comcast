@@ -35,7 +35,11 @@ std::ostream &errorSS = std::cerr;
 std::ostream &outputSS;
 
 int parseInputs(net &Network, std::string inputFile) {
+<<<<<<< HEAD
 	rapidjson::Document root; // root is a JSON value represents the root of DOM.
+=======
+    rapidjson::Document root; // root is a JSON value represents the root of DOM.
+>>>>>>> refs/remotes/origin/master
 #ifndef NDEBUG
     debugSS << "Parse a JSON file to document root." << std::endl;
 #endif
@@ -43,8 +47,13 @@ int parseInputs(net &Network, std::string inputFile) {
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
 	if (input!=NULL) {
 		char readBuffer[65536];
+<<<<<<< HEAD
 		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
 		root.ParseStream(json);
+=======
+                rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
+                root.ParseStream(json);
+>>>>>>> refs/remotes/origin/master
                 fclose(input);
                 rapidjson::StringBuffer buffer;
                 rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -55,12 +64,17 @@ int parseInputs(net &Network, std::string inputFile) {
 //				(unsigned)root.GetErrorOffset(),
 //				GetParseError_En(root.GetParseError()));
 //			return 1;
+<<<<<<< HEAD
 		}
+=======
+//		}
+>>>>>>> refs/remotes/origin/master
 	} else {
 		errorSS << "Unable to open file " << inputFile << std::endl; 
 		return -1;
 	}
 #ifndef NDEBUG
+<<<<<<< HEAD
 <<<<<<< HEAD
     debugSS << "Parsing to root succeeded." << endl;
 =======
@@ -72,14 +86,27 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
 	float endtime = (end != root.MemberEnd()) ? end->value.GetDouble() : 0;
 
+=======
+    debugSS<< "Parsing to root succeeded." << std::endl;
+#endif
+
+    assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
+	
+        rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("hosts")); // Old version
+	float endtime = (end != root.MemberEnd()) ? end->value.GetDouble() : 0;
+>>>>>>> refs/remotes/origin/master
 	assert(endtime >= 0);
 
 	Network.setEnd(endtime);
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Set end time of simulator: " << endtime << std::endl;
 
+=======
+    debugSS << "Set end time of simulator: " << endtime << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif	
 
 	
@@ -87,6 +114,7 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     {
 
 		assert(root.HasMember("hosts"));
+<<<<<<< HEAD
 
         const rapidjson::Value& hosts = root["hosts"]; 
 
@@ -96,12 +124,22 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
         for (rapidjson::Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
 
+=======
+        const rapidjson::Value& hosts = root["hosts"]; 
+        assert(hosts.IsArray());
+
+        for (rapidjson::Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
+>>>>>>> refs/remotes/origin/master
 			Network.addHost(itr->GetString());
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
 			debugSS << "Added Host " << itr->GetString() << std::endl;;
 
+=======
+			debugSS << "Added Host " << itr->GetString() << std::endl;;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 		}
@@ -109,9 +147,13 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     }
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Finished Adding Hosts." << std::endl;
 
+=======
+    debugSS << "Finished Adding Hosts." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif	
 
 
@@ -119,6 +161,7 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     {
 
 		assert(root.HasMember("routers"));
+<<<<<<< HEAD
 
         const rapidjson::Value& routers = root["routers"]; 
 
@@ -128,12 +171,22 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
         for (rapidjson::Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
 
+=======
+        const rapidjson::Value& routers = root["routers"]; 
+        assert(routers.IsArray());
+
+        for (rapidjson::Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
+>>>>>>> refs/remotes/origin/master
 			Network.addRouter(itr->GetString());
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
 			debugSS << "Added Router " << itr->GetString() << std::endl;
 
+=======
+			debugSS << "Added Router " << itr->GetString() << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 		}
@@ -141,9 +194,13 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     }
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Finished Adding Routers." << std::endl;
 
+=======
+    debugSS << "Finished Adding Routers." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif	
 
 
@@ -153,6 +210,7 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     {
 
 		assert(root.HasMember("links"));
+<<<<<<< HEAD
 
         const rapidjson::Value& links = root["links"]; 
 
@@ -172,6 +230,17 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
 			debugSS <<"Added Link " << clink["id"].GetString() << std::endl;
 
+=======
+        const rapidjson::Value& links = root["links"]; 
+        assert(links.IsArray());
+
+		for (rapidjson::SizeType i = 0; i < links.Size(); ++i) {
+			assert(links[i].IsObject());
+			const rapidjson::Value& clink = links[i];
+			Network.addLink(clink["id"].GetString(), clink["node_id1"].GetString(), clink["node_id2"].GetString(), (float) clink["rate"].GetDouble(), (float) clink["delay"].GetDouble(), (float) clink["buffer"].GetDouble());
+#ifndef NDEBUG
+			debugSS <<"Added Link " << clink["id"].GetString() << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 		}
@@ -179,9 +248,13 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     }
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Finished Adding Links." << std::endl;
 
+=======
+    debugSS << "Finished Adding Links." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif	
 
 
@@ -191,6 +264,7 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     {
 
 		assert(root.HasMember("flows"));
+<<<<<<< HEAD
 
         const rapidjson::Value& flows = root["flows"]; 
 
@@ -210,6 +284,17 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
                                 std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
 
+=======
+        const rapidjson::Value& flows = root["flows"]; 
+        assert(flows.IsArray());
+        TCP_type tcp_enum;
+		for (rapidjson::SizeType i = 0; i < flows.Size(); ++i) {
+			assert(flows[i].IsObject());
+			const rapidjson::Value& cflow = flows[i];
+			if (cflow.HasMember("TCP")) {
+                                std::string tcp_string = cflow["TCP"].GetString();
+                                std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
+>>>>>>> refs/remotes/origin/master
 				if (tcp_string == "TAHOE") {
 
 					tcp_enum = TAHOE;
@@ -221,6 +306,7 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 				}
 
 			} else {
+<<<<<<< HEAD
 
                                  tcp_enum = TAHOE;
 
@@ -232,6 +318,13 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
 
 			debugSS << "Added Flow " << cflow["id"].GetString() << std::endl;
 
+=======
+                                 tcp_enum = TAHOE;
+			}
+			Network.addFlow(cflow["id"].GetString(), cflow["node_src"].GetString(), cflow["node_dst"].GetString(), (float) cflow["data_size"].GetDouble(), (float) cflow["start_time"].GetDouble(), tcp_enum);
+#ifndef NDEBUG
+			debugSS << "Added Flow " << cflow["id"].GetString() << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 		}
@@ -239,9 +332,13 @@ rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.Ha
     }
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Finished Adding Flows." << std::endl;
 
+=======
+    debugSS << "Finished Adding Flows." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 	
@@ -257,12 +354,17 @@ int main(int argc, char *argv[]) {
 	int c = -1, b = 0; // getopt options
 
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
+<<<<<<< HEAD
 
         std::string inputFile, outputFile;
 
+=======
+        std::string inputFile, outputFile;
+>>>>>>> refs/remotes/origin/master
 	
 
 #ifndef NDEBUG
+<<<<<<< HEAD
 
     debugSS << "Parsing options if they exist." << std::endl;
 
@@ -270,6 +372,11 @@ int main(int argc, char *argv[]) {
 
 /*	while ((c = getopt(argc, argv, "i:o:d")) != -1) {
 
+=======
+    debugSS << "Parsing options if they exist." << std::endl;
+#endif
+/*	while ((c = getopt(argc, argv, "i:o:d")) != -1) {
+>>>>>>> refs/remotes/origin/master
 		switch (c) {
 
             case 'i':
@@ -313,6 +420,7 @@ int main(int argc, char *argv[]) {
 		getline(cin, inputFile);
 
 	}
+<<<<<<< HEAD
 
 */
 
@@ -326,11 +434,20 @@ outputFile = "./output.csv";
 
     debugSS << "Created Network Simulator object." << std::endl;
 
+=======
+*/
+inputFile = "./input/test_case_0.json";
+outputFile = "./output.csv";
+	// Create Network Simulator object 
+#ifndef NDEBUG
+    debugSS << "Created Network Simulator object." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif	
 
 	
 
 	// Load JSON Input File
+<<<<<<< HEAD
 
         net Network;
 
@@ -340,6 +457,12 @@ outputFile = "./output.csv";
 
     debugSS << "Loaded Network Topology." << std::endl;
 
+=======
+        net Network;
+	parseInputs(Network, inputFile);
+#ifndef NDEBUG
+    debugSS << "Loaded Network Topology." << std::endl;
+>>>>>>> refs/remotes/origin/master
 #endif
 
 	
@@ -350,7 +473,10 @@ outputFile = "./output.csv";
 
     return 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/Documentation
+=======
+>>>>>>> refs/remotes/origin/master
 }
