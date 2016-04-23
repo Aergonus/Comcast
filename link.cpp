@@ -45,11 +45,11 @@ bool link::receive_pak(packet *p, node *n){
 	} else if (occupancy + p->getSize() <= buffer_size) {
 		// Stamp destination
 		buffer.push(make_pair(p, (n == n1) ? n2 : n1));
-		outputSS << getLink(&this) << ", " << occupancy << ", " << simtime << ", buffer_occ" << endl; //record buffer occupancy
+		outputSS << getLink(&this) << ", " << occupancy << ", " << simtime << ", buffer_occ" << std::endl; //record buffer occupancy
 		occupancy += p->getSize();
 		return true;
 	} else {
-		outputSS << getLink(&this) << ", " << simtime << ", , packet_loss" << endl; //record time when a packet was dropped		
+		outputSS << getLink(&this) << ", " << simtime << ", , packet_loss" << std::endl; //record time when a packet was dropped		
 		delete p;
 		return false; //packet dropped
 	}
@@ -61,7 +61,7 @@ void link::send_pak(){
 	(sent.second)->receive_pak(sent.first);
 	occupancy -= (sent.first)->getSize();
 	bytes_sent += sent.first->getSize();
-	outputSS << getLink(&this) << ", " << link_flow_rate() << ", " << simtime << ", link_flow_rate" << endl; //record link flowrate after packet transmission event 
+	outputSS << getLink(&this) << ", " << link_flow_rate() << ", " << simtime << ", link_flow_rate" << std::endl; //record link flowrate after packet transmission event 
 	buffer.pop();
 	if(!buffer.empty()){
 		float pDelay = calcDelay();

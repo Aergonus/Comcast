@@ -43,7 +43,7 @@ packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
 		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
 	}
 	bytes_sent += p->getSize();
-	outputSS << getFlow(&this) << ", " << flow_rate() << ", " << simtime << ", flow_rate" << endl; //record flowrate after packet insertion event 
+	outputSS << getFlow(&this) << ", " << flow_rate() << ", " << simtime << ", flow_rate" << std::endl; //record flowrate after packet insertion event 
 	link->receive_pak(p, getConnectedNode(pakSrc));
 	return p;
 }
@@ -123,7 +123,7 @@ void receive_Pak(packet *p){
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,&this);
 				timedAck = -1;
-				outputSS << getFlow(&this) << ", " << estRTT << ", " << simtime << ", estimated_rtt" << endl; // Estimated RTT
+				outputSS << getFlow(&this) << ", " << estRTT << ", " << simtime << ", estimated_rtt" << std::endl; // Estimated RTT
 			}
 			if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
@@ -164,10 +164,10 @@ void receive_Pak(packet *p){
 				}
 			}
 		} else if (p->getAckNum() < sendBase) {
-			debugSS << p->print() << endl; //record out of order acks
+			debugSS << p->print() << std::endl; //record out of order acks
 		}
 	} 
-	outputSS << getFlow(&this) << ", " << CWND << ", " << simtime << ", window_size" << endl;
+	outputSS << getFlow(&this) << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
 	delete p; // Packet fkn useless now
 }
 
@@ -178,5 +178,5 @@ void flow_Timeout() {
 	tcpTO = new event_TO(TO,&this);
 	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
 	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
-	debugSS << "ACK" << (sendbase + calcPakSize(sendBase)) << " timed out at " << simtime << endl; //
+	debugSS << "ACK" << (sendbase + calcPakSize(sendBase)) << " timed out at " << simtime << std::endl; //
 }
