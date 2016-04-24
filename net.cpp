@@ -10,11 +10,13 @@
 #include "net.h"
 #include "event_start_flow.h"
 
+// Initialize
 net::net(){
-	time = 0;
+	simtime = 0;
 	fiveever = false;
 }
 
+// Clears the net
 net::~net(){
 	// Iterate through list and delete
 	for(auto iter = hosts.begin(); iter != hosts.end(); ++iter){
@@ -50,6 +52,7 @@ bool operator == (const &flow a, const &flow b){
     return (a.getID() == b.getID());
 }
 
+//Get statements for each class
 node* getNode(std::string id){
     if (hostExists(id)){
         return getHost(id);
@@ -93,6 +96,7 @@ flow* getFlow(std::string id){
     return &(*itr);
 }
 
+// Checks existence of identically labeled objects
 bool nodeExists(std::string id){
     return (getNode(id) != NULL);    
 }
@@ -113,6 +117,8 @@ bool flowExists(std::string id){
     return (getFlow(id) != NULL);
 }
 
+
+// Add functions for all the classes
 int net::addHost(std::string id){
 	if (!nodeExists(id)){
 		// Create a new host object
@@ -216,15 +222,18 @@ int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, 
 	}
 }
 
+// Decrement the number of active flows when one is done transmitting
 int net::flowFinished(){
 	return --nflows;
 }
 
+// Priority queue
 int net::addEvent(event *e){
 	e->setStart(e->getStart + time); // Adds global time to the initialized delay
 	events.push(e);
 }
 
+// Runs the simulation
 int net::run(){
 	// Ends if there are no flows left
 	while ((!events.empty() && nFlows > 0)){

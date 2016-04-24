@@ -37,6 +37,8 @@ class packet{
 		int getKillSwitch(){return ks;};
 		//decrement Kill Switch
 		int perishSong(){return --ks;};
+	// Print packet details
+	std::string print();
 };
 
 class data_pak : public packet{

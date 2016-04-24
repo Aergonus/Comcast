@@ -37,5 +37,8 @@ class host : public node {
 		
 		// Receives incoming packet
 		virtual int receive_packet(packet *p);
+		
+		// Debug
+		std::string print();
 };
 #endif

@@ -24,12 +24,12 @@ class flow {
 	friend class packet;
 	
 	private:
-        node* src;
-        node* dst;
-        std::string name;
+        node* src; //Packet source
+        node* dst; //Packet destination
+        std::string name; //Packet id
         int size;
 		float start;
-		
+
 		// TCP Parameters
 		TCP_type mode;
 		TCP algo;
@@ -48,7 +48,16 @@ class flow {
 		float recordTime, estRTT, devRTT, sampRTT, TO;
 		event *tcpTO;
 		
+		// Packet size calculation
 		int calcPakSize();
+		
+		// Flow rate calculation
+		// Time elapsed
+		float time_elapsed;
+		// Last update time
+		float update_time;
+		// Bytes sent
+		float bytes_sent;
 		
     public:
     //Constructors
@@ -70,11 +79,17 @@ class flow {
     //function to obtain the size of the flow
     int getSize(){return size;};
 	
-	
+	// obtain flowrate
+	float flow_rate();
+	// initiate flow
 	void start_Flow();
+	// flow timeout
 	void flow_Timeout();
+	// packet injection
 	packet* send_Pak();
-	packet* recieve_Pak();
+	// packet received at host
+	packet* receive_Pak();
+	// determine if flow ended
 	bool noflow(){return nextSeq >= size;};
 	void nolove();
 	

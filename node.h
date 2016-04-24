@@ -19,8 +19,8 @@ class packet;
 
 class node {
 	private:
-		std::string name;
-		std::vector<link *> links; 
+		std::string name; //node id
+		std::vector<link *> links; // list of links connected to node
 
 	public: 
 		// Constructor
@@ -32,6 +32,7 @@ class node {
 		virtual int receive_packet(packet *p) = 0;
 		node* getConnectedNode(link *connection); // Gets the link connected to the given node
 		
-		void print();
+		// Debug
+		std::string print();
 };
 #endif
