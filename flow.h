@@ -93,5 +93,7 @@ class flow {
 	bool noflow(){return nextSeq >= size;};
 	void nolove();
 	
+	//debug and reporting
+	std::string print();
 };
 #endif
