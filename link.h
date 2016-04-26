@@ -15,14 +15,15 @@
 #include <queue>
 #include <utility>
 
+#include "util.h"
 
 // Forward Declaration
 class node;
-class host;
+//class host;
 class packet;
 class net;
 
-class Link{
+class link {
 	private:
 		std::string name;
 		// Node 1 and Node 2 endpoints of link
@@ -36,7 +37,7 @@ class Link{
 		// Current amount of bytes in buffer
 		int occupancy;
 		// Link Buffer
-		std::queue<std::pair<packet*,node*> > buffer;
+		std::queue<std::pair<packet*,node*>> buffer;
 		// Network Simulator 
 		net *Network;
 		
@@ -50,12 +51,8 @@ class Link{
 
 	public:
 		// CONSTRUCTOR
-<<<<<<< HEAD
-		link(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim, ...)
+		link(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim)...
 			:name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
-=======
-		Rink(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim): name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 		
 		// FUNCTIONS
 
@@ -68,7 +65,7 @@ class Link{
 		// Pushes packet onto Link Buffer from end node; 
 		// returns TRUE on success; FALSE on full buffer;
 		// origin is a pointer to the packet's transmitting node;
-		bool receive_packet(packet *p, node *n);
+		bool receive_pak(packet *p, node *n);
 		
 		// Find node on the other side of the link
 		node* getOtherNode(node *n);
@@ -77,12 +74,6 @@ class Link{
 		void send_pak();
 
 		//DEBUG/LOGGING FUNCTIONS
-<<<<<<< HEAD
 		std::string print();
-
-                bool hasNode(node*);
-=======
-		void print();
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 };
 #endif

@@ -34,7 +34,7 @@ float Link::link_flow_rate() {
 }
 
 // Receive packet from flow(hosts)/routers
-bool link::receive_packet(packet *p, node *n){
+bool link::receive_pak(packet *p, node *n){
 	assert((n == n1)||(n == n2));
 	if(buffer.empty()){
 		// Initiate packet transmission by inserting into buffer and priority queue
@@ -84,13 +84,4 @@ void link::send_pak(){
 // Used by all nodes to send to other side of link
 node* getOtherNode(node *n){
 	return (n1 == n) ? n2 : n1;
-<<<<<<< HEAD
-}
-
-bool hasNode(node* n){
-  return (*n == *n1 || *n == *n2);
-}
-
-=======
 };
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5

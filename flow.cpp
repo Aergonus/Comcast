@@ -13,68 +13,53 @@
 #include <utility>
 #include "flow.h"
 #include "packet.h"
-#include "event_to.h"
+#include "event_TO.h"
 #include "util.h"
-#include "link.h"
-#include "host.h"
-#include "tcp.h"
 
 // Calculates the packet size
 // Has to deal with lack packet being possibly smaller than the max_seg_size
-int flow::calcPakSize(int currSeq){
+int Flow::calcPakSize(int currSeq){
 	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
 	return nPakSize;
 }
 
-<<<<<<< HEAD
 // Calculates the flow rate for logging
-float flow::flow_rate() {
+float Flow::flow_rate() {
 	// Time elapsed since last update
 	float time_elapsed = simtime - update_time;
 	// Flow rate is bytes sent over elapsed time (s)
-	float flo_rate = bytes_sent/time_elapsed;
+	flow_rate = bytes_sent/time_elapsed;
 	// Reset the bytes sent and most recent update time
 	bytes_sent = 0;
 	update_time = simtime;
-	return flo_rate;
+	return flow_rate;
 }
 
 // Injects the packet into the system from the flow
-void flow::send_packet(int pakNum, int pSize, node *pakSrc, packet_type ptype){
-	packet *p;
+packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
+	packet p*;
 	// Reverses direction of incoming packet for the newly generated packet
 	node *pakDst = (pakSrc == src) ? dst : src;
 	// Packet Generation depending on type
-=======
-packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
-	packet p*;
-	node *pakDst = dst;
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 	if (ptype == DATA) {
-	  p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);	
-	} else if (ptype == ACK) {
-	  p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);
+		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);	
+	} else if (ptype == ACK {
+		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
 	}
-<<<<<<< HEAD
 	bytes_sent += p->getSize();
 	// record flowrate after packet insertion event
-	outputSS << id << ", " << flow_rate() << ", " << simtime << ", flow_rate" << std::endl;
+	outputSS << getFlow(&this) << ", " << flow_rate() << ", " << simtime << ", flow_rate" << std::endl;
 	// Injects the packet into the link
-	link* first_link = pakSrc -> getConnectedLink(dst);
-        first_link -> receive_packet(p, pakDst);
-        delete p;
-=======
-	src->getLink()->receive_pak(p, packDst);
+	link->receive_pak(p, getOtherNode(pakSrc));
 	return p;
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 }
 
 // Sends packets until the number of DATA packets from this flow in the system is equal to CWND
-void flow::send_All_Paks(){
+void send_All_Paks(){
 	if (timedAck == -1) { // Is this correct?
-	  while(((nextSeq - sendBase)/MAX_SEG_SIZE) < CWND && !noflow()) {
+	while(((nextSeq - sendBase)/MAX_SEG_SIZE) < CWND && !noflow()) {
 		int pakSize = calcPakSize(nextSeq);
-		send_packet(nextSeq, pakSize, dst, DATA);
+		send_Pak(nextSeq, pakSize, dst, DATA);
 		// Increments the sequence number of the next packet to be sent by the packet size
 		nextSeq += pakSize;
 		// Timeout mechanism
@@ -83,12 +68,12 @@ void flow::send_All_Paks(){
 			recordTime = simtime;
 		}
 		dupAcks = 1;
-	  }
-        }	
-}
+	}
+}	
+
 // Flow initialization
 // Send one packet
-void flow::start_Flow(){
+void start_Flow(){
 	gotAcks = 0;
 	nextSeq = 0;
 	sendBase = 0;
@@ -105,24 +90,23 @@ void flow::start_Flow(){
 	TO = 1;
 	
 	int pakSize = calcPakSize(nextSeq);
-	send_packet(nextSeq, pakSize, dst, DATA);	
+	send_Pak(nextSeq, pakSize, dst, DATA);	
 	nextSeq += pakSize;	//determines next DATA to be sent
 	timedAck = nextSeq;	//for timeout
 	recordTime = simtime;	//for timeout
 	nflow++;		//increase number of active flows by one
-	event* tcpTO = new event_TO(TO,this);	//starts a timeout event
-        delete dcpTO;
+	tcpTO = new event_TO(TO,&this);	//starts a timeout event
 }
 
 // Receive packet event for hosts
-void flow::receive_packet(packet *p){
+void receive_Pak(packet *p){
 	// Receiver receives the DATA
-	if(p->getType() == DATA){
+	if(p->type == DATA){
 		// Would have to add 500ms timeout if waiting to send delayed acks
 		// ACK generation 
 		if (ackStack.empty()) {
-			ackStack.insert(p->getSeqNum(), p->getAckNum()); // Doesn't this still have to generate an ACK?
-		} else if(ackStack[p->getSeqNum()] == ackStack.begin()->second) {
+			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum())); // Doesn't this still have to generate an ACK?
+		} else if(ackStack.find(p->getSeqNum()) == ackStack.begin()->second) {
 			ackStack.pop();
 			std::map<int,int>::iterator it;
 			ackStack[p->getSeqNum()] = p->getAckNum();
@@ -133,11 +117,11 @@ void flow::receive_packet(packet *p){
 				it = ackStack.find(nAck);
 			}
 			expectedSeq = it->second;
-			send_packet(expectedSeq, ACK_PACKET_SIZE, src, ACK);
+			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
 		// Data gap detection
 		} else if(ackStack.find(p->getSeqNum()) > ackStack.begin()->second) {
 			// Send duplicate ack
-			send_packet(expectedSeq, ACK_PACKET_SIZE, src, ACK);
+			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
 			ackStack.push(make_pair(p->getSeqNum(),p->getAckNum()));
 		}
 
@@ -153,10 +137,10 @@ void flow::receive_packet(packet *p){
 				devRTT = (1-BETA_TIMEOUT) * devRTT + BETA_TIMEOUT * abs(sampRTT - estRTT);
 				TO = estRTT + 4 * devRTT;
 				tcpTO->invalidate();
-				tcpTO = new event_TO(TO,this);
+				tcpTO = new event_TO(TO,&this);
 				timedAck = -1;
 				// Estimated RTT logging
-				outputSS << name << ", " << estRTT << ", " << simtime << ", estimated_rtt" << std::endl; 
+				outputSS << getFlow(&this) << ", " << estRTT << ", " << simtime << ", estimated_rtt" << std::endl; 
 			}
 			if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
@@ -174,7 +158,7 @@ void flow::receive_packet(packet *p){
 			// Resets timer when an ACK is received
 			// Is this correct? 
 			tcpTO->invalidate();
-			tcpTO = new event_TO(TO,this);
+			tcpTO = new event_TO(TO,&this);
 		// Received a duplicate ack, increase the counter
 		} else if (p->getAckNum() == sendBase) {
 			dupAcks++;
@@ -182,7 +166,7 @@ void flow::receive_packet(packet *p){
 			if(dupAcks == 3) {
 				ssThresh = tcp.tripSS(CWND);
 				CWND = tcp.tripCWND(CWND);
-				send_packet(sendBase, calcPakSize(sendBase), dst, DATA);
+				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
 			// More than 3 dupAcks go into cwnd increase (doesn't send any packets)
 			} else if(dupAcks > 3) {
 				if (CWND >= ssThresh) {
@@ -198,27 +182,23 @@ void flow::receive_packet(packet *p){
 				}
 			}
 		// Record out of order acks
-		} else if ((ack_pack)p->getAckNum() < sendBase) {
+		} else if (p->getAckNum() < sendBase) {
 			debugSS << p->print() << std::endl; 
 		}
 	} 
-	outputSS << name << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
+	outputSS << getFlow(&this) << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
 	// Packet no longer useful, eliminate
 	delete p; 
 }
 
 // Timeout occurs
-void flow::flow_Timeout() {
+void flow_Timeout() {
 	ssThresh = CWND/2;
 	CWND = 1;
 	dupAcks = 0;
-	tcpTO = new event_TO(TO,this);
+	tcpTO = new event_TO(TO,&this);
 	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
-<<<<<<< HEAD
-	send_packet(sendBase, calcPakSize(sendBase), dst, DATA); //send a packet
+	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA); //send a packet
 	// Debug for timeout events
-	debugSS << "ACK" << (sendBase + calcPakSize(sendBase)) << " timed out at " << simtime << std::endl; //
-=======
-	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
+	debugSS << "ACK" << (sendbase + calcPakSize(sendBase)) << " timed out at " << simtime << std::endl; //
 }

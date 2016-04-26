@@ -16,24 +16,24 @@
 #include <queue>
 
 // Forward declarations.
-#include "events/event.h"
-#include "util.h"
-#include "host.h"
-#include "router"
-
+class event;
+class host;
+class router;
+class link;
 class flow;
-class Link;
-class node;
+
+// Custom Libraries
+#include "event.h"
+#include "util.h"
 
 float simtime;
 
-class net{
+class net {
 	private:
 	int nflows;	//number of flows
 	bool fiveever; // 5ever? or is there a stop time
 	float endtime;	// end of simulation
 	
-<<<<<<< HEAD
 	//Lists of objects for each class
 	std::priority_queue<event, vector<event>, compareEvents> events;
 	std::vector<host *> hosts; 
@@ -46,23 +46,12 @@ class net{
 	net();
 	//clears net
 	~net();
-=======
-	std::priority_queue<event*, std::vector<event*>, compareEvents> events;
-	std::vector<host*> hosts; 
-	std::vector<router *> routers; 
-	std::vector<flow*> flows; 
-	std::vector<Link*> links; 
-
-	public: 
-        net();
-        ~net();
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 	
-        float getTime(){return simtime;};
-	float setTime(float ntime){return simtime = ntime;};
+	//float getTime(){return time;};
+	float setTime(float ntime){return time = ntime;};
 	float getEnd(float stop){return endtime;};
 	float setEnd(float stop){fiveever = true; return endtime = stop;};
-	bool isEnd(float stop){return (fiveever && simtime > endtime);};
+	bool isEnd(float stop){return (fiveever && time > endtime);};
 	
 	// checks for existence of identically named objeccts of the same class
 	bool nodeExists(std::string id);
@@ -75,7 +64,7 @@ class net{
 	node* getNode(std::string id);
 	host* getHost(std::string id);
 	router* getRouter(std::string id);
-	Link* getLink(std::string id);
+	link* getLink(std::string id);
 	flow* getFlow(std::string id);
 	
 	// adds an object after verifying uniqueness
@@ -86,21 +75,12 @@ class net{
 	
 	// determines number of active flows
 	int flowFinished();
-<<<<<<< HEAD
 	// insert into priority queue
 	int addEvent(event e);
 	// start the simulation
-=======
-	int addEvent(event*);
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 	int run();
 	
 	// debug
 	string print();
 };
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
 #endif

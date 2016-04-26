@@ -11,7 +11,7 @@
 #define EVENT_START_FLOW_H
 
 #include "event.h"
-#include "../flow.h"
+#include "flow.h"
 
 class event_start_flow : public event {
 	private:

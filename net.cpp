@@ -8,6 +8,7 @@
  */
 
 #include "net.h"
+#include "event_start_flow.h"
 
 // Initialize
 net::net(){
@@ -39,24 +40,20 @@ net::~net(){
 
 //Overloading  == operators
 //Return true if two objects have same id
-bool operator == (const node &a, const node &b){
+bool operator == (const &node a, const &node b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const Link &a, const Link &b){
+bool operator == (const &link a, const &link b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const flow &a, const flow &b){
+bool operator == (const &flow a, const &flow b){
     return (a.getID() == b.getID());
 }
 
-<<<<<<< HEAD
 //Get statements for each class
 node* getNode(std::string id){
-=======
-node* net::getNode(std::string id){
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
     if (hostExists(id)){
         return getHost(id);
     }
@@ -67,7 +64,7 @@ node* net::getNode(std::string id){
         return NULL;
 }
 
-host* net::getHost(std::string id){
+host* getHost(std::string id){
     std::vector<host>::iterator itr = std::find(hosts.begin(), hosts.end(), host(id)) 
     if (itr == hosts.end()){
         return NULL;
@@ -75,7 +72,7 @@ host* net::getHost(std::string id){
     return &(*itr);
 }
 
-router* net::getRouter(std::string id){
+router* getRouter(std::string id){
     std::vector<router>::iterator itr = std::find(routers.begin(), routers.end(), router(id));
     if (itr == routers.end()){
         return NULL;
@@ -83,15 +80,15 @@ router* net::getRouter(std::string id){
     return &(*itr);
 }
 
-Link* net::getLink(std::string id){
-    std::vector<Link*>::iterator itr = std::find(links.begin(), links.end(), Link(id));
-    if (itr == links.end()){
+link* getLink(std::string id){
+    std::vector<link>::iterator itr = std::find(links.begin(), links.end(), link(id));
+    if (itr == link.end()){
         return NULL;
     }
     return &(*itr);
 }
 
-flow* net::getFlow(std::string id){
+flow* getFlow(std::string id){
     std::vector<flow>::iterator itr = std::find(flows.begin(), flows.end(), flow(id));
     if (itr == flows.end()){
         return NULL;
@@ -99,28 +96,24 @@ flow* net::getFlow(std::string id){
     return &(*itr);
 }
 
-<<<<<<< HEAD
 // Checks existence of identically labeled objects
 bool nodeExists(std::string id){
-=======
-bool net::nodeExists(std::string id){
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
     return (getNode(id) != NULL);    
 }
 
-bool net::hostExists(std::string id){
+bool hostExists(std::string id){
     return (getHost(id) != NULL);    
 }
 
-bool net::routerExists(std::string id){
+bool routerExists(std::string id){
     return (getRouter(id) != NULL);
 }
 
-bool net::linkExists(std::string id){
+bool linkExists(std::string id){
     return (getLink(id) !=NULL);
 }
 
-bool net::flowExists(std::string id){
+bool flowExists(std::string id){
     return (getFlow(id) != NULL);
 }
 
@@ -173,7 +166,7 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 			node *n1 = nodes[node_id1];
 			node *n2 = nodes[node_id2];
 		
-			links[id] = Link(id, n1, n2, rate, delay, buffer);
+			links[id] = link(id, n1, n2, rate, delay, buffer);
 		
 			// Update relations
 			n1->addLink(links[id]);
@@ -194,7 +187,7 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 }
 
 // TODO: Add TCP param and alter addFlow accordingly
-int net::addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum){
+int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, float start_time, TCP_type tcp_enum){
 	// Check if there exists a flow with this id already
 	if (!flowExists(id)){
 		// Check if both IDs are valid nodes

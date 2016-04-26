@@ -10,32 +10,26 @@
  
 #ifndef UTIL_H
 #define UTIL_H
+
 // External Variables 
 extern float simtime;
 extern bool debug;
-<<<<<<< HEAD
-extern std::ostream debugSS;
-extern std::ostream errorSS;
-extern std::ostream outputSS;
-=======
-
-extern std::ostream *debugSS;
-extern std::ostream *errorSS;
-extern std::ostream *outputSS;
->>>>>>> 8b583dc3049d36ee176e40937169c7f1d9ee4fe5
+extern ostream *debugSS;
+extern ostream *errorSS;
+extern ostream *outputSS;
 
 /** Types of packets in this simulation. */
-typedef enum{
+enum packet_type {
 	DATA,
 	ACK,
 	ROUTING
-}packet_type;
+};
 
 /** Type of TCP implemented */
-typedef enum{
+enum TCP_type {
 	TAHOE,
 	RENO
-}TCP_type;
+};
 
 /** Default Max No of hops for Packets */
 static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
