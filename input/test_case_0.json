@@ -1,0 +1,18 @@
+{
+    "hosts": [ "H1", "H2" ],
+    "routers": [],
+    "links": [ 
+        { "id": "L1", 
+          "rate": 10, 
+          "delay": 10,
+          "buffer": 64,
+          "endpoints": [ "H1", "H2" ] } ],
+    "flows": [
+        { "id": "F1",
+          "src": "H1",
+          "dst": "H2",
+		  "protocol": "UDP",
+          "size": 20,
+          "start": 1.0,
+          "FAST": true } ]
+}

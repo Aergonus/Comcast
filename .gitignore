@@ -1,0 +1,9 @@
+# Graphing Output Files
+*.csv
+
+# Compiler generated 
+*.exe
+*.o
+
+# Temporary Workspace
+unused/
