@@ -22,6 +22,7 @@
 #include "rapidjson/writer.h"
 
 #include "net.h"
+#include "util.h"
 #include "tcp.h"
 
 //#include <fstream>
@@ -188,20 +189,6 @@ int main(int argc, char *argv[]) {
 		cout << "Please specify the network topology input file:\n>";
 		getline(cin, inputFile);
 	}
-        if (outputFile.empty()) {
-		cout << "Please specify the output file:\n";
-		getline(cin, outputFile);
-	}
-	outFile.open(outputFile.c_str());
-	if (outFile.fail()) {
-		cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << endl;
-		getline(cin, outputFile);
-		if (outputFile  == "y") {
-			return -1;
-		}
-	} else {
-		outputSS = &outFile;
-	}
 */
 inputFile = "./input/test_case_0.json";
 outputFile = "./output.csv";
@@ -211,13 +198,13 @@ outputFile = "./output.csv";
 #endif	
 	
 	// Load JSON Input File
-        net *Network = new net();
-	parseInputs(*Network, inputFile);
+        net Network;
+	parseInputs(Network, inputFile);
 #ifndef NDEBUG
     debugSS << "Loaded Network Topology." << std::endl;
 #endif
 	
-	Network->run();
+	Network.run();
 
     return 0;
 }

@@ -18,7 +18,7 @@
 
 // Calculates the packet size
 // Has to deal with lack packet being possibly smaller than the max_seg_size
-int calcPakSize(int currSeq){
+int Flow::calcPakSize(int currSeq){
 	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
 	return nPakSize;
 }
