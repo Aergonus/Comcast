@@ -23,7 +23,7 @@ int Flow::calcPakSize(int currSeq){
 	return nPakSize;
 }
 
-// Calculates the flow rate for logging 
+// Calculates the flow rate for logging
 float Flow::flow_rate() {
 	// Time elapsed since last update
 	float time_elapsed = simtime - update_time;
