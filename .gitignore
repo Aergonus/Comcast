@@ -1,0 +1,14 @@
+# Graphing Output Files
+*.csv
+
+# Compiler generated 
+*.exe
+*.o
+*.gch
+
+# Error generated
+*.stackdump 
+*~
+
+# Temporary Workspace
+unused/

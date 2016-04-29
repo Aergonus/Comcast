@@ -8,7 +8,7 @@
  */
 
 #include "net.h"
-#include "event_start_flow.h"
+#include "events/event_start_Flow.h"
 
 // Initialize
 net::net(){
@@ -19,113 +19,113 @@ net::net(){
 // Clears the net
 net::~net(){
 	// Iterate through list and delete
-	for(auto iter = hosts.begin(); iter != hosts.end(); ++iter){
+	for(auto iter = Hosts.begin(); iter != Hosts.end(); ++iter){
 		delete *iter;
 	}
-	hosts.clear();
-	for(auto iter = routers.begin(); iter != routers.end(); ++iter){
+	Hosts.clear();
+	for(auto iter = Routers.begin(); iter != Routers.end(); ++iter){
 		delete *iter;
 	}
-	routers.clear();
-	for(auto iter = links.begin(); iter != links.end(); ++iter){
+	Routers.clear();
+	for(auto iter = Links.begin(); iter != Links.end(); ++iter){
 		delete *iter;
 	}
-	links.clear();
-	//When flows reference TCP protocols, have to deallocate those too
-	for(auto iter = flows.begin(); iter != flows.end(); ++iter){
+	Links.clear();
+	//When Flows reference TCP protocols, have to deallocate those too
+	for(auto iter = Flows.begin(); iter != Flows.end(); ++iter){
 		delete *iter;
 	}
-	flows.clear();
+	Flows.clear();
 }
 
 //Overloading  == operators
 //Return true if two objects have same id
-bool operator == (const &node a, const &node b){
+bool operator == (const &Node a, const &Node b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const &link a, const &link b){
+bool operator == (const &Link a, const &Link b){
     return (a.getID() == b.getID());
 }
 
-bool operator == (const &flow a, const &flow b){
+bool operator == (const &Flow a, const &Flow b){
     return (a.getID() == b.getID());
 }
 
 //Get statements for each class
-node* getNode(std::string id){
-    if (hostExists(id)){
+Node* getNode(std::string id){
+    if (HostExists(id)){
         return getHost(id);
     }
-    else if (routerExists(id)){
+    else if (RouterExists(id)){
         return getRouter(id);
     }
     else
         return NULL;
 }
 
-host* getHost(std::string id){
-    std::vector<host>::iterator itr = std::find(hosts.begin(), hosts.end(), host(id)) 
-    if (itr == hosts.end()){
+Host* getHost(std::string id){
+    std::vector<Host>::iterator itr = std::find(Hosts.begin(), Hosts.end(), Host(id)) 
+    if (itr == Hosts.end()){
         return NULL;
     }
     return &(*itr);
 }
 
-router* getRouter(std::string id){
-    std::vector<router>::iterator itr = std::find(routers.begin(), routers.end(), router(id));
-    if (itr == routers.end()){
+Router* getRouter(std::string id){
+    std::vector<Router>::iterator itr = std::find(Routers.begin(), Routers.end(), Router(id));
+    if (itr == Routers.end()){
         return NULL;
     }
     return &(*itr);
 }
 
-link* getLink(std::string id){
-    std::vector<link>::iterator itr = std::find(links.begin(), links.end(), link(id));
-    if (itr == link.end()){
+Link* getLink(std::string id){
+    std::vector<Link>::iterator itr = std::find(Links.begin(), Links.end(), Link(id));
+    if (itr == Link.end()){
         return NULL;
     }
     return &(*itr);
 }
 
-flow* getFlow(std::string id){
-    std::vector<flow>::iterator itr = std::find(flows.begin(), flows.end(), flow(id));
-    if (itr == flows.end()){
+Flow* getFlow(std::string id){
+    std::vector<Flow>::iterator itr = std::find(Flows.begin(), Flows.end(), Flow(id));
+    if (itr == Flows.end()){
         return NULL;
     }
     return &(*itr);
 }
 
 // Checks existence of identically labeled objects
-bool nodeExists(std::string id){
+bool NodeExists(std::string id){
     return (getNode(id) != NULL);    
 }
 
-bool hostExists(std::string id){
+bool HostExists(std::string id){
     return (getHost(id) != NULL);    
 }
 
-bool routerExists(std::string id){
+bool RouterExists(std::string id){
     return (getRouter(id) != NULL);
 }
 
-bool linkExists(std::string id){
+bool LinkExists(std::string id){
     return (getLink(id) !=NULL);
 }
 
-bool flowExists(std::string id){
+bool FlowExists(std::string id){
     return (getFlow(id) != NULL);
 }
 
 
 // Add functions for all the classes
 int net::addHost(std::string id){
-	if (!nodeExists(id)){
-		// Create a new host object
-		hosts[id] = host(id);
+	if (!NodeExists(id)){
+		// Create a new Host object
+		Hosts[id] = Host(id);
 
 		// Update relations
-		nodes.push_back(hosts[id]);
+		Nodes.push_back(Hosts[id]);
 		
 		return 0;
 	} else {
@@ -136,17 +136,17 @@ int net::addHost(std::string id){
 }
 
 int net::addRouter(std::string id){
-	if (!nodeExists(id)){
-		// Create a new router object
-		routers[id] = router(id);
+	if (!NodeExists(id)){
+		// Create a new Router object
+		Routers[id] = Router(id);
 
 		// Update relations
-		nodes.push_back(routers[id]);
+		Nodes.push_back(Routers[id]);
 		
 		// Initialization Routing Table Event
 		event_updateRT *initialRT = new event_updateRT(0, *this); // Offset from start by -EPSILON?
 		// This is a reoccuring even that adds a new event_updateRT every CONSTANT (util) RT_refresh
-		// Note that the actual updates propogate as send/recieve packet events
+		// Note that the actual updates propogate as send/recieve Packet events
 		// Initial static cost??? @Arvind
 		
 		return 0;
@@ -157,26 +157,26 @@ int net::addRouter(std::string id){
 	
 }
 
-int net::addLink(std::string id, std::string node_id1, std::string node_id2, float rate, float delay, float buffer){
-	// Check if there exists a link with this id already
-	if (!linkExists(id)){
-		// Check if both IDs are valid nodes
-		if(nodeExists(node_id1) && nodeExists(node_id2)){
-			// Get the nodes
-			node *n1 = nodes[node_id1];
-			node *n2 = nodes[node_id2];
+int net::addLink(std::string id, std::string Node_id1, std::string Node_id2, float rate, float delay, float buffer){
+	// Check if there exists a Link with this id already
+	if (!LinkExists(id)){
+		// Check if both IDs are valid Nodes
+		if(NodeExists(Node_id1) && NodeExists(Node_id2)){
+			// Get the Nodes
+			Node *n1 = Nodes[Node_id1];
+			Node *n2 = Nodes[Node_id2];
 		
-			links[id] = link(id, n1, n2, rate, delay, buffer);
+			Links[id] = Link(id, n1, n2, rate, delay, buffer);
 		
 			// Update relations
-			n1->addLink(links[id]);
-			n2->addLink(links[id]);
+			n1->addLink(Links[id]);
+			n2->addLink(Links[id]);
 
-		} else if(!nodeExists(node_id1)){
-			errorSS << "Failed to create Link with id " << id << ". Node " << node_id1 << " does not exist." << endl;
+		} else if(!NodeExists(Node_id1)){
+			errorSS << "Failed to create Link with id " << id << ". Node " << Node_id1 << " does not exist." << endl;
 			return -1;
-		} else if(nodeExists(node_id2)){
-			errorSS << "Failed to create Link with id " << id << ". Node " << node_id2 << " does not exist." << endl;
+		} else if(NodeExists(Node_id2)){
+			errorSS << "Failed to create Link with id " << id << ". Node " << Node_id2 << " does not exist." << endl;
 			return -1;
 		}
 		return 0;
@@ -187,32 +187,32 @@ int net::addLink(std::string id, std::string node_id1, std::string node_id2, flo
 }
 
 // TODO: Add TCP param and alter addFlow accordingly
-int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, float start_time, TCP_type tcp_enum){
-	// Check if there exists a flow with this id already
-	if (!flowExists(id)){
-		// Check if both IDs are valid nodes
-		if(nodeExists(node_src) && nodeExists(node_dst)){
-			// Get the nodes
-			src = nodes[node_src];
-			dst = nodes[node_dst];
+int net::addFlow(std::string id, std::Node_src, std::Node_dst, float data_size, float start_time, TCP_type tcp_enum){
+	// Check if there exists a Flow with this id already
+	if (!FlowExists(id)){
+		// Check if both IDs are valid Nodes
+		if(NodeExists(Node_src) && NodeExists(Node_dst)){
+			// Get the Nodes
+			src = Nodes[Node_src];
+			dst = Nodes[Node_dst];
 		
 			//TODO: Implement TCP Algo
-			flows[id] = flow(id, src, dst, data_size, start_time, tcp_enum);
-			nflows++;
+			Flows[id] = Flow(id, src, dst, data_size, start_time, tcp_enum);
+			nFlows++;
 		
 			// Update relations
-			src.addFlow(flows[id]);
-			dst.addFlow(flows[id]);
+			src.addFlow(Flows[id]);
+			dst.addFlow(Flows[id]);
 			
 			// TODO: Create initial events
-			event_start_flow *flowStart = new flowStart(start_time, *this, flows[id]);
+			event_start_Flow *FlowStart = new FlowStart(start_time, *this, Flows[id]);
 			// for TCP protocols update windows and other various events. Case statement here
 
-		} else if(!nodeExists(node_src)){
-			errorSS << "Failed to create Flow with id " << id << ". Node " << node_src << " does not exist." << endl;
+		} else if(!NodeExists(Node_src)){
+			errorSS << "Failed to create Flow with id " << id << ". Node " << Node_src << " does not exist." << endl;
 			return -1;
-		} else if(nodeExists(node_dst)){
-			errorSS << "Failed to create Flow with id " << id << ". Node " << node_dst << " does not exist." << endl;
+		} else if(NodeExists(Node_dst)){
+			errorSS << "Failed to create Flow with id " << id << ". Node " << Node_dst << " does not exist." << endl;
 			return -1;
 		}		
 		return 0;
@@ -222,9 +222,9 @@ int net::addFlow(std::string id, std::node_src, std::node_dst, float data_size, 
 	}
 }
 
-// Decrement the number of active flows when one is done transmitting
-int net::flowFinished(){
-	return --nflows;
+// Decrement the number of active Flows when one is done transmitting
+int net::FlowFinished(){
+	return --nFlows;
 }
 
 // Priority queue
@@ -235,7 +235,7 @@ int net::addEvent(event *e){
 
 // Runs the simulation
 int net::run(){
-	// Ends if there are no flows left
+	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
 		//Simulation ends at user specified time
 		if (isEnd()){

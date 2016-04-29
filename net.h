@@ -17,29 +17,29 @@
 
 // Forward declarations.
 class event;
-class host;
-class router;
-class link;
-class flow;
+class Host;
+class Router;
+class Link;
+class Flow;
 
 // Custom Libraries
-#include "event.h"
+#include "events/event.h"
 #include "util.h"
 
 float simtime;
 
 class net {
 	private:
-	int nflows;	//number of flows
+	int nFlows;	//number of Flows
 	bool fiveever; // 5ever? or is there a stop time
 	float endtime;	// end of simulation
 	
 	//Lists of objects for each class
 	std::priority_queue<event, vector<event>, compareEvents> events;
-	std::vector<host *> hosts; 
-	std::vector<router *> routers; 
-	std::vector<link *> links; 
-	std::vector<flow *> flows; 
+	std::vector<Host *> Hosts; 
+	std::vector<Router *> Routers; 
+	std::vector<Link *> Links; 
+	std::vector<Flow *> Flows; 
 	
 	public:
 	//initializes net
@@ -54,27 +54,27 @@ class net {
 	bool isEnd(float stop){return (fiveever && time > endtime);};
 	
 	// checks for existence of identically named objeccts of the same class
-	bool nodeExists(std::string id);
-	bool hostExists(std::string id);
-	bool routerExists(std::string id);
-	bool linkExists(std::string id);
-	bool flowExists(std::string id);
+	bool NodeExists(std::string id);
+	bool HostExists(std::string id);
+	bool RouterExists(std::string id);
+	bool LinkExists(std::string id);
+	bool FlowExists(std::string id);
 	
 	// gets the id of the object
-	node* getNode(std::string id);
-	host* getHost(std::string id);
-	router* getRouter(std::string id);
-	link* getLink(std::string id);
-	flow* getFlow(std::string id);
+	Node* getNode(std::string id);
+	Host* getHost(std::string id);
+	Router* getRouter(std::string id);
+	Link* getLink(std::string id);
+	Flow* getFlow(std::string id);
 	
 	// adds an object after verifying uniqueness
 	int addHost(std::string id);
 	int addRouter(std::string id);
-	int addLink(std::string id, std::string node_id1, std::string node_id2, float rate, float delay, float buffer);
-	int addFlow(std::string id, std::string node_src, std::string node_dst, float data_size, float start_time, TCP_type tcp_enum);
+	int addLink(std::string id, std::string Node_id1, std::string Node_id2, float rate, float delay, float buffer);
+	int addFlow(std::string id, std::string Node_src, std::string Node_dst, float data_size, float start_time, TCP_type tcp_enum);
 	
-	// determines number of active flows
-	int flowFinished();
+	// determines number of active Flows
+	int FlowFinished();
 	// insert into priority queue
 	int addEvent(event e);
 	// start the simulation

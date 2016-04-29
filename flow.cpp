@@ -1,6 +1,6 @@
 /**
  * ECE408 
- * flow.cpp
+ * Flow.cpp
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
@@ -11,56 +11,56 @@
 #include <math.h>
 #include <limits.h>
 #include <utility>
-#include "flow.h"
-#include "packet.h"
-#include "event_TO.h"
-#include "util.h"
+#include "Link.h"
+#include "Flow.h"
+#include "Packet.h"
+#include "events/event_TO.h"
 
-// Calculates the packet size
-// Has to deal with lack packet being possibly smaller than the max_seg_size
+// Calculates the Packet size
+// Has to deal with lack Packet being possibly smaller than the max_seg_size
 int Flow::calcPakSize(int currSeq){
 	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
 	return nPakSize;
 }
 
-// Calculates the flow rate for logging
-float Flow::flow_rate() {
+// Calculates the Flow rate for logging
+float Flow::get_flow_rate(){
 	// Time elapsed since last update
 	float time_elapsed = simtime - update_time;
 	// Flow rate is bytes sent over elapsed time (s)
-	flow_rate = bytes_sent/time_elapsed;
+	float f_rate = bytes_sent/time_elapsed;
 	// Reset the bytes sent and most recent update time
 	bytes_sent = 0;
 	update_time = simtime;
-	return flow_rate;
+	return f_rate;
 }
 
-// Injects the packet into the system from the flow
-packet* send_Pak(int pakNum, int pSize, node *pakSrc, packet_type ptype){
-	packet p*;
-	// Reverses direction of incoming packet for the newly generated packet
-	node *pakDst = (pakSrc == src) ? dst : src;
+// Injects the Packet into the system from the Flow
+Packet* Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
+	Packet *p;
+	// Reverses direction of incoming Packet for the newly generated Packet
+	Node *pakDst = (pakSrc == src) ? dst : src;
 	// Packet Generation depending on type
 	if (ptype == DATA) {
-		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);	
-	} else if (ptype == ACK {
-		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, &this);
+		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);	
+	} else if (ptype == ACK) {
+		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);
 	}
 	bytes_sent += p->getSize();
-	// record flowrate after packet insertion event
-	outputSS << getFlow(&this) << ", " << flow_rate() << ", " << simtime << ", flow_rate" << std::endl;
-	// Injects the packet into the link
-	link->receive_pak(p, getOtherNode(pakSrc));
+	// record Flowrate after Packet insertion event
+	outputSS << getName() << ", " << get_flow_rate() << ", " << simtime << ", Flow_rate" << std::endl;
+	// Injects the Packet into the Link
+	Link->receive_pak(p, getOtherNode(pakSrc));
 	return p;
 }
 
-// Sends packets until the number of DATA packets from this flow in the system is equal to CWND
-void send_All_Paks(){
+// Sends Packets until the number of DATA Packets from this Flow in the system is equal to CWND
+void Flow::send_All_Paks(){
 	if (timedAck == -1) { // Is this correct?
-	while(((nextSeq - sendBase)/MAX_SEG_SIZE) < CWND && !noflow()) {
+	while(((nextSeq - sendBase)/MAX_SEG_SIZE) < CWND && !noFlow()) {
 		int pakSize = calcPakSize(nextSeq);
 		send_Pak(nextSeq, pakSize, dst, DATA);
-		// Increments the sequence number of the next packet to be sent by the packet size
+		// Increments the sequence number of the next Packet to be sent by the Packet size
 		nextSeq += pakSize;
 		// Timeout mechanism
 		if (timedAck == -1) {
@@ -72,8 +72,8 @@ void send_All_Paks(){
 }	
 
 // Flow initialization
-// Send one packet
-void start_Flow(){
+// Send one Packet
+void Flow::start_Flow(){
 	gotAcks = 0;
 	nextSeq = 0;
 	sendBase = 0;
@@ -94,12 +94,12 @@ void start_Flow(){
 	nextSeq += pakSize;	//determines next DATA to be sent
 	timedAck = nextSeq;	//for timeout
 	recordTime = simtime;	//for timeout
-	nflow++;		//increase number of active flows by one
+	nFlow++;		//increase number of active Flows by one
 	tcpTO = new event_TO(TO,&this);	//starts a timeout event
 }
 
-// Receive packet event for hosts
-void receive_Pak(packet *p){
+// Receive Packet event for Hosts
+void Flow::receive_Pak(Packet *p){
 	// Receiver receives the DATA
 	if(p->type == DATA){
 		// Would have to add 500ms timeout if waiting to send delayed acks
@@ -167,7 +167,7 @@ void receive_Pak(packet *p){
 				ssThresh = tcp.tripSS(CWND);
 				CWND = tcp.tripCWND(CWND);
 				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
-			// More than 3 dupAcks go into cwnd increase (doesn't send any packets)
+			// More than 3 dupAcks go into cwnd increase (doesn't send any Packets)
 			} else if(dupAcks > 3) {
 				if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
@@ -192,13 +192,13 @@ void receive_Pak(packet *p){
 }
 
 // Timeout occurs
-void flow_Timeout() {
+void Flow::timeout_Flow() {
 	ssThresh = CWND/2;
 	CWND = 1;
 	dupAcks = 0;
 	tcpTO = new event_TO(TO,&this);
 	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
-	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA); //send a packet
+	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA); //send a Packet
 	// Debug for timeout events
 	debugSS << "ACK" << (sendbase + calcPakSize(sendBase)) << " timed out at " << simtime << std::endl; //
 }

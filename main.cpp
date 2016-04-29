@@ -11,184 +11,205 @@
 
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <unistd.h>
 
-#include "rapidjson/document.h"     // rapidjson's DOM-style API
+#include "rapidjson/document.h"	 // rapidjson's DOM-style API
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
 #include "net.h"
-#include "tcp.h"
-
-//#include <fstream>
 
 //#include "rapidjson/prettywriter.h" // for stringify JSON
 
 bool debug = false;
-std::ostream &debugSS = std::cout;
-std::ostream &errorSS = std::cerr;
-std::ostream &outputSS;
+std::ostream *debugSS = std::&cout;
+std::ostream *errorSS = std::&cerr;
+std::ostream *outputSS = std::&cout;
 
 int parseInputs(net &Network, std::string inputFile) {
-    rapidjson::Document root; // root is a JSON value represents the root of DOM.
+	rapidjson::Document root; // root is a JSON value represents the root of DOM.
 #ifndef NDEBUG
-    debugSS << "Parse a JSON file to document root." << std::endl;
+	*debugSS << "Parse a JSON file to document root." << std::endl;
 #endif
 	
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
 	if (input!=NULL) {
 		char readBuffer[65536];
-                rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
-                root.ParseStream(json);
-                fclose(input);
-                rapidjson::StringBuffer buffer;
-                rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-                root.Accept(writer);
-		debugSS << "Original JSON:\n" << buffer.GetString() << std::endl;
-//		if (root.ParseStream(json).HasParseError()) {
-//			fprintf(errorSS, "\nError(offset %u): %s\n", 
-//				(unsigned)root.GetErrorOffset(),
-//				GetParseError_En(root.GetParseError()));
-//			return 1;
-//		}
+		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
+		//*debugSS << "Original JSON:\n" << json << endl;
+		if (root.ParseStream(json).HasParseError()) {
+			fprintf(*errorSS, "\nError(offset %u): %s\n", 
+				(unsigned)root.GetErrorOffset(),
+				GetParseError_En(root.GetParseError()));
+			return 1;
+		}
+		fclose(input);
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		root.Accept(writer);
+		*debugSS << "Original JSON:\n" << buffer.GetString() << std::endl;
 	} else {
-		errorSS << "Unable to open file " << inputFile << std::endl; 
+		*errorSS << "Unable to open file " << inputFile << std::endl; 
 		return -1;
 	}
 #ifndef NDEBUG
-    debugSS<< "Parsing to root succeeded." << std::endl;
+	debugSS<< "Parsing to root succeeded." << std::endl;
 #endif
 
-    assert(root.IsObject());    // Root can be either an object or array. In our template we defined it as an object
+	assert(root.IsObject());	// Root can be either an object or array. In our template we defined it as an object
 	
-        rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("hosts")); // Old version
+	rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("Hosts")); // Old version
 	float endtime = (end != root.MemberEnd()) ? end->value.GetDouble() : 0;
 	assert(endtime >= 0);
 	Network.setEnd(endtime);
 #ifndef NDEBUG
-    debugSS << "Set end time of simulator: " << endtime << std::endl;
+	*debugSS << "Set end time of simulator: " << endtime << std::endl;
 #endif	
 	
-    {
-		assert(root.HasMember("hosts"));
-        const rapidjson::Value& hosts = root["hosts"]; 
-        assert(hosts.IsArray());
+	{
+		assert(root.HasMember("Hosts"));
+		const rapidjson::Value& Hosts = root["Hosts"]; 
+		assert(Hosts.IsArray());
 
-        for (rapidjson::Value::ConstValueIterator itr = hosts.Begin(); itr != hosts.End(); ++itr) {
+		for (rapidjson::Value::ConstValueIterator itr = Hosts.Begin(); itr != Hosts.End(); ++itr) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
-			debugSS << "Added Host " << itr->GetString() << std::endl;;
+		*debugSS << "Added Host " << itr->GetString() << std::endl;;
 #endif
 		}
-    }
+	}
 #ifndef NDEBUG
-    debugSS << "Finished Adding Hosts." << std::endl;
+	*debugSS << "Finished Adding Hosts." << std::endl;
 #endif	
 
-    {
-		assert(root.HasMember("routers"));
-        const rapidjson::Value& routers = root["routers"]; 
-        assert(routers.IsArray());
+	{
+		assert(root.HasMember("Routers"));
+		const rapidjson::Value& Routers = root["Routers"]; 
+		assert(Routers.IsArray());
 
-        for (rapidjson::Value::ConstValueIterator itr = routers.Begin(); itr != routers.End(); ++itr) {
+		for (rapidjson::Value::ConstValueIterator itr = Routers.Begin(); itr != Routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
-			debugSS << "Added Router " << itr->GetString() << std::endl;
+		*debugSS << "Added Router " << itr->GetString() << std::endl;
 #endif
 		}
-    }
+	}
 #ifndef NDEBUG
-    debugSS << "Finished Adding Routers." << std::endl;
+	*debugSS << "Finished Adding Routers." << std::endl;
 #endif	
 
 
-    {
-		assert(root.HasMember("links"));
-        const rapidjson::Value& links = root["links"]; 
-        assert(links.IsArray());
+	{
+		assert(root.HasMember("Links"));
+		const rapidjson::Value& Links = root["Links"]; 
+		assert(Links.IsArray());
 
-		for (rapidjson::SizeType i = 0; i < links.Size(); ++i) {
-			assert(links[i].IsObject());
-			const rapidjson::Value& clink = links[i];
-			Network.addLink(clink["id"].GetString(), clink["node_id1"].GetString(), clink["node_id2"].GetString(), (float) clink["rate"].GetDouble(), (float) clink["delay"].GetDouble(), (float) clink["buffer"].GetDouble());
+		for (rapidjson::SizeType i = 0; i < Links.Size(); ++i) {
+			assert(Links[i].IsObject());
+			const rapidjson::Value& cLink = Links[i];
+			Network.addLink(cLink["id"].GetString(), cLink["Node_id1"].GetString(), cLink["Node_id2"].GetString(), 
+				(float) cLink["rate"].GetDouble(), (float) cLink["delay"].GetDouble(), (float) cLink["buffer"].GetDouble());
 #ifndef NDEBUG
-			debugSS <<"Added Link " << clink["id"].GetString() << std::endl;
+			*debugSS <<"Added Link " << cLink["id"].GetString() << std::endl;
 #endif
 		}
-    }
+	}
 #ifndef NDEBUG
-    debugSS << "Finished Adding Links." << std::endl;
+	*debugSS << "Finished Adding Links." << std::endl;
 #endif	
 
 
-    {
-		assert(root.HasMember("flows"));
-        const rapidjson::Value& flows = root["flows"]; 
-        assert(flows.IsArray());
-        TCP_type tcp_enum;
-		for (rapidjson::SizeType i = 0; i < flows.Size(); ++i) {
-			assert(flows[i].IsObject());
-			const rapidjson::Value& cflow = flows[i];
-			if (cflow.HasMember("TCP")) {
-                                std::string tcp_string = cflow["TCP"].GetString();
-                                std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
+	{
+		assert(root.HasMember("Flows"));
+		const rapidjson::Value& Flows = root["Flows"]; 
+		assert(Flows.IsArray());
+		TCP_type tcp_enum;
+		for (rapidjson::SizeType i = 0; i < Flows.Size(); ++i) {
+			assert(Flows[i].IsObject());
+			const rapidjson::Value& cFlow = Flows[i];
+			if (cFlow.HasMember("TCP")) {
+					std::string tcp_string = cFlow["TCP"].GetString();
+					std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
 				if (tcp_string == "TAHOE") {
 					tcp_enum = TAHOE;
 				} else if (tcp_string == "RENO") {
 					tcp_enum = RENO;
 				}
 			} else {
-                                 tcp_enum = TAHOE;
+				tcp_enum = TAHOE;
 			}
-			Network.addFlow(cflow["id"].GetString(), cflow["node_src"].GetString(), cflow["node_dst"].GetString(), (float) cflow["data_size"].GetDouble(), (float) cflow["start_time"].GetDouble(), tcp_enum);
+			Network.addFlow(cFlow["id"].GetString(), cFlow["Node_src"].GetString(), cFlow["Node_dst"].GetString(), (float) cFlow["data_size"].GetDouble(), (float) cFlow["start_time"].GetDouble(), tcp_enum);
 #ifndef NDEBUG
-			debugSS << "Added Flow " << cflow["id"].GetString() << std::endl;
+			*debugSS << "Added Flow " << cFlow["id"].GetString() << std::endl;
 #endif
 		}
-    }
+	}
 #ifndef NDEBUG
-    debugSS << "Finished Adding Flows." << std::endl;
+	*debugSS << "Finished Adding Flows." << std::endl;
 #endif
 	
 	return 0;
 }
 
 int main(int argc, char *argv[]) {
-	int c = -1, b = 0; // getopt options
+	int c = -1; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
-        std::string inputFile, outputFile;
+	std::string inputFile, outputFile;
 	
 #ifndef NDEBUG
-    debugSS << "Parsing options if they exist." << std::endl;
+	*debugSS << "Parsing options if they exist." << std::endl;
 #endif
-/*	while ((c = getopt(argc, argv, "i:o:d")) != -1) {
+	// Added : in front of arguement list to suppress errors and use custom error code
+	while ((c = getopt(argc, argv, ":i:o:d")) != -1) { 
 		switch (c) {
-            case 'i':
+			case 'i':
 				inputFile = optarg;
-                break;
+				break;
 			case 'o':
 				outputFile = optarg;
 				break;
 			case 'd':
-            	debug = true;
-            	break;
-			case '?':
-                fprintf(errorSS, "Error Invalid option: %c\n", c);
-                return -1;
+				debugFile = optarg;
+				debug = true;
 				break;
-            default:
-                fprintf(errorSS, "Usage: %s %s", argv[0], usageInfo);
+			case ':':
+				switch (optopt) {
+					case 'i':
+						if (inputFile.empty()) {
+							cout << "Please specify the network topology input file:\n";
+							getline(cin, inputFile);
+						}
+						break;
+					case 'o':
+						if (outputFile.empty()) {
+							cout << "Please specify the output file:\n";
+							getline(cin, outputFile);
+						}
+						break;
+					//case 'd':
+					//	cout << "No debug file specified. Defaulting to cout." << endl;
+					//	break;
+				}
+				break;
+			case '?':
+				*errorSS << "Error Invalid option: " << c << endl;
+				return -1;
+				break;
+			default:
+				*errorSS << "Usage: " << argv[0] << " " <<  usageInfo << endl;
 		}
 	}
 	if (inputFile.empty()) {
-		cout << "Please specify the network topology input file:\n>";
+		cout << "Please specify the network topology input file:\n";
 		getline(cin, inputFile);
 	}
-        if (outputFile.empty()) {
+	if (outputFile.empty()) {
 		cout << "Please specify the output file:\n";
 		getline(cin, outputFile);
 	}
@@ -202,22 +223,23 @@ int main(int argc, char *argv[]) {
 	} else {
 		outputSS = &outFile;
 	}
-*/
-inputFile = "./input/test_case_0.json";
-outputFile = "./output.csv";
+#ifndef NDEBUG
+	inputFile = "./input/test_case_0.json";
+	outputFile = "./output.csv";
+#endif
 	// Create Network Simulator object 
 #ifndef NDEBUG
-    debugSS << "Created Network Simulator object." << std::endl;
+	debugSS << "Created Network Simulator object." << std::endl;
 #endif	
 	
 	// Load JSON Input File
-        net *Network = new net();
+	net *Network = new net();
 	parseInputs(*Network, inputFile);
 #ifndef NDEBUG
-    debugSS << "Loaded Network Topology." << std::endl;
+	*debugSS << "Loaded Network Topology." << std::endl;
 #endif
 	
 	Network->run();
 
-    return 0;
+	return 0;
 }
