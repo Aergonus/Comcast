@@ -11,14 +11,17 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <fstream>
+#include <iostream>
+
 // External Variables 
 extern float simtime;
 extern bool debug;
-extern ostream *debugSS;
-extern ostream *errorSS;
-extern ostream *outputSS;
+extern std::ostream *debugSS;
+extern std::ostream *errorSS;
+extern std::ostream *outputSS;
 
-/** Types of packets in this simulation. */
+/** Types of Packets in this simulation. */
 enum packet_type {
 	DATA,
 	ACK,
@@ -34,19 +37,19 @@ enum TCP_type {
 /** Default Max No of hops for Packets */
 static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
 
-/** Size of a flow packet MSS in bytes. */
+/** Size of a Flow Packet MSS in bytes. */
 static const long MAX_SEG_SIZE = 512;
 
-/** Size of an ACK packet in bytes. */
+/** Size of an ACK Packet in bytes. */
 static const long ACK_PACKET_SIZE = 64;
 
-/** Size of a routing packet in bytes. */
+/** Size of a routing Packet in bytes. */
 static const long ROUTING_PACKET_SIZE = 64;
 
-/** Size of a flow packet in bytes. */
+/** Size of a Flow Packet in bytes. */
 static const float ALPHA_TIMEOUT = .125;
 
-/** Size of a flow packet in bytes. */
+/** Size of a Flow Packet in bytes. */
 static const float BETA_TIMEOUT = .25;
 
 /** Conversion factor between bits and bytes. */

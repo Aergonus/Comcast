@@ -1,43 +1,45 @@
 /**
  * ECE408 
- * host.cpp
+ * Host.cpp
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
  * @version 0.2.0 04/19/16
  */
- 
+
+#include <assert.h>
 #include <iostream>
 #include <algorithm>
-#include "host.h"
-//#include "link.h"
-#include "flow.h" // Included because we call one of flow's functions
+#include "Host.h"
+#include "Link.h"
+#include "Flow.h" // Included because we call one of Flow's functions
+#include "Packet.h"
 
-// Initialize and link the host to the network as an endpoint
-void host::addLink(link* l){
+// Initialize and Link the Host to the network as an endpoint
+void Host::addLink(Link* l){
 	// Hosts should only have one connection
-	assert(links.empty());
-	links.push_back(l);
+	assert(getLinks().empty());
+	getLinks().push_back(l);
 }
 
-// Add flow to the host
-void host::addFlow(flow* f){
-	flows.push_back(f);
+// Add Flow to the Host
+void Host::addFlow(Flow* f){
+	Flows.push_back(f);
 }
 
-// Upon receive_packet event, process and send to associated flow
-int host::receive_pak(packet* p){
-	// Add check if packet is routing, drop
-    std::vector<flow *>::iterator itr = std::find(flows.begin(), flows.end(), p->getFlow());
-    assert(!itr == flows.end());
-	(*itr)->receive_pak(p);
-	return 0;
+// Upon receive_Packet event, process and send to associated Flow
+void Host::receive_pak(Packet* p){
+	// Add check if Packet is routing, drop
+	std::vector<Flow *>::iterator itr = std::find(Flows.begin(), Flows.end(), p->getFlow());
+	assert(!(itr == Flows.end()));
+	(*itr)->receive_Pak(p);
+	return;
 }
 
-// Gets the other node connected to the link
-node* getConnectedNode(link *connection){
-	return connection->getOtherNode(&this);
+// Gets the other Node connected to the Link
+Node* Host::getConnectedNode(Link *connection){
+	return connection->getOtherNode(this);
 }
 
-// Debug print host name and address
+// Debug print Host name and address
 

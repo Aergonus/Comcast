@@ -1,6 +1,6 @@
 /**
  * ECE408 
- * link.h
+ * Link.h
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
@@ -18,16 +18,16 @@
 #include "util.h"
 
 // Forward Declaration
-class node;
-//class host;
-class packet;
+class Node;
+//class Host;
+class Packet;
 class net;
 
-class link {
+class Link {
 	private:
 		std::string name;
-		// Node 1 and Node 2 endpoints of link
-		node *n1, *n2;
+		// Node 1 and Node 2 endpoints of Link
+		Node *n1, *n2;
 		// Link Rate in bits per second (throughput)
 		float rate;
 		// Link Delay in seconds (propogation)
@@ -37,11 +37,11 @@ class link {
 		// Current amount of bytes in buffer
 		int occupancy;
 		// Link Buffer
-		std::queue<std::pair<packet*,node*>> buffer;
+		std::queue<std::pair<Packet*,Node*>> buffer;
 		// Network Simulator 
 		net *Network;
 		
-		// Link flow rate calculation
+		// Link Flow rate calculation
 		// Time elapsed
 		float time_elapsed;
 		// Last update time
@@ -51,28 +51,38 @@ class link {
 
 	public:
 		// CONSTRUCTOR
-		link(std::string id, node *node1, node *node2, float rate, float delay, float buffer, net *sim)...
-			:name(id), n1(node1), n2(node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
+		Link(std::string id) :name(id) {};
+		Link(std::string id, Node *Node1, Node *Node2, float rate, float delay, float buffer, net *sim)
+			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
 		
 		// FUNCTIONS
 
-		//Calculate delay for first packet in queue
+		//Calculate delay for first Packet in queue
 		float calcDelay();
 		
-		// Calculate flowrate in link
-		float link_flow_rate();
+		// Calculate Flowrate in Link
+		float get_link_flow_rate();
 		
-		// Pushes packet onto Link Buffer from end node; 
+		// This is weirdly weighted, should use number of packets
+		float get_cost() {return (occupany / rate) + delay;};
+		
+		// Get name for Link
+		std::string getName(){return name;};
+		
+		// Pushes Packet onto Link Buffer from end Node; 
 		// returns TRUE on success; FALSE on full buffer;
-		// origin is a pointer to the packet's transmitting node;
-		bool receive_pak(packet *p, node *n);
+		// origin is a pointer to the Packet's transmitting Node;
+		bool receive_pak(Packet *p, Node *n);
 		
-		// Find node on the other side of the link
-		node* getOtherNode(node *n);
+		// Find Node on the other side of the Link
+		Node* getOtherNode(Node *n);
 		
-		// Called when packet has propogated and arrived at at node
+		// Called when Packet has propogated and arrived at at Node
 		void send_pak();
 
+		bool operator == (Link *cmpLink){
+			return (this->getName() == cmpLink->getName());
+		};
 		//DEBUG/LOGGING FUNCTIONS
 		std::string print();
 };

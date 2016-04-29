@@ -15,13 +15,13 @@
 
 class event_TO : public event {
 	private:
-	flow *f;
+	Flow *f;
 	
 	public:
-	event_TO(float time, flow *f):event(time), f(f){}
+	event_TO(float time, Flow *f):event(time), f(f) {};
 	
 	void handle_event(){
-		f->flow_Timeout();
+		f->timeout_Flow();
 	}
 };
 #endif

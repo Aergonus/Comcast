@@ -1,8 +1,8 @@
 /**
  * ECE408 
- * host.h
+ * Host.h
  * Purpose: Hosts represent access points.
- * They send packets from flows through Links to another Host.
+ * They send Packets from Flows through Links to another Host.
  * 
  * @author Jaeryung Song, Kangqiao Lei, Eric Nguyen
  * @version 0.2.0 04/19/16
@@ -16,29 +16,40 @@
 #include "node.h"
 #include "util.h"
 
-class link;
-class flow;
-class packet;
+class Link;
+class Flow;
+class Packet;
 
-class host : public node {
+class Host : public Node {
 	 private: 
-		std::vector<flow *> flows; 
+		std::vector<Flow *> Flows; 
 
 	 public: 
-		// The constructor creates the host, initially unconnected and without flows.
-		host(std::string name): node(name){};
+		// The constructor creates the Host, initially unconnected and without Flows.
+		Host(std::string name): Node(name){
+			isRouter = false;
+		};
 		
-		// Add a flow for the Host
-		int addFlow(flow *f);
+		// Add a Flow for the Host
+		void addFlow(Flow *f);
 		
-		// Sends a packet into the network via the host's link
+		// Add a Link for the Host
+		void addLink(Link *l);
+		
+		// Sends a Packet into the network via the Host's Link
 		// Called by the Flow and the TLA
-		//virtual bool send_Pak(packet);
+		//virtual bool send_Pak(Packet);
 		
-		// Receives incoming packet
-		virtual int receive_packet(packet *p);
+		Node* getConnectedNode(Link *);
+		
+		// Receives incoming Packet
+		void receive_pak(Packet *p);
 		
 		// Debug
 		std::string print();
+		
+		bool operator == (Host *cmpHost){
+			return (this->getName() == cmpHost->getName());
+		};
 };
 #endif

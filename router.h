@@ -1,6 +1,6 @@
 /**
  * ECE408 
- * router.h
+ * Router.h
  * Purpose: 
  * 
  * @author Eui Han, Arvind Nagalingam
@@ -10,34 +10,34 @@
 #define ROUTER_H
 
 class net;
-class packet;
-class link;
-#include "node.h"
+class Packet;
+class Link;
+#include "Node.h"
 #include <map>
 
-class router: public node{
+class Router: public Node{
   public:
-    router(std::string id);
-    void receive_pak(packet *p);
-    link* get_route(std::string); // looks up the routing table and returns the link
-    void update_table(std::string); // updates the routing table every x time step
-    void update_cost();
-    void send_control() ;
-    void receive_control(packet* p);
+	Router(std::string id);
+	void receive_pak(Packet *p);
+	Link* get_route(std::string); // looks up the routing table and returns the Link
+	void update_table(std::string); // updates the routing table every x time step
+	void update_cost();
+	void send_control() ;
+	void receive_control(Packet* p);
   private:
-    //each row represents each router's dist_ + cost_ vector
-    std::map<std::string, std::map<std::string, double> > routing_table;
+	//each row represents each Router's dist_ + cost_ vector
+	std::map<std::string, std::map<std::string, double> > routing_table;
 
-    //map <neighbor id, link cost>
-    std::map<std::string, double> costVec;
-    
-    //map <hst id, neighbor id>
-    std::map<std::string, std::string> next_hop;
+	//map <neighbor id, Link cost>
+	std::map<std::string, double> costVec;
+	
+	//map <hst id, neighbor id>
+	std::map<std::string, std::string> next_hop;
 
-    //map <node id, pointer to Link>
-    std::map<std::string, link*> links;
+	//map <Node id, pointer to Link>
+	std::map<std::string, Link*> Links;
 
-    //map <router id, pointer to the router>
-    std::map<std::string, router*> neighbors;
+	//map <Router id, pointer to the Router>
+	std::map<std::string, Router*> neighbors;
 };
 #endif

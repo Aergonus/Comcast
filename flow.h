@@ -1,6 +1,6 @@
 /**
  * ECE408 
- * flow.h
+ * Flow.h
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
@@ -17,26 +17,32 @@
 #include "tcp.h"
 #include "util.h"
 
-class node;
+class Node;
 class event;
+class Packet;
+class net;
 
-class flow {
-	friend class packet;
+class Flow {
+	//friend class Packet;
 	
 	private:
-        node* src; //Packet source
-        node* dst; //Packet destination
-        std::string name; //Packet id
-        int size;
+		std::string name; //Packet name
+		Node* src; //Packet source
+		Node* dst; //Packet destination
+		int size;
 		float start;
 
 		// TCP Parameters
 		TCP_type mode;
-		TCP algo;
+		TCP *algo;
+		
+		// Network Simulator 
+		net *Network;
+		
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
-		std::map<std::pair<int,int>> ackStack; // Really AckVec or AckList, but it rhymes
+		std::map<int,int> ackStack; // Really AckVec or AckList, but it rhymes
 		// Receiver
 		int expectedSeq;
 		
@@ -49,7 +55,7 @@ class flow {
 		event *tcpTO;
 		
 		// Packet size calculation
-		int calcPakSize();
+		int calcPakSize(int currSeq);
 		
 		// Flow rate calculation
 		// Time elapsed
@@ -59,10 +65,11 @@ class flow {
 		// Bytes sent
 		float bytes_sent;
 		
-    public:
-    //Constructors
-    flow(std::string id, node src, node dst, int flowSize, float startTime, TCP_type tcp)...
-	: name(id), src(src), dst(dst), size(flowSize), start(startTime) mode(tcp){
+	public:
+	//Constructors
+	Flow(std::string name) : name(name) {};
+	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp, net *sim)
+		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp), Network(sim) {
 		if (mode == TAHOE) {
 			algo = new TAHOE_TCP();
 		} else if (mode == RENO) {
@@ -70,28 +77,33 @@ class flow {
 		}
 	};
 
-    //function to obtain the origin of the flow
-    node* getSrc(){return src;};
-    //function to obtain the destination of the flow
-    node* getDst(){return dst;};
-    //function to obtain the id of the flow
-    string getID(){return id;};
-    //function to obtain the size of the flow
-    int getSize(){return size;};
+	//function to obtain the origin of the Flow
+	Node* getSrc(){return src;};
+	//function to obtain the destination of the Flow
+	Node* getDst(){return dst;};
+	//function to obtain the name of the Flow
+	std::string getName(){return name;};
+	//function to obtain the size of the Flow
+	int getSize(){return size;};
 	
-	// obtain flowrate
-	float flow_rate();
-	// initiate flow
+	// obtain Flowrate
+	float get_flow_rate();
+	// initiate Flow
 	void start_Flow();
-	// flow timeout
-	void flow_Timeout();
-	// packet injection
-	packet* send_Pak();
-	// packet received at host
-	packet* receive_Pak();
-	// determine if flow ended
-	bool noflow(){return nextSeq >= size;};
+	// Flow timeout
+	void timeout_Flow();
+	// Packet injection
+	void send_All_Paks();
+	Packet* send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype);
+	// Packet received at Host
+	Packet* receive_Pak(Packet *p);
+	// determine if Flow ended
+	bool noFlow(){return nextSeq >= size;};
 	void nolove();
+	
+	bool operator == (Flow *cmpFlow){
+		return (this->getName() == cmpFlow->getName());
+	};
 	
 	//debug and reporting
 	std::string print();
