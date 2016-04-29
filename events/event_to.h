@@ -18,7 +18,7 @@ class event_TO : public event {
 	Flow *f;
 	
 	public:
-	event_TO(float time, Flow *f):event(time), f(f){}
+	event_TO(float time, Flow *f):event(time), f(f) {};
 	
 	void handle_event(){
 		f->timeout_Flow();

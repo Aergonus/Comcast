@@ -20,6 +20,7 @@
 class Node;
 class event;
 class Packet;
+class net;
 
 class Flow {
 	//friend class Packet;
@@ -34,6 +35,10 @@ class Flow {
 		// TCP Parameters
 		TCP_type mode;
 		TCP *algo;
+		
+		// Network Simulator 
+		net *Network;
+		
 		// Reliable Data Transfer 
 		// Sender
 		int nextSeq, sendBase, dupAcks;
@@ -62,8 +67,9 @@ class Flow {
 		
 	public:
 	//Constructors
-	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp)
-		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp){
+	Flow(std::string name) : name(name) {};
+	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp, net *sim)
+		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp), Network(sim) {
 		if (mode == TAHOE) {
 			algo = new TAHOE_TCP();
 		} else if (mode == RENO) {
@@ -90,10 +96,14 @@ class Flow {
 	void send_All_Paks();
 	Packet* send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype);
 	// Packet received at Host
-	Packet* receive_Pak();
+	Packet* receive_Pak(Packet *p);
 	// determine if Flow ended
 	bool noFlow(){return nextSeq >= size;};
 	void nolove();
+	
+	bool operator == (Flow *cmpFlow){
+		return (this->getName() == cmpFlow->getName());
+	};
 	
 	//debug and reporting
 	std::string print();

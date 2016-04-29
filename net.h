@@ -21,6 +21,7 @@ class Host;
 class Router;
 class Link;
 class Flow;
+class Node;
 
 // Custom Libraries
 #include "events/event.h"
@@ -35,7 +36,7 @@ class net {
 	float endtime;	// end of simulation
 	
 	//Lists of objects for each class
-	std::priority_queue<event, vector<event>, compareEvents> events;
+	std::priority_queue<event*, std::vector<event*>, compareEvents> events;
 	std::vector<Host *> Hosts; 
 	std::vector<Router *> Routers; 
 	std::vector<Link *> Links; 
@@ -48,10 +49,10 @@ class net {
 	~net();
 	
 	//float getTime(){return time;};
-	float setTime(float ntime){return time = ntime;};
+	float setTime(float ntime){return simtime = ntime;};
 	float getEnd(float stop){return endtime;};
 	float setEnd(float stop){fiveever = true; return endtime = stop;};
-	bool isEnd(float stop){return (fiveever && time > endtime);};
+	bool isEnd(){return (fiveever && (simtime > endtime));};
 	
 	// checks for existence of identically named objeccts of the same class
 	bool NodeExists(std::string id);
@@ -76,11 +77,11 @@ class net {
 	// determines number of active Flows
 	int FlowFinished();
 	// insert into priority queue
-	int addEvent(event e);
+	int addEvent(event *e);
 	// start the simulation
 	int run();
 	
 	// debug
-	string print();
+	std::string print();
 };
 #endif

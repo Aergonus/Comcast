@@ -28,9 +28,9 @@
 //#include "rapidjson/prettywriter.h" // for stringify JSON
 
 bool debug = false;
-std::ostream *debugSS = std::&cout;
-std::ostream *errorSS = std::&cerr;
-std::ostream *outputSS = std::&cout;
+std::ostream *debugSS = &std::cout;
+std::ostream *errorSS = &std::cerr;
+std::ostream *outputSS = &std::cout;
 
 int parseInputs(net &Network, std::string inputFile) {
 	rapidjson::Document root; // root is a JSON value represents the root of DOM.
@@ -44,9 +44,12 @@ int parseInputs(net &Network, std::string inputFile) {
 		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
 		//*debugSS << "Original JSON:\n" << json << endl;
 		if (root.ParseStream(json).HasParseError()) {
+			*errorSS << "Something fucked up with parsing Root." << std::endl;
+			/*
 			fprintf(*errorSS, "\nError(offset %u): %s\n", 
 				(unsigned)root.GetErrorOffset(),
 				GetParseError_En(root.GetParseError()));
+			*/
 			return 1;
 		}
 		fclose(input);
@@ -59,7 +62,7 @@ int parseInputs(net &Network, std::string inputFile) {
 		return -1;
 	}
 #ifndef NDEBUG
-	debugSS<< "Parsing to root succeeded." << std::endl;
+	*debugSS<< "Parsing to root succeeded." << std::endl;
 #endif
 
 	assert(root.IsObject());	// Root can be either an object or array. In our template we defined it as an object
@@ -160,8 +163,8 @@ int parseInputs(net &Network, std::string inputFile) {
 int main(int argc, char *argv[]) {
 	int c = -1; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
-	std::string inputFile, outputFile;
-	
+	std::string inputFile, outputFile, debugFile;
+	std::ofstream outFile;
 #ifndef NDEBUG
 	*debugSS << "Parsing options if they exist." << std::endl;
 #endif
@@ -182,14 +185,14 @@ int main(int argc, char *argv[]) {
 				switch (optopt) {
 					case 'i':
 						if (inputFile.empty()) {
-							cout << "Please specify the network topology input file:\n";
-							getline(cin, inputFile);
+							std::cout << "Please specify the network topology input file:\n";
+							getline(std::cin, inputFile);
 						}
 						break;
 					case 'o':
 						if (outputFile.empty()) {
-							cout << "Please specify the output file:\n";
-							getline(cin, outputFile);
+							std::cout << "Please specify the output file:\n";
+							getline(std::cin, outputFile);
 						}
 						break;
 					//case 'd':
@@ -198,25 +201,25 @@ int main(int argc, char *argv[]) {
 				}
 				break;
 			case '?':
-				*errorSS << "Error Invalid option: " << c << endl;
+				*errorSS << "Error Invalid option: " << c << std::endl;
 				return -1;
 				break;
 			default:
-				*errorSS << "Usage: " << argv[0] << " " <<  usageInfo << endl;
+				*errorSS << "Usage: " << argv[0] << " " <<  usageInfo << std::endl;
 		}
 	}
 	if (inputFile.empty()) {
-		cout << "Please specify the network topology input file:\n";
-		getline(cin, inputFile);
+		std::cout << "Please specify the network topology input file:\n";
+		getline(std::cin, inputFile);
 	}
 	if (outputFile.empty()) {
-		cout << "Please specify the output file:\n";
-		getline(cin, outputFile);
+		std::cout << "Please specify the output file:\n";
+		getline(std::cin, outputFile);
 	}
 	outFile.open(outputFile.c_str());
 	if (outFile.fail()) {
-		cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << endl;
-		getline(cin, outputFile);
+		std::cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
+		getline(std::cin, outputFile);
 		if (outputFile  == "y") {
 			return -1;
 		}
@@ -229,7 +232,7 @@ int main(int argc, char *argv[]) {
 #endif
 	// Create Network Simulator object 
 #ifndef NDEBUG
-	debugSS << "Created Network Simulator object." << std::endl;
+	*debugSS << "Created Network Simulator object." << std::endl;
 #endif	
 	
 	// Load JSON Input File

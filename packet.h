@@ -19,15 +19,17 @@ class Packet{
 	private:
 		Node *src;//sender of the Packet(same as the sender of the Flow)
 		Node *dst;//dstination of the Packet (same as the dstination of the Flow)
-		packet_type type; // ENUM
 		int size; //size of the Packet. Unit: bits
 		int ks;
 	public:
+		packet_type type; // ENUM
+		
 		//constructors
 		Packet(Node *src, Node *dst, packet_type type, int size, int killswitch)
 			:src(src), dst(dst), type(type), size(size), ks(killswitch) {};
 		
 		//FUNCTIONS
+		virtual Flow* getFlow();
 		//returns the src Node pointer
 		Node* getSrc(){return src;};
 		//returns the dstination Node pointer
@@ -38,6 +40,9 @@ class Packet{
 		int getKillSwitch(){return ks;};
 		//decrement Kill Switch
 		int perishSong(){return --ks;};
+		
+		virtual int getSeqNum() = 0;
+		virtual int getAckNum() = 0;
 	// Print Packet details
 	std::string print();
 };
@@ -68,9 +73,16 @@ class ack_pak : public Packet{
 			: Packet(src, dst, type, size, killswitch), ackNum(ackNum), pFlow(f) {};
 		
 		Flow* getFlow(){return pFlow;};
+		int getSeqNum(){return -1;};
 		//returns the ack number of the Packet
 		int getAckNum(){return ackNum;};
 };
 
-//TODO: Routing Packet
+class rout_pak : public Packet{
+	public: 
+		std::map<std::string, std::map<std::string, float> > routing_table;
+		
+		rout_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, std::map<std::string, std::map<std::string, float> > rt) 
+			: Packet(src, dst, type, size, killswitch), rt(routing_table) {};
+};
 #endif

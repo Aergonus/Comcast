@@ -13,7 +13,7 @@
 
 #include <vector>
 #include <string>
-#include "Node.h"
+#include "node.h"
 #include "util.h"
 
 class Link;
@@ -26,19 +26,30 @@ class Host : public Node {
 
 	 public: 
 		// The constructor creates the Host, initially unconnected and without Flows.
-		Host(std::string name): Node(name){};
+		Host(std::string name): Node(name){
+			isRouter = false;
+		};
 		
 		// Add a Flow for the Host
-		int addFlow(Flow *f);
+		void addFlow(Flow *f);
+		
+		// Add a Link for the Host
+		void addLink(Link *l);
 		
 		// Sends a Packet into the network via the Host's Link
 		// Called by the Flow and the TLA
 		//virtual bool send_Pak(Packet);
 		
+		Node* getConnectedNode(Link *);
+		
 		// Receives incoming Packet
-		virtual int receive_Packet(Packet *p);
+		void receive_pak(Packet *p);
 		
 		// Debug
 		std::string print();
+		
+		bool operator == (Host *cmpHost){
+			return (this->getName() == cmpHost->getName());
+		};
 };
 #endif

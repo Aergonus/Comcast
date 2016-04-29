@@ -11,14 +11,14 @@
 #define EVENT_SEND_PAK_H
 
 #include "event.h"
-#include "link.h"
+#include "../Link.h"
 
 class event_send_pak : public event {
 	private:
-	link *l;
+	Link *l;
 	
 	public:
-	event_send_pak(float time, link *l):event(time), l(l);
+	event_send_pak(float time, Link *l):event(time), l(l) {};
 	
 	void handle_event(){
 		l->send_pak();

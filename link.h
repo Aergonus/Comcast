@@ -51,6 +51,7 @@ class Link {
 
 	public:
 		// CONSTRUCTOR
+		Link(std::string id) :name(id) {};
 		Link(std::string id, Node *Node1, Node *Node2, float rate, float delay, float buffer, net *sim)
 			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
 		
@@ -60,7 +61,13 @@ class Link {
 		float calcDelay();
 		
 		// Calculate Flowrate in Link
-		float Link_Flow_rate();
+		float get_link_flow_rate();
+		
+		// This is weirdly weighted, should use number of packets
+		float get_cost() {return (occupany / rate) + delay;};
+		
+		// Get name for Link
+		std::string getName(){return name;};
 		
 		// Pushes Packet onto Link Buffer from end Node; 
 		// returns TRUE on success; FALSE on full buffer;
@@ -73,6 +80,9 @@ class Link {
 		// Called when Packet has propogated and arrived at at Node
 		void send_pak();
 
+		bool operator == (Link *cmpLink){
+			return (this->getName() == cmpLink->getName());
+		};
 		//DEBUG/LOGGING FUNCTIONS
 		std::string print();
 };

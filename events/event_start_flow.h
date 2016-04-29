@@ -11,17 +11,17 @@
 #define EVENT_START_FLOW_H
 
 #include "event.h"
-#include "flow.h"
+#include "../flow.h"
 
 class event_start_flow : public event {
 	private:
-	flow *f;
+	Flow *f;
 	
 	public:
-	event_start_flow(float time, flow *f):event(time), f(f);
+	event_start_flow(float time, Flow *f):event(time), f(f) {};
 	
 	void handle_event(){
-		f->start_flow();
+		f->start_Flow();
 	};
 };
 #endif
