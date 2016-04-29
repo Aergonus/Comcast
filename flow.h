@@ -25,10 +25,10 @@ class Flow {
 	//friend class Packet;
 	
 	private:
-        std::string name; //Packet name
+		std::string name; //Packet name
 		Node* src; //Packet source
-        Node* dst; //Packet destination
-        int size;
+		Node* dst; //Packet destination
+		int size;
 		float start;
 
 		// TCP Parameters
@@ -60,9 +60,9 @@ class Flow {
 		// Bytes sent
 		float bytes_sent;
 		
-    public:
-    //Constructors
-    Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp)
+	public:
+	//Constructors
+	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp)
 		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp){
 		if (mode == TAHOE) {
 			algo = new TAHOE_TCP();
@@ -71,14 +71,14 @@ class Flow {
 		}
 	};
 
-    //function to obtain the origin of the Flow
-    Node* getSrc(){return src;};
-    //function to obtain the destination of the Flow
-    Node* getDst(){return dst;};
-    //function to obtain the name of the Flow
-    std::string getName(){return name;};
-    //function to obtain the size of the Flow
-    int getSize(){return size;};
+	//function to obtain the origin of the Flow
+	Node* getSrc(){return src;};
+	//function to obtain the destination of the Flow
+	Node* getDst(){return dst;};
+	//function to obtain the name of the Flow
+	std::string getName(){return name;};
+	//function to obtain the size of the Flow
+	int getSize(){return size;};
 	
 	// obtain Flowrate
 	float get_flow_rate();

@@ -41,80 +41,80 @@ net::~net(){
 //Overloading  == operators
 //Return true if two objects have same id
 bool operator == (const &Node a, const &Node b){
-    return (a.getID() == b.getID());
+	return (a.getID() == b.getID());
 }
 
 bool operator == (const &Link a, const &Link b){
-    return (a.getID() == b.getID());
+	return (a.getID() == b.getID());
 }
 
 bool operator == (const &Flow a, const &Flow b){
-    return (a.getID() == b.getID());
+	return (a.getID() == b.getID());
 }
 
 //Get statements for each class
 Node* getNode(std::string id){
-    if (HostExists(id)){
-        return getHost(id);
-    }
-    else if (RouterExists(id)){
-        return getRouter(id);
-    }
-    else
-        return NULL;
+	if (HostExists(id)){
+		return getHost(id);
+	}
+	else if (RouterExists(id)){
+		return getRouter(id);
+	}
+	else
+		return NULL;
 }
 
 Host* getHost(std::string id){
-    std::vector<Host>::iterator itr = std::find(Hosts.begin(), Hosts.end(), Host(id)) 
-    if (itr == Hosts.end()){
-        return NULL;
-    }
-    return &(*itr);
+	std::vector<Host>::iterator itr = std::find(Hosts.begin(), Hosts.end(), Host(id)) 
+	if (itr == Hosts.end()){
+		return NULL;
+	}
+	return &(*itr);
 }
 
 Router* getRouter(std::string id){
-    std::vector<Router>::iterator itr = std::find(Routers.begin(), Routers.end(), Router(id));
-    if (itr == Routers.end()){
-        return NULL;
-    }
-    return &(*itr);
+	std::vector<Router>::iterator itr = std::find(Routers.begin(), Routers.end(), Router(id));
+	if (itr == Routers.end()){
+		return NULL;
+	}
+	return &(*itr);
 }
 
 Link* getLink(std::string id){
-    std::vector<Link>::iterator itr = std::find(Links.begin(), Links.end(), Link(id));
-    if (itr == Link.end()){
-        return NULL;
-    }
-    return &(*itr);
+	std::vector<Link>::iterator itr = std::find(Links.begin(), Links.end(), Link(id));
+	if (itr == Link.end()){
+		return NULL;
+	}
+	return &(*itr);
 }
 
 Flow* getFlow(std::string id){
-    std::vector<Flow>::iterator itr = std::find(Flows.begin(), Flows.end(), Flow(id));
-    if (itr == Flows.end()){
-        return NULL;
-    }
-    return &(*itr);
+	std::vector<Flow>::iterator itr = std::find(Flows.begin(), Flows.end(), Flow(id));
+	if (itr == Flows.end()){
+		return NULL;
+	}
+	return &(*itr);
 }
 
 // Checks existence of identically labeled objects
 bool NodeExists(std::string id){
-    return (getNode(id) != NULL);    
+	return (getNode(id) != NULL);	
 }
 
 bool HostExists(std::string id){
-    return (getHost(id) != NULL);    
+	return (getHost(id) != NULL);	
 }
 
 bool RouterExists(std::string id){
-    return (getRouter(id) != NULL);
+	return (getRouter(id) != NULL);
 }
 
 bool LinkExists(std::string id){
-    return (getLink(id) !=NULL);
+	return (getLink(id) !=NULL);
 }
 
 bool FlowExists(std::string id){
-    return (getFlow(id) != NULL);
+	return (getFlow(id) != NULL);
 }
 
 
