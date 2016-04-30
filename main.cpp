@@ -83,7 +83,7 @@ int parseInputs(net &Network, std::string inputFile) {
 		for (rapidjson::Value::ConstValueIterator itr = Hosts.Begin(); itr != Hosts.End(); ++itr) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
-		*debugSS << "Added Host " << itr->GetString() << std::endl;;
+		*debugSS << "Attempted to add Host " << itr->GetString() << std::endl;;
 #endif
 		}
 	}
@@ -100,7 +100,7 @@ int parseInputs(net &Network, std::string inputFile) {
 		for (rapidjson::Value::ConstValueIterator itr = Routers.Begin(); itr != Routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
-		*debugSS << "Added Router " << itr->GetString() << std::endl;
+		*debugSS << "Attempted to add Router " << itr->GetString() << std::endl;
 #endif
 		}
 	}
@@ -113,24 +113,21 @@ int parseInputs(net &Network, std::string inputFile) {
 		assert(root.HasMember("Links"));
 		const rapidjson::Value& Links = root["Links"]; 
 		assert(Links.IsArray());
-		*errorSS << "A" << Links.Size() << std::endl;
 		for (rapidjson::SizeType i = 0; i < Links.Size(); ++i) {
-		*errorSS << i << std::endl;
 			assert(Links[i].IsObject());
 			const rapidjson::Value& cLink = Links[i];
 			const rapidjson::Value& endpoints = cLink["endpoints"];
-			//*errorSS << endpoints[1].GetString() << std::endl;
+			*errorSS << endpoints[1].GetString() << std::endl;
 			Network.addLink(cLink["id"].GetString(), endpoints[0].GetString(), endpoints[1].GetString(), 
 				(float) cLink["rate"].GetDouble(), (float) cLink["delay"].GetDouble(), (float) cLink["buffer"].GetDouble());
 #ifndef NDEBUG
-			*debugSS <<"Added Link " << cLink["id"].GetString() << std::endl;
+			*debugSS <<"Attempted to add Link " << cLink["id"].GetString() << std::endl;
 #endif
 		}
 	}
 #ifndef NDEBUG
 	*debugSS << "Finished Adding Links." << std::endl;
 #endif	
-
 
 	{
 		assert(root.HasMember("Flows"));
@@ -151,9 +148,9 @@ int parseInputs(net &Network, std::string inputFile) {
 			} else {
 				tcp_enum = TAHOE;
 			}
-			Network.addFlow(cFlow["id"].GetString(), cFlow["Node_src"].GetString(), cFlow["Node_dst"].GetString(), (float) cFlow["data_size"].GetDouble(), (float) cFlow["start_time"].GetDouble(), tcp_enum);
+			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble(), (float) cFlow["start"].GetDouble(), tcp_enum);
 #ifndef NDEBUG
-			*debugSS << "Added Flow " << cFlow["id"].GetString() << std::endl;
+			*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
 #endif
 		}
 	}

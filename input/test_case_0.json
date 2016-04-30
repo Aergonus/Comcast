@@ -1,5 +1,5 @@
 {
-    "Hosts": [ "H1", "H2" , "H1"],
+    "Hosts": [ "H1", "H2"],
     "Routers": [],
     "Links": [ 
         { "id": "L1", 

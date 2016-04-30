@@ -57,43 +57,47 @@ Node* net::getNode(std::string id){
 }
 
 Host* net::getHost(std::string id){
-	Host* findHost = new Host(id);
-	std::vector<Host *>::iterator itr = std::find(Hosts.begin(), Hosts.end(), findHost);
-	delete findHost;
-	if (itr == Hosts.end()){
-		return NULL;
+	std::vector<Host *>::iterator itr = Hosts.begin();
+	while(itr != Hosts.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Router* net::getRouter(std::string id){
-	Router* findRouter = new Router(id);
-	std::vector<Router *>::iterator itr = std::find(Routers.begin(), Routers.end(), findRouter);
-	delete findRouter;
-	if (itr == Routers.end()){
-		return NULL;
+	std::vector<Router *>::iterator itr = Routers.begin();
+	while(itr != Routers.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Link* net::getLink(std::string id){
-	Link* findLink = new Link(id);
-	std::vector<Link *>::iterator itr = std::find(Links.begin(), Links.end(), findLink);
-	delete findLink;
-	if (itr == Links.end()){
-		return NULL;
+	std::vector<Link *>::iterator itr = Links.begin();
+	while(itr != Links.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Flow* net::getFlow(std::string id){
-	Flow* findFlow = new Flow(id);
-	std::vector<Flow *>::iterator itr = std::find(Flows.begin(), Flows.end(), findFlow);
-	delete findFlow;
-	if (itr == Flows.end()){
-		return NULL;
+	std::vector<Flow *>::iterator itr = Flows.begin();
+	while(itr != Flows.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 // Checks existence of identically labeled objects
@@ -242,18 +246,24 @@ void net::addEvent(event *e){
 int net::run(){
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
+	*errorSS << "Running!" << std::endl;
 		//Simulation ends at user specified time
 		if (isEnd()){
+			*errorSS << "I'm broken!" << std::endl;
 			break;
 		}
 		//TODO: Establish precedence order? Drain buffers before pushing to them etc
 		event *to_handle = events.top();
+	*errorSS << "Eh!" << std::endl;
 		if(to_handle->isValid()) {
 			simtime = to_handle->get_Start();
+			*errorSS << "Handling!" << std::endl;
 			to_handle->handle_event();
 		}
+	*errorSS << "Ready to pop!" << std::endl;	
 		events.pop();
 		delete to_handle;
+	*errorSS << "Dead!" << std::endl;
 	}
 	return 0;
 }
