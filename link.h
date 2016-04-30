@@ -34,12 +34,12 @@ class Link {
 		float delay;
 		// Maximum number of bytes allowed
 		int buffer_size;
-		// Current amount of bytes in buffer
-		int occupancy;
 		// Link Buffer
 		std::queue<std::pair<Packet*,Node*>> buffer;
 		// Network Simulator 
 		net *Network;
+		// Current amount of bytes in buffer
+		int occupancy;
 		
 		// Link Flow rate calculation
 		// Time elapsed

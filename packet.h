@@ -10,6 +10,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include "flow.h" // DEBUG ONLY 
 #include "util.h"
 
 class Node;
@@ -44,8 +45,8 @@ class Packet{
 		
 		virtual int getSeqNum() = 0;
 		virtual int getAckNum() = 0;
-	// Print Packet details
-	std::string print();
+		// Print Packet details
+		virtual void print() = 0;
 };
 
 class data_pak : public Packet{
@@ -63,6 +64,9 @@ class data_pak : public Packet{
 		int getSeqNum(){return seqNum;};
 		//returns the ack number of the Packet
 		int getAckNum(){return seqNum+getSize();};
+		void print(){
+			*debugSS << "Data packet for flow " << pFlow->getName() << ". SeqNum " << getSeqNum() << ". AckNum " << getAckNum() << "." << std::endl;
+		};
 };
 
 class ack_pak : public Packet{
@@ -79,6 +83,9 @@ class ack_pak : public Packet{
 		int getSeqNum(){return -1;};
 		//returns the ack number of the Packet
 		int getAckNum(){return ackNum;};
+		void print(){
+			*debugSS << "Ack packet for flow " << pFlow->getName() << ". SeqNum " << getSeqNum() << ". AckNum " << getAckNum() << "." << std::endl;
+		};
 };
 /*
 class rout_pak : public Packet{

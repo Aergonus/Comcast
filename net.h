@@ -81,5 +81,6 @@ class net {
 	
 	// debug
 	std::string print();
+	void vomitEvents();
 };
 #endif

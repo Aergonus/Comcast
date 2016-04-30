@@ -41,7 +41,7 @@ class Router: public Node{
 	void receive_pak(Packet *p);
 	
 	// Debug
-	std::string print();
+	void print();
 
 	bool operator == (Router *cmpRouter){
 		return (this->getName() == cmpRouter->getName());

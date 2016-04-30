@@ -40,17 +40,20 @@ float Link::get_link_flow_rate() {
 bool Link::receive_pak(Packet *p, Node *n){
 	assert((n == n1)||(n == n2));
 	if(buffer.empty()){
+	*errorSS << "Empty!" << occupancy << std::endl;
 		// Initiate Packet transmission by inserting into buffer and priority queue
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
 		occupancy += p->getSize();
 		float pDelay = calcDelay();
-		event_send_pak e(pDelay, this);
-		Network->addEvent(&e);
+		event_send_pak *e = new event_send_pak(pDelay, this);
+		Network->addEvent(e);
+		e->print();
 		return true;
 
 	// Stores Packet in buffer if occupied	
 	} else if (occupancy + p->getSize() <= buffer_size) {
+	*errorSS << "Occupied!." << occupancy << std::endl;
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
 		// record buffer occupancy
@@ -59,6 +62,7 @@ bool Link::receive_pak(Packet *p, Node *n){
 		return true;
 	// Packet dropped
 	} else {
+	*errorSS << "Dropped!." << std::endl;
 		// record time when a Packet is dropped
 		//*outputSS << getName() << ", " << simtime << ", , Packet_loss" << std::endl; 		
 		delete p;
@@ -66,20 +70,22 @@ bool Link::receive_pak(Packet *p, Node *n){
 	}
 }
 
-// Transmit Packet from Link to next Node
+// Transmit Packet from Link to next Node - Misnomer really means sent_pak
 void Link::send_pak(){
 	std::pair <Packet*,Node*> sent = buffer.front();
-	(sent.second)->receive_pak(sent.first); // Currently we only have receive_pak for Hosts.
-	occupancy -= (sent.first)->getSize();
+	occupancy -= (sent.first)->getSize(); // Upon receiving, the buffer is decremented
 	bytes_sent += sent.first->getSize();
+	(sent.second)->receive_pak(sent.first); // Currently we only have receive_pak for Hosts.
+	buffer.pop(); // Pop before sending new packet
 	//record Link Flowrate after Packet transmission event
 	*outputSS << getName() << ", " << get_link_flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
-	buffer.pop();
+
 	// repeat Packet transmission through the Link
 	if(!buffer.empty()){
 		float pDelay = calcDelay();
-		event_send_pak e(pDelay, this); 
-		Network->addEvent(&e);
+		event_send_pak *e = new event_send_pak(pDelay, this);
+		Network->addEvent(e);
+		e->print();
 	}
 	return;
 }

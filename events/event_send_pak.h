@@ -24,5 +24,9 @@ class event_send_pak : public event {
 	void handle_event(){
 		l->send_pak();
 	};
+	
+	void print() {
+		*debugSS << "Starting Send Packet Event at time " << get_Start() << std::endl;
+	}
 };
 #endif

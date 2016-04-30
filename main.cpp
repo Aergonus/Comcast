@@ -70,7 +70,9 @@ int parseInputs(net &Network, std::string inputFile) {
 	rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("Hosts")); // Old version
 	float endtime = (end != root.MemberEnd()) ? end->value.GetDouble() : 0;
 	assert(endtime >= 0);
-	Network.setEnd(endtime);
+	if (endtime > 0) {
+		Network.setEnd(endtime);
+	}
 #ifndef NDEBUG
 	*debugSS << "Set end time of simulator: " << endtime << std::endl;
 #endif	
@@ -117,9 +119,8 @@ int parseInputs(net &Network, std::string inputFile) {
 			assert(Links[i].IsObject());
 			const rapidjson::Value& cLink = Links[i];
 			const rapidjson::Value& endpoints = cLink["endpoints"];
-			*errorSS << endpoints[1].GetString() << std::endl;
 			Network.addLink(cLink["id"].GetString(), endpoints[0].GetString(), endpoints[1].GetString(), 
-				(float) cLink["rate"].GetDouble(), (float) cLink["delay"].GetDouble(), (float) cLink["buffer"].GetDouble());
+				(float) cLink["rate"].GetDouble() * BYTES_PER_MEGABIT, (float) cLink["delay"].GetDouble() / MS_PER_SEC , (float) cLink["buffer"].GetDouble() * BYTES_PER_KB);
 #ifndef NDEBUG
 			*debugSS <<"Attempted to add Link " << cLink["id"].GetString() << std::endl;
 #endif
@@ -148,7 +149,8 @@ int parseInputs(net &Network, std::string inputFile) {
 			} else {
 				tcp_enum = TAHOE;
 			}
-			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble(), (float) cFlow["start"].GetDouble(), tcp_enum);
+			//Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * BYTES_PER_MB, (float) cFlow["start"].GetDouble(), tcp_enum);
+			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * (1 << 8), (float) cFlow["start"].GetDouble(), tcp_enum);
 #ifndef NDEBUG
 			*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
 #endif
@@ -234,13 +236,13 @@ int main(int argc, char *argv[]) {
 	// Create Network Simulator object 
 #ifndef NDEBUG
 	*debugSS << "Created Network Simulator object." << std::endl;
-#endif	
+#endif
 	
 	// Load JSON Input File
 	net *Network = new net();
 	parseInputs(*Network, inputFile);
 #ifndef NDEBUG
-	*debugSS << "Loaded Network Topology." << std::endl;
+	*debugSS << "Loaded Network Topology." << std::endl << std::endl << std::endl;
 #endif
 	
 	Network->run();

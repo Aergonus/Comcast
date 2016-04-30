@@ -38,7 +38,7 @@ enum TCP_type {
 static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
 
 /** Size of a Flow Packet MSS in bytes. */
-static const long MAX_SEG_SIZE = 512;
+static const long MAX_SEG_SIZE = 1024;
 
 /** Size of an ACK Packet in bytes. */
 static const long ACK_PACKET_SIZE = 64;
@@ -60,6 +60,9 @@ const int BYTES_PER_KB = 1 << 10;
 
 /** Conversion factor between kilobytes and megabytes. */
 const int KB_PER_MB = 1 << 10;
+
+/** Conversion factor between bytes and megabytes. */
+const int BYTES_PER_MB = BYTES_PER_KB * KB_PER_MB;
 
 /** Conversion factor between megabits to bytes. */
 const int BYTES_PER_MEGABIT =

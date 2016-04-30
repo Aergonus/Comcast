@@ -176,8 +176,8 @@ int net::addLink(std::string id, std::string Node_id1, std::string Node_id2, flo
 		
 			// Update relations
 			Links.push_back(newLink);
-			n1->addLink(getLink(id));
-			n2->addLink(getLink(id));
+			n1->addLink(newLink);
+			n2->addLink(newLink);
 
 		} else if(!NodeExists(Node_id1)){
 			*errorSS << "Failed to create Link with id " << id << ". Node " << Node_id1 << " does not exist." << std::endl;
@@ -209,8 +209,8 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 		
 			// Update relations
 			Flows.push_back(newFlow);
-			src->addFlow(getFlow(id));
-			dst->addFlow(getFlow(id));
+			src->addFlow(newFlow);
+			dst->addFlow(newFlow);
 			
 			// TODO: Create initial events
 			event_start_flow *FlowStart = new event_start_flow(start_time, getFlow(id));
@@ -242,11 +242,20 @@ void net::addEvent(event *e){
 	events.push(e);
 }
 
+
+void net::vomitEvents() {
+	while(!events.empty()) {
+		event *to_handle = events.top();
+		to_handle->print();
+		events.pop();
+		delete to_handle;
+	}
+}
 // Runs the simulation
 int net::run(){
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
-	*errorSS << "Running!" << std::endl;
+	*errorSS << "Running! nEvents" << events.size() << std::endl;
 		//Simulation ends at user specified time
 		if (isEnd()){
 			*errorSS << "I'm broken!" << std::endl;
@@ -254,14 +263,17 @@ int net::run(){
 		}
 		//TODO: Establish precedence order? Drain buffers before pushing to them etc
 		event *to_handle = events.top();
-	*errorSS << "Eh!" << std::endl;
 		if(to_handle->isValid()) {
+			*errorSS << "		Simulation Time changing from " << simtime << " to " << to_handle->get_Start() << std::endl;
 			simtime = to_handle->get_Start();
-			*errorSS << "Handling!" << std::endl;
+#ifndef NDEBUG
+			to_handle->print();
+#endif
 			to_handle->handle_event();
 		}
-	*errorSS << "Ready to pop!" << std::endl;	
+	*errorSS << "Ready to pop! nEvents" << events.size()  << std::endl;	
 		events.pop();
+	*errorSS << "pop! nEvents" << events.size()  << std::endl;	
 		delete to_handle;
 	*errorSS << "Dead!" << std::endl;
 	}

@@ -10,7 +10,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <functional>
+#include <string>
+#include "../util.h"
 
 class event {
 	private:
@@ -20,7 +21,7 @@ class event {
 	public:
 	event(float stime):start(stime) {
 		valid = true;
-	} ;
+	};
 	virtual ~event(){};
 	
 	virtual void handle_event() = 0;
@@ -28,12 +29,17 @@ class event {
 	bool invalidate(){return valid = false;};
 	float get_Start(){return start;};
 	float set_Start(float stime){return start = stime;};
+	virtual void print() = 0;
 };
 
 // Sorting rule for the event* priority queue 
 struct compareEvents {
   bool operator() (event *eventA, event *eventB) const {
-	return eventA->get_Start() > eventB->get_Start();
+	if (eventA->isValid() ^ eventB->isValid()) { // XOR 
+		return eventA->isValid(); // Want to have invalidated events on top
+	} else {
+		return eventA->get_Start() > eventB->get_Start();
+	}
   }
 };
 #endif

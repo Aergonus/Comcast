@@ -33,6 +33,7 @@ class Host : public Node {
 		// Add a Flow for the Host
 		void addFlow(Flow *f);
 		
+		std::vector<Flow *> getFlows(){return Flows;};
 		// Add a Link for the Host
 		void addLink(Link *l);
 		
@@ -46,7 +47,7 @@ class Host : public Node {
 		void receive_pak(Packet *p);
 		
 		// Debug
-		std::string print();
+		void print();
 		
 		bool operator== (Host *cmpHost){
 			return (this->getName() == cmpHost->getName());

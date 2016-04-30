@@ -10,10 +10,6 @@
 #include "Link.h"
 #include "Router.h"
 
-void Router::addLink(Link *l){
-	getLinks().push_back(l);
-};
-
 void Router::receive_pak(Packet *p){
   /*
   if (p->type == ROUTING){ //if the received Packet is control type
@@ -31,4 +27,8 @@ void Router::receive_pak(Packet *p){
 // Gets the other Node connected to the Link
 Node* Router::getConnectedNode(Link *connection){
 	return connection->getOtherNode(this);
+}
+
+void Router::print() {
+
 }

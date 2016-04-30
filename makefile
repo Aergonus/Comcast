@@ -13,11 +13,11 @@ $(app) : main.o flow.o net.o router.o link.o host.o
 main.o : main.cpp rapidjson/document.h rapidjson/error/en.h  rapidjson/filereadstream.h rapidjson/stringbuffer.h rapidjson/writer.h net.h
 	$(CXX) $(LDFLAGS) main.cpp
 	
-flow.o : flow.cpp flow.h tcp.h util.h net.h link.h packet.h events/event.h
-	$(CXX) $(LDFLAGS) flow.cpp
-
 net.o : net.cpp net.h host.h router.h link.h flow.h node.h events/event_start_flow.h util.h
 	$(CXX) $(LDFLAGS) net.cpp
+
+flow.o : flow.cpp flow.h tcp.h util.h net.h link.h packet.h events/event.h
+	$(CXX) $(LDFLAGS) flow.cpp
 
 router.o : router.cpp router.h node.h link.h
 	$(CXX) $(LDFLAGS) router.cpp
@@ -28,11 +28,11 @@ link.o : link.cpp link.h util.h net.h packet.h host.h events/event_send_pak.h
 host.o : host.cpp host.h node.h util.h link.h flow.h packet.h
 	$(CXX) $(LDFLAGS) host.cpp
 	
-#debug :
-#	$(CXX) - Wall - std = gnu++11 - g - o ui.cpp dVec.cpp flow.cpp host.cpp router.cpp rtable.cpp link.cpp node.cpp packet.cpp
+debug :
+	$(CXX) -Wall -std=c++11 -g -o $(app) main.cpp net.cpp flow.cpp router.cpp link.cpp host.cpp
 
 clean :
-	rm - f *.exe *.cpp *.stackdump *~
+	rm -f *.exe *.cpp *.stackdump *~
 
 backup :
 	test - d backups || mkdir backups

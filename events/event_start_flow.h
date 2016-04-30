@@ -24,5 +24,9 @@ class event_start_flow : public event {
 	void handle_event(){
 		f->start_Flow();
 	};
+	
+	void print() {
+		*debugSS << "Starting Flow Event at time " << get_Start() << std::endl;
+	}
 };
 #endif
