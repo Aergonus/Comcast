@@ -25,11 +25,12 @@ class Packet{
 		packet_type type; // ENUM
 		
 		//constructors
-		Packet(Node *src, Node *dst, packet_type type, int size, int killswitch)
-			:src(src), dst(dst), type(type), size(size), ks(killswitch) {};
+		Packet(Node *src, Node *dst, int size, int killswitch, packet_type type)
+			:src(src), dst(dst), size(size), ks(killswitch), type(type) {};
+		virtual ~Packet(){};
 		
 		//FUNCTIONS
-		virtual Flow* getFlow();
+		virtual Flow* getFlow() = 0;
 		//returns the src Node pointer
 		Node* getSrc(){return src;};
 		//returns the dstination Node pointer
@@ -53,8 +54,9 @@ class data_pak : public Packet{
 		Flow *pFlow;//parent Flow 
 		
 	public: 
-		data_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, int seqNum, Flow *f) 
-			: Packet(src, dst, type, size, killswitch), seqNum(seqNum), pFlow(f) {};
+		data_pak(Node *src, Node *dst, int size, int killswitch, packet_type type, int seqNum, Flow *f) 
+			: Packet(src, dst, size, killswitch, type), seqNum(seqNum), pFlow(f) {};
+		~data_pak(){};
 		
 		Flow* getFlow(){return pFlow;};
 		//returns the sequence number of the Packet
@@ -69,15 +71,16 @@ class ack_pak : public Packet{
 		Flow *pFlow;//parent Flow 
 		
 	public: 
-		ack_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, int ackNum, Flow *f) 
-			: Packet(src, dst, type, size, killswitch), ackNum(ackNum), pFlow(f) {};
+		ack_pak(Node *src, Node *dst, int size, int killswitch, packet_type type, int ackNum, Flow *f) 
+			: Packet(src, dst, size, killswitch, type), ackNum(ackNum), pFlow(f) {};
+		~ack_pak(){};
 		
 		Flow* getFlow(){return pFlow;};
 		int getSeqNum(){return -1;};
 		//returns the ack number of the Packet
 		int getAckNum(){return ackNum;};
 };
-
+/*
 class rout_pak : public Packet{
 	public: 
 		std::map<std::string, std::map<std::string, float> > routing_table;
@@ -85,4 +88,5 @@ class rout_pak : public Packet{
 		rout_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, std::map<std::string, std::map<std::string, float> > rt) 
 			: Packet(src, dst, type, size, killswitch), rt(routing_table) {};
 };
+*/
 #endif

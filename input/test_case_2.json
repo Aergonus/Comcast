@@ -1,7 +1,7 @@
 {
-    "hosts": [ "S1", "S2", "S3", "T1", "T2", "T3" ],
-    "routers": [ "R1", "R2", "R3", "R4" ],
-    "links": [ 
+    "Hosts": [ "S1", "S2", "S3", "T1", "T2", "T3" ],
+    "Routers": [ "R1", "R2", "R3", "R4" ],
+    "Links": [ 
         { "id": "L1", 
           "rate": 10, 
           "delay": 10,
@@ -47,7 +47,7 @@
           "delay": 10,
           "buffer": 128,
 		  "endpoints": [ "T3", "R4" ] } ],
-    "flows": [
+    "Flows": [
         { "id": "F1",
           "src": "S1",
           "dst": "T1",

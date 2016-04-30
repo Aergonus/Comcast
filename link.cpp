@@ -73,7 +73,7 @@ void Link::send_pak(){
 	occupancy -= (sent.first)->getSize();
 	bytes_sent += sent.first->getSize();
 	//record Link Flowrate after Packet transmission event
-	*outputSS << getName() << ", " << Link_Flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
+	*outputSS << getName() << ", " << get_link_flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
 	buffer.pop();
 	// repeat Packet transmission through the Link
 	if(!buffer.empty()){

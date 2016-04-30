@@ -5,34 +5,37 @@ CXX := g++
 CXXFLAGS := -std=c++11
 LDFLAGS := -c -Wall $(CXXFLAGS)
 
-all: $(app)
+all : $(app)
 
-$(app): flow.o
-	$(CXX) flow.o -o $(app)
+$(app) : main.o flow.o net.o router.o link.o host.o
+	$(CXX) main.o flow.o net.o router.o link.o host.o -o $(app)
 
-flow.o : flow.cpp flow.h tcp.h events/event_TO.h packet.h util.h
-	$(CXX) $(LDFLAGS) flow.cpp 
-
-tcp.o : tcp.h
-	$(CXX) $(LDFLAGS) tcp.h
-
-events.o : events.cpp
-	$(CXX) -o events.cpp events/event.h events/event_TO.h events/event_send_pak.h events/events_start_flow.h
+main.o : main.cpp rapidjson/document.h rapidjson/error/en.h  rapidjson/filereadstream.h rapidjson/stringbuffer.h rapidjson/writer.h net.h
+	$(CXX) $(LDFLAGS) main.cpp
 	
-packet.o: packet.h util.h
-	$(CXX) $(LDFLAGS) packet.h 
+flow.o : flow.cpp flow.h tcp.h util.h net.h link.h packet.h events/event.h
+	$(CXX) $(LDFLAGS) flow.cpp
 
-util.o: util.h
-	$(CXX) $(LDFLAGS) util.h
+net.o : net.cpp net.h host.h router.h link.h flow.h node.h events/event_start_flow.h util.h
+	$(CXX) $(LDFLAGS) net.cpp
 
-#debug:
-#	$(CXX) -Wall -std=gnu++11 -g -o ui.cpp dVec.cpp flow.cpp host.cpp router.cpp rtable.cpp link.cpp node.cpp packet.cpp
+router.o : router.cpp router.h node.h link.h
+	$(CXX) $(LDFLAGS) router.cpp
 
-clean:
-	rm -f *.exe *.o *.stackdump *~
+link.o : link.cpp link.h util.h net.h packet.h host.h events/event_send_pak.h
+	$(CXX) $(LDFLAGS) link.cpp
 
-backup:
-	test -d backups || mkdir backups
+host.o : host.cpp host.h node.h util.h link.h flow.h packet.h
+	$(CXX) $(LDFLAGS) host.cpp
+	
+#debug :
+#	$(CXX) - Wall - std = gnu++11 - g - o ui.cpp dVec.cpp flow.cpp host.cpp router.cpp rtable.cpp link.cpp node.cpp packet.cpp
+
+clean :
+	rm - f *.exe *.cpp *.stackdump *~
+
+backup :
+	test - d backups || mkdir backups
 	cp *.cpp backups
 	cp *.h backups
 	cp makefile backups

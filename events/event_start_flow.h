@@ -19,6 +19,7 @@ class event_start_flow : public event {
 	
 	public:
 	event_start_flow(float time, Flow *f):event(time), f(f) {};
+	~event_start_flow(){};
 	
 	void handle_event(){
 		f->start_Flow();

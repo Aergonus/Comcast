@@ -12,10 +12,10 @@
 #include <limits.h>
 #include <utility>
 
+#include "Flow.h"
 #include "net.h"
 #include "Node.h"
 #include "Link.h"
-#include "Flow.h"
 #include "Packet.h"
 #include "events/event_TO.h"
 
@@ -45,9 +45,9 @@ Packet* Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
 	Node *pakDst = (pakSrc == src) ? dst : src;
 	// Packet Generation depending on type
 	if (ptype == DATA) {
-		p = new data_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);	
+		p = new data_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);	
 	} else if (ptype == ACK) {
-		p = new ack_pak(pakSrc, pakDst, ptype, KS_POISION_CONSTANT, pSize, pakNum, this);
+		p = new ack_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	}
 	bytes_sent += p->getSize();
 	// record Flowrate after Packet insertion event
@@ -100,7 +100,7 @@ void Flow::start_Flow(){
 }
 
 // Receive Packet event for Hosts
-Packet* Flow::receive_Pak(Packet *p){
+void Flow::receive_Pak(Packet *p){
 
 	// Receiver receives the DATA
 	if(p->type == DATA){
@@ -191,7 +191,7 @@ Packet* Flow::receive_Pak(Packet *p){
 			}
 		// Record out of order acks
 		} else if (p->getAckNum() < sendBase) {
-			*debugSS << p->print() << std::endl; 
+			//*debugSS << p->print() << std::endl; 
 		}
 	} 
 	*outputSS << getName() << ", " << CWND << ", " << simtime << ", window_size" << std::endl;

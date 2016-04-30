@@ -19,6 +19,7 @@ class event_send_pak : public event {
 	
 	public:
 	event_send_pak(float time, Link *l):event(time), l(l) {};
+	~event_send_pak(){};
 	
 	void handle_event(){
 		l->send_pak();

@@ -29,7 +29,7 @@ class Host : public Node {
 		Host(std::string name): Node(name){
 			isRouter = false;
 		};
-		
+		~Host(){};
 		// Add a Flow for the Host
 		void addFlow(Flow *f);
 		
@@ -48,7 +48,7 @@ class Host : public Node {
 		// Debug
 		std::string print();
 		
-		bool operator == (Host *cmpHost){
+		bool operator== (Host *cmpHost){
 			return (this->getName() == cmpHost->getName());
 		};
 };

@@ -12,8 +12,9 @@
 #include "router.h"
 #include "link.h"
 #include "flow.h"
-#include "node.h"
 #include "events/event_start_flow.h"
+
+float simtime;
 
 // Initialize
 net::net(){
@@ -109,7 +110,7 @@ bool net::RouterExists(std::string id){
 }
 
 bool net::LinkExists(std::string id){
-	return (getLink(id) !=NULL);
+	return (getLink(id) != NULL);
 }
 
 bool net::FlowExists(std::string id){
@@ -209,6 +210,7 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 			
 			// TODO: Create initial events
 			event_start_flow *FlowStart = new event_start_flow(start_time, getFlow(id));
+			addEvent(FlowStart);
 			// for TCP protocols update windows and other various events. Case statement here
 
 		} else if(!NodeExists(Node_src)){
@@ -231,7 +233,7 @@ int net::FlowFinished(){
 }
 
 // Priority queue
-int net::addEvent(event *e){
+void net::addEvent(event *e){
 	e->set_Start(e->get_Start() + simtime); // Adds global time to the initialized delay
 	events.push(e);
 }

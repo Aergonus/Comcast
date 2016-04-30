@@ -92,9 +92,10 @@ int parseInputs(net &Network, std::string inputFile) {
 #endif	
 
 	{
-		assert(root.HasMember("Routers"));
+		// Test Case 0 has no Routers
+		//assert(root.HasMember("Routers"));
 		const rapidjson::Value& Routers = root["Routers"]; 
-		assert(Routers.IsArray());
+		//assert(Routers.IsArray());
 
 		for (rapidjson::Value::ConstValueIterator itr = Routers.Begin(); itr != Routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
@@ -112,11 +113,14 @@ int parseInputs(net &Network, std::string inputFile) {
 		assert(root.HasMember("Links"));
 		const rapidjson::Value& Links = root["Links"]; 
 		assert(Links.IsArray());
-
+		*errorSS << "A" << Links.Size() << std::endl;
 		for (rapidjson::SizeType i = 0; i < Links.Size(); ++i) {
+		*errorSS << i << std::endl;
 			assert(Links[i].IsObject());
 			const rapidjson::Value& cLink = Links[i];
-			Network.addLink(cLink["id"].GetString(), cLink["Node_id1"].GetString(), cLink["Node_id2"].GetString(), 
+			const rapidjson::Value& endpoints = cLink["endpoints"];
+			//*errorSS << endpoints[1].GetString() << std::endl;
+			Network.addLink(cLink["id"].GetString(), endpoints[0].GetString(), endpoints[1].GetString(), 
 				(float) cLink["rate"].GetDouble(), (float) cLink["delay"].GetDouble(), (float) cLink["buffer"].GetDouble());
 #ifndef NDEBUG
 			*debugSS <<"Added Link " << cLink["id"].GetString() << std::endl;
@@ -136,8 +140,8 @@ int parseInputs(net &Network, std::string inputFile) {
 		for (rapidjson::SizeType i = 0; i < Flows.Size(); ++i) {
 			assert(Flows[i].IsObject());
 			const rapidjson::Value& cFlow = Flows[i];
-			if (cFlow.HasMember("TCP")) {
-					std::string tcp_string = cFlow["TCP"].GetString();
+			if (cFlow.HasMember("protocol")) {
+					std::string tcp_string = cFlow["protocol"].GetString();
 					std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
 				if (tcp_string == "TAHOE") {
 					tcp_enum = TAHOE;

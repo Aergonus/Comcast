@@ -96,7 +96,7 @@ class Flow {
 	void send_All_Paks();
 	Packet* send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype);
 	// Packet received at Host
-	Packet* receive_Pak(Packet *p);
+	void receive_Pak(Packet *p);
 	// determine if Flow ended
 	bool noFlow(){return nextSeq >= size;};
 	void nolove();

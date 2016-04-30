@@ -9,17 +9,20 @@
 
 class TCP {
 	public:
-		virtual int tripCWND(int currCWND);
-		virtual int tripSS(int currCWND);
-		virtual int probeCWND(int currCWND);
-		virtual int slowCWND(int currCWND);
-		virtual int fastCWND(int currCWND);
+		TCP(){};
+		virtual ~TCP(){};
+		virtual int tripCWND(int currCWND) = 0;
+		virtual int tripSS(int currCWND) = 0;
+		virtual int probeCWND(int currCWND) = 0;
+		virtual int slowCWND(int currCWND) = 0;
+		virtual int fastCWND(int currCWND) = 0;
 };
 
 // TCP Tahoe Congestion Window
 class TAHOE_TCP : public TCP {
 	public:
-		TAHOE_TCP();
+		TAHOE_TCP(){};
+		~TAHOE_TCP(){};
 		int tripCWND(int currCWND){return 1;}; // Triple duplicate acks CWND change
 		int tripSS(int currCWND){return currCWND/2;}; //Triple duplicate acks SSthresh change
 		int probeCWND(int currCWND){return (currCWND++);}; // max probing cwnd
@@ -30,7 +33,8 @@ class TAHOE_TCP : public TCP {
 // TCP Reno Congestion Window
 class RENO_TCP : public TCP {
 	public:
-		RENO_TCP();
+		RENO_TCP(){};
+		~RENO_TCP(){};
 		int tripCWND(int currCWND){return ((currCWND/2) + 3);}; //Fast retransmit
 		int tripSS(int currCWND){return currCWND/2;}; //Triple duplicate acks SSthresh change
 		int probeCWND(int currCWND){return (currCWND++);}; //max probing cwnd

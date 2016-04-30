@@ -64,7 +64,7 @@ class Link {
 		float get_link_flow_rate();
 		
 		// This is weirdly weighted, should use number of packets
-		float get_cost() {return (occupany / rate) + delay;};
+		float get_cost() {return (occupancy / rate) + delay;};
 		
 		// Get name for Link
 		std::string getName(){return name;};
@@ -80,7 +80,7 @@ class Link {
 		// Called when Packet has propogated and arrived at at Node
 		void send_pak();
 
-		bool operator == (Link *cmpLink){
+		bool operator== (Link *cmpLink){
 			return (this->getName() == cmpLink->getName());
 		};
 		//DEBUG/LOGGING FUNCTIONS

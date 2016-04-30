@@ -21,8 +21,9 @@ class event {
 	event(float stime):start(stime) {
 		valid = true;
 	} ;
+	virtual ~event(){};
 	
-	virtual void handle_event();
+	virtual void handle_event() = 0;
 	bool isValid(){return valid;};
 	bool invalidate(){return valid = false;};
 	float get_Start(){return start;};
