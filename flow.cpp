@@ -23,11 +23,7 @@
 // Has to deal with lack Packet being possibly smaller than the max_seg_size
 int Flow::calcPakSize(int currSeq){
 	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
-	*errorSS << "	Calculating Next Packet currSeq " << currSeq << ", nPakSize " << nPakSize << std::endl;
-	if (nPakSize == 0) {
-		Network->vomitEvents();
-		exit(1);
-	}
+	*debugSS << "	Calculating Next Packet currSeq " << currSeq << ", nPakSize " << nPakSize << std::endl;
 	return nPakSize;
 }
 
@@ -54,10 +50,9 @@ Packet* Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
 	} else if (ptype == ACK) {
 		p = new ack_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	}
-	bytes_sent += p->getSize();
-	// record Flowrate after Packet insertion event
-	*outputSS << getName() << ", " << get_flow_rate() << ", " << simtime << ", Flow_rate" << std::endl;
 	// Injects the Packet into the Link
+	*debugSS << "Created in Flow sendpak\t";
+	p->print();
 	pakSrc->getLinks().front()->receive_pak(p, pakSrc->getConnectedNode(pakSrc->getLinks().front()));
 	return p;
 }
@@ -101,6 +96,7 @@ void Flow::start_Flow(){
 	recordTime = simtime;	//for timeout
 	tcpTO = new event_TO(TO,this);
 	Network->addEvent(tcpTO);	//starts a timeout event
+	*debugSS << "Created ";
 	tcpTO->print();
 }
 
@@ -110,16 +106,21 @@ void Flow::receive_Pak(Packet *p){
 	// Receiver receives the DATA
 	if(p->type == DATA){
 		// Would have to add 500ms timeout if waiting to send delayed acks
-	*errorSS << "Got Data" << std::endl;
-	p->print();
+		*debugSS << "Got Data" << std::endl;
+		p->print();
 		// ACK generation 
 		if (ackStack.empty()) {
-			*errorSS << "Empty AckStack" << std::endl;
+			*debugSS << "Empty AckStack" << std::endl;
 			ackStack.insert(std::make_pair(p->getSeqNum(),p->getAckNum())); 
 			expectedSeq = p->getAckNum();
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
 		} else if(p->getSeqNum() == ackStack.begin()->second) {
-			*errorSS << "Pushed AckStack" << std::endl;
+/*
+			*debugSS << "Pushed AckStack" << std::endl;
+				for (const auto &p : ackStack) {
+					*debugSS << "\tackStack[" << p.first << "] = " << p.second << std::endl;
+				}
+*/
 			ackStack.erase(ackStack.begin());
 			std::map<int,int>::iterator it;
 			ackStack[p->getSeqNum()] = p->getAckNum();
@@ -130,11 +131,22 @@ void Flow::receive_Pak(Packet *p){
 				it = ackStack.find(nAck);
 			}
 			expectedSeq = it->second;
+/*
+			*debugSS << "Popped AckStack" << std::endl;
+				for (const auto &p : ackStack) {
+					*debugSS << "\tackStack[" << p.first << "] = " << p.second << std::endl;
+				}
+*/
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
 			
 		// Data gap detection
 		} else if(p->getSeqNum() > ackStack.begin()->second) {
-			*errorSS << "Gap detected!" << std::endl;
+			*debugSS << "Gap detected!" << std::endl;
+/*
+				for (const auto &p : ackStack) {
+					*debugSS << "\tackStack[" << p.first << "] = " << p.second << std::endl;
+				}
+*/
 			ackStack.insert(std::make_pair(p->getSeqNum(),p->getAckNum()));
 			// Send duplicate ack
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
@@ -142,77 +154,118 @@ void Flow::receive_Pak(Packet *p){
 
 	// Transmitter receives an ACK
 	} else if (p->type == ACK) {
-	*errorSS << "Got Ack" << std::endl;
-	p->print();
+		*debugSS << "Got Ack" << std::endl;
+		p->print();
 		// Receive expected ACK number (sendbase + 1)
 		if(p->getAckNum() > sendBase) {
-			*errorSS << "Expected ack received. sendBase " << sendBase << " ackNum " << p->getAckNum() << std::endl;
+			*debugSS << "Expected ack received. sendBase " << sendBase << " ackNum " << p->getAckNum() << std::endl;
 			sendBase = p->getAckNum();
+			// Check if Flow finished
+			if (sendBase == size) {
+				*debugSS << "Flow finished! " << getName() << std::endl;
+				Network->FlowFinished();
+				//Network->vomitEvents();
+				bytes_sent += p->getSize();
+				// record Flowrate after Packet insertion event
+				*outputSS << getName() << ", " << get_flow_rate() << ", " << simtime << ", Flow_rate" << std::endl;
+				*outputSS << getName() << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
+				// Packet no longer useful, eliminate
+				p->print();
+				delete p; 
+				return;
+			}
 			if (sendBase >= timedAck) {
-				*errorSS << "BOOM A" << std::endl;
 				// RTT estimation and starting the TO timer
 				sampRTT = simtime - recordTime;
-				estRTT = (1-ALPHA_TIMEOUT) * estRTT + ALPHA_TIMEOUT * sampRTT;
+				estRTT = (1-ALPHA_TIMEOUT) * estRTT + ALPHA_TIMEOUT * sampRTT + .1; // Add 100 ms to avoid converge
 				devRTT = (1-BETA_TIMEOUT) * devRTT + BETA_TIMEOUT * abs(sampRTT - estRTT);
 				TO = estRTT + 4 * devRTT;
-				tcpTO->invalidate();
-				tcpTO = new event_TO(TO,this);
-				Network->addEvent(tcpTO);
+				*debugSS << "BOOM A: SampRTT" << sampRTT << " TO " << TO << std::endl;
 				timedAck = -1;
 				// Estimated RTT logging
 				*outputSS << getName() << ", " << estRTT << ", " << simtime << ", estimated_rtt" << std::endl; 
 			}
 			if (CWND >= ssThresh) {
-				*errorSS << "BOOM B" << std::endl;
+				*debugSS << "BOOM B CWND" << CWND << "SSTHRESH " << ssThresh << " GotACKS " << gotAcks << std::endl;
 				// Max Probing/Congestion avoidance
-				if (sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
+				if (gotAcks == CWND) {//(sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
 					algo->probeCWND(&CWND);
 					gotAcks = -1;
 				}
 				gotAcks++;
 			} else {
-				*errorSS << "BOOM C CWND" << CWND << "SSTHRESH " << ssThresh << std::endl;
+				*debugSS << "BOOM C CWND" << CWND << "SSTHRESH " << ssThresh << std::endl;
 				// Slow Start
 				algo->slowCWND(&CWND);
-				*errorSS << "BOOM C CWND" << CWND << "SSTHRESH " << ssThresh << std::endl;
+				*debugSS << "BOOM C CWND" << CWND << "SSTHRESH " << ssThresh << std::endl;
 			}
 			send_All_Paks();
 			dupAcks = 0;
 			// Resets timer when an ACK is received
-			// Is this correct? 
 			tcpTO->invalidate();
 			tcpTO = new event_TO(TO,this);
 			Network->addEvent(tcpTO);
+			*debugSS << "Created ";
+			tcpTO->print();
+
 		// Received a duplicate ack, increase the counter
 		} else if (p->getAckNum() == sendBase) {
-			*errorSS << "Dup Ack " << sendBase << std::endl;
+			*debugSS << "Dup Ack " << sendBase << std::endl;
 			dupAcks++;
 			//TCP fast retransmit
 			if(dupAcks == 3) {
+				*debugSS << "Fast Retransmit!" << std::endl;
 				algo->tripSS(&CWND, &ssThresh);
 				algo->tripCWND(&CWND);
-				send_Pak(sendBase, calcPakSize(sendBase), dst, DATA);
+				int pakSize = calcPakSize(sendBase);
+				send_Pak(sendBase, pakSize, dst, DATA);
+				nextSeq = sendBase + pakSize;
+				tcpTO->invalidate();
+				tcpTO = new event_TO(TO,this);
+				Network->addEvent(tcpTO);
+				*debugSS << "Created ";
+				tcpTO->print();
 			// More than 3 dupAcks go into cwnd increase (doesn't send any Packets)
 			} else if(dupAcks > 3) {
 				if (CWND >= ssThresh) {
 				// Max Probing/Congestion avoidance
-					if (sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
-					algo->probeCWND(&CWND);
-					gotAcks = -1;
+				//*outputSS << "Probing," << CWND << "," << gotAcks << ",CWND" << std::endl;
+				*debugSS << "Probing CWND" << CWND << "SSTHRESH " << ssThresh << " GotACKS " << gotAcks << std::endl;
+				this->print();
+					if (gotAcks == CWND) {//(sendBase == nextSeq - gotAcks*MAX_SEG_SIZE) {
+						algo->probeCWND(&CWND);
+						gotAcks = -1;
 					}
 				gotAcks++;
 				} else {
 				// Slow Start
-				algo->slowCWND(&CWND);  
+					//*outputSS << "Slow," << CWND << "," << gotAcks << ",CWND" << std::endl;
+					algo->slowCWND(&CWND);  
 				}
+				/*
+				send_All_Paks();
+				// Resets timer when an ACK is received
+				tcpTO->invalidate();
+				tcpTO = new event_TO(TO,this);
+				Network->addEvent(tcpTO);
+				*debugSS << "Created ";
+				tcpTO->print();
+				*/
 			}
+			
 		// Record out of order acks
 		} else if (p->getAckNum() < sendBase) {
-			*errorSS << "OUT OF ORDER " << p->getAckNum() << std::endl; 
+			*debugSS << "OUT OF ORDER " << p->getAckNum() << std::endl; 
 		}
+		//record window size
+		*outputSS << getName() << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
 	} 
-	*outputSS << getName() << ", " << CWND << ", " << simtime << ", window_size" << std::endl;
+	bytes_sent += p->getSize();
+	// record Flowrate after Packet insertion event
+	*outputSS << getName() << ", " << get_flow_rate() << ", " << simtime << ", Flow_rate" << std::endl;
 	// Packet no longer useful, eliminate
+	*debugSS << "Processed ";
+	p->print();
 	delete p; 
 }
 
@@ -222,10 +275,19 @@ void Flow::timeout_Flow() {
 	CWND = 1;
 	dupAcks = 0;
 	tcpTO->invalidate();
-	tcpTO = new event_TO(TO,this);
+	tcpTO = new event_TO(tcpTO->getTO()*2,this);
 	Network->addEvent(tcpTO);
-	// RETRANSMIT MISSING ACK. BUT WHICH ONE???
-	send_Pak(sendBase, calcPakSize(sendBase), dst, DATA); //send a Packet
+	int pakSize = calcPakSize(sendBase);
+	send_Pak(sendBase, pakSize, dst, DATA);
+	nextSeq = sendBase + pakSize;
+
 	// Debug for timeout events
 	*debugSS << "ACK" << (sendBase + calcPakSize(sendBase)) << " timed out at " << simtime << std::endl; //
+}
+
+void Flow::print() {
+	*debugSS << "Flow " << getName() << ". nextSeq " << nextSeq << " . sendBase " << sendBase << ". dupAcks " << dupAcks 
+		<< ". CWND " << CWND << ". ssThresh " << ssThresh << ". gotAcks" << gotAcks
+		<< ". estRTT" << estRTT << ". devRTT" << devRTT << ". sampRTT" << sampRTT << ". TO " << TO 
+		<< std::endl;
 }

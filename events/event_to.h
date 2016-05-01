@@ -15,18 +15,21 @@
 
 class event_TO : public event {
 	private:
+	float timeout_val;
 	Flow *f;
 	
 	public:
-	event_TO(float time, Flow *f):event(time), f(f) {};
+	event_TO(float time, Flow *f):event(time), timeout_val(time), f(f) {};
 	~event_TO(){};
+	
+	float getTO(){return timeout_val;}
 	
 	void handle_event(){
 		f->timeout_Flow();
 	}
 	
 	void print() {
-		*debugSS << "Starting TO Event at time " << get_Start() << std::endl;
+		*debugSS << "Starting TO Event at time " << get_Start() << " currently " << isValid() << std::endl;
 	}
 };
 #endif

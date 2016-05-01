@@ -11,7 +11,7 @@
         { "id": "F1",
           "src": "H1",
           "dst": "H2",
-		  "protocol": "RENO",
+		  "protocol": "TAHOE",
           "size": 20,
           "start": 1.0} ]
 }

@@ -26,7 +26,7 @@ class event_send_pak : public event {
 	};
 	
 	void print() {
-		*debugSS << "Starting Send Packet Event at time " << get_Start() << std::endl;
+		*debugSS << "Starting Send Packet Event at time " << get_Start() << " currently " << isValid() << std::endl;
 	}
 };
 #endif

@@ -21,7 +21,7 @@
 // Calculate the total delay for a Packet along the Link
 float Link::calcDelay(){
 	// need to check for Packet! Or create one for Routers to call
-	return (float)((buffer.front().first->getSize())/rate + delay);
+	return (float)(occupancy/rate + delay);
 }
 
 // Calculate the Link rate
@@ -40,7 +40,7 @@ float Link::get_link_flow_rate() {
 bool Link::receive_pak(Packet *p, Node *n){
 	assert((n == n1)||(n == n2));
 	if(buffer.empty()){
-	*errorSS << "Empty!" << occupancy << std::endl;
+	*debugSS << "Empty!" << occupancy << std::endl;
 		// Initiate Packet transmission by inserting into buffer and priority queue
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
@@ -48,23 +48,31 @@ bool Link::receive_pak(Packet *p, Node *n){
 		float pDelay = calcDelay();
 		event_send_pak *e = new event_send_pak(pDelay, this);
 		Network->addEvent(e);
+		*debugSS << "Created in Link receivepak\t";
 		e->print();
 		return true;
 
 	// Stores Packet in buffer if occupied	
 	} else if (occupancy + p->getSize() <= buffer_size) {
-	*errorSS << "Occupied!." << occupancy << std::endl;
+	*debugSS << "Occupied!." << occupancy << std::endl;
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
+		occupancy += p->getSize();
 		// record buffer occupancy
 		*outputSS << getName() << ", " << occupancy << ", " << simtime << ", buffer_occ" << std::endl; 
-		occupancy += p->getSize();
+		float pDelay = calcDelay();
+		event_send_pak *e = new event_send_pak(pDelay, this);
+		Network->addEvent(e);
+		*debugSS << "Created in Link receivepak\t";
+		e->print();
+
 		return true;
 	// Packet dropped
 	} else {
-	*errorSS << "Dropped!." << std::endl;
 		// record time when a Packet is dropped
-		//*outputSS << getName() << ", " << simtime << ", , Packet_loss" << std::endl; 		
+		*outputSS << getName() << ", " << simtime << ", , Packet_loss" << std::endl; 		
+		*debugSS << "Dropped ";
+		p->print();
 		delete p;
 		return false; 
 	}
@@ -75,18 +83,10 @@ void Link::send_pak(){
 	std::pair <Packet*,Node*> sent = buffer.front();
 	occupancy -= (sent.first)->getSize(); // Upon receiving, the buffer is decremented
 	bytes_sent += sent.first->getSize();
-	(sent.second)->receive_pak(sent.first); // Currently we only have receive_pak for Hosts.
 	buffer.pop(); // Pop before sending new packet
+	(sent.second)->receive_pak(sent.first); // Currently we only have receive_pak for Hosts.
 	//record Link Flowrate after Packet transmission event
 	*outputSS << getName() << ", " << get_link_flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
-
-	// repeat Packet transmission through the Link
-	if(!buffer.empty()){
-		float pDelay = calcDelay();
-		event_send_pak *e = new event_send_pak(pDelay, this);
-		Network->addEvent(e);
-		e->print();
-	}
 	return;
 }
 

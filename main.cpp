@@ -149,8 +149,8 @@ int parseInputs(net &Network, std::string inputFile) {
 			} else {
 				tcp_enum = TAHOE;
 			}
-			//Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * BYTES_PER_MB, (float) cFlow["start"].GetDouble(), tcp_enum);
-			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * (1 << 8), (float) cFlow["start"].GetDouble(), tcp_enum);
+			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * BYTES_PER_MB, (float) cFlow["start"].GetDouble(), tcp_enum);
+			//Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * (1 << 8), (float) cFlow["start"].GetDouble(), tcp_enum);
 #ifndef NDEBUG
 			*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
 #endif
@@ -167,12 +167,12 @@ int main(int argc, char *argv[]) {
 	int c = -1; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
 	std::string inputFile, outputFile, debugFile;
-	std::ofstream outFile;
+	std::ofstream outFile, debFile;
 #ifndef NDEBUG
-	*debugSS << "Parsing options if they exist." << std::endl;
+	//*debugSS << "Parsing options if they exist." << std::endl;
 #endif
 	// Added : in front of arguement list to suppress errors and use custom error code
-	while ((c = getopt(argc, argv, ":i:o:d")) != -1) { 
+	while ((c = getopt(argc, argv, ":i:o:d:")) != -1) { 
 		switch (c) {
 			case 'i':
 				inputFile = optarg;
@@ -198,9 +198,9 @@ int main(int argc, char *argv[]) {
 							getline(std::cin, outputFile);
 						}
 						break;
-					//case 'd':
-					//	cout << "No debug file specified. Defaulting to cout." << endl;
-					//	break;
+					case 'd':
+						std::cout << "No debug file specified. Defaulting to cout." << std::endl;
+						break;
 				}
 				break;
 			case '?':
@@ -223,11 +223,18 @@ int main(int argc, char *argv[]) {
 	if (outFile.fail()) {
 		std::cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
 		getline(std::cin, outputFile);
-		if (outputFile  == "y") {
+		if (outputFile  != "y") {
 			return -1;
 		}
 	} else {
 		outputSS = &outFile;
+	}
+	debFile.open(debugFile.c_str());
+	if (debFile.fail()) {
+		std::cerr << "Failed to open output file " << debugFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
+		getline(std::cin, debugFile);
+	} else {
+		debugSS = &debFile;
 	}
 #ifndef NDEBUG
 	inputFile = "./input/test_case_0.json";

@@ -18,7 +18,7 @@
 #include "util.h"
 
 class Node;
-class event;
+class event_TO;
 class Packet;
 class net;
 
@@ -52,7 +52,7 @@ class Flow {
 		// TimeOut Calculations
 		int timedAck;
 		float recordTime, estRTT, devRTT, sampRTT, TO;
-		event *tcpTO;
+		event_TO *tcpTO;
 		
 		// Packet size calculation
 		int calcPakSize(int currSeq);
@@ -106,6 +106,6 @@ class Flow {
 	};
 	
 	//debug and reporting
-	std::string print();
+	void print();
 };
 #endif

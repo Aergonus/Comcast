@@ -26,7 +26,7 @@ class event_start_flow : public event {
 	};
 	
 	void print() {
-		*debugSS << "Starting Flow Event at time " << get_Start() << std::endl;
+		*debugSS << "Flow Event at time " << get_Start() << " currently " << isValid() << std::endl;
 	}
 };
 #endif

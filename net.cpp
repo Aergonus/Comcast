@@ -242,7 +242,6 @@ void net::addEvent(event *e){
 	events.push(e);
 }
 
-
 void net::vomitEvents() {
 	while(!events.empty()) {
 		event *to_handle = events.top();
@@ -251,31 +250,39 @@ void net::vomitEvents() {
 		delete to_handle;
 	}
 }
+
 // Runs the simulation
 int net::run(){
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
-	*errorSS << "Running! nEvents" << events.size() << std::endl;
+	*debugSS << "Running! nEvents" << events.size() << std::endl;
 		//Simulation ends at user specified time
 		if (isEnd()){
-			*errorSS << "I'm broken!" << std::endl;
+			*debugSS << "I'm broken!" << std::endl;
 			break;
 		}
 		//TODO: Establish precedence order? Drain buffers before pushing to them etc
 		event *to_handle = events.top();
 		if(to_handle->isValid()) {
-			*errorSS << "		Simulation Time changing from " << simtime << " to " << to_handle->get_Start() << std::endl;
-			simtime = to_handle->get_Start();
 #ifndef NDEBUG
+			*debugSS << events.size() << "\t nEvents. Currently Handling event ";
 			to_handle->print();
 #endif
+			*debugSS << "		Simulation Time changing from " << simtime << " to " << to_handle->get_Start() << std::endl;
+			simtime = to_handle->get_Start();
 			to_handle->handle_event();
+		} else {
+			*debugSS << "Ignored ";
+			to_handle->print();
 		}
-	*errorSS << "Ready to pop! nEvents" << events.size()  << std::endl;	
+		*debugSS << "Finished handling." << std::endl;
+		if (events.empty()) {
+			events.top()->print();
+		}
 		events.pop();
-	*errorSS << "pop! nEvents" << events.size()  << std::endl;	
-		delete to_handle;
-	*errorSS << "Dead!" << std::endl;
+		//delete to_handle;
 	}
+	*debugSS << "Simulation end." << std::endl;
+	
 	return 0;
 }

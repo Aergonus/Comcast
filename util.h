@@ -35,7 +35,7 @@ enum TCP_type {
 };
 
 /** Default Max No of hops for Packets */
-static const int KS_POISION_CONSTANT = 15; // BLEED_OUT_STEPS
+static const int KS_POISION_CONSTANT = 5; // BLEED_OUT_STEPS
 
 /** Size of a Flow Packet MSS in bytes. */
 static const long MAX_SEG_SIZE = 1024;
