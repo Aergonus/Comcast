@@ -19,17 +19,19 @@ class event_TO : public event {
 	Flow *f;
 	
 	public:
-	event_TO(float time, Flow *f):event(time), timeout_val(time), f(f) {};
+	event_TO(float time, Flow *f):event(time), timeout_val(time), f(f) {
+		setType("TO Event");
+	};
 	~event_TO(){};
 	
 	float getTO(){return timeout_val;}
 	
+	void print(){
+		*debugSS << getType() << ",EventID," << getID() <<",StartTime," << get_Start() << ",isValid," << isValid() << ",TO," << timeout_val << std::endl;
+	};
+	
 	void handle_event(){
 		f->timeout_Flow();
-	}
-	
-	void print() {
-		*debugSS << "Starting TO Event at time " << get_Start() << " currently " << isValid() << std::endl;
 	}
 };
 #endif

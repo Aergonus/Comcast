@@ -17,19 +17,27 @@ class event {
 	private:
 	float start;
 	bool valid;
+	int id;
+	std::string etype;
 	
 	public:
 	event(float stime):start(stime) {
+		id = eventsCreated++;
 		valid = true;
 	};
 	virtual ~event(){};
 	
 	virtual void handle_event() = 0;
+	int getID(){return id;};
+	std::string getType(){return etype;};
+	void setType(std::string typestring){etype=typestring;};
 	bool isValid(){return valid;};
 	bool invalidate(){return valid = false;};
 	float get_Start(){return start;};
 	float set_Start(float stime){return start = stime;};
-	virtual void print() = 0;
+	void print(){
+		*debugSS << getType() << ",EventID," << getID() <<",StartTime," << get_Start() << ",isValid," << isValid() << std::endl;
+	};
 };
 
 // Sorting rule for the event* priority queue 

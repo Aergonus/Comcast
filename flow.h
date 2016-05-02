@@ -50,7 +50,7 @@ class Flow {
 		int CWND, ssThresh, gotAcks;
 		
 		// TimeOut Calculations
-		int timedAck;
+		int timedAck, maxSeqSent;
 		float recordTime, estRTT, devRTT, sampRTT, TO;
 		event_TO *tcpTO;
 		
@@ -107,5 +107,18 @@ class Flow {
 	
 	//debug and reporting
 	void print();
+	
+	void logCWND() {
+		*outputSS << simtime << "," << getName() << ",CWND," << CWND << std::endl;
+	}
+	void logSSThresh() {
+		*outputSS << simtime << "," << getName() << ",ssThresh," << ssThresh << std::endl;
+	}
+	void logRTTO() {
+		*outputSS << simtime << "," << getName() << ",sampRTT," << sampRTT << std::endl;
+		*outputSS << simtime << "," << getName() << ",estRTT," << estRTT << std::endl;
+		*outputSS << simtime << "," << getName() << ",devRTT," << devRTT << std::endl;
+		*outputSS << simtime << "," << getName() << ",TO," << TO << std::endl;
+	}
 };
 #endif

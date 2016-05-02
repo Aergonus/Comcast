@@ -40,6 +40,9 @@ class Link {
 		net *Network;
 		// Current amount of bytes in buffer
 		int occupancy;
+		int nAckPaks;
+		int nDataPaks;
+		int nBuffPaks;
 		
 		// Link Flow rate calculation
 		// Time elapsed
@@ -84,6 +87,17 @@ class Link {
 			return (this->getName() == cmpLink->getName());
 		};
 		//DEBUG/LOGGING FUNCTIONS
-		std::string print();
+		void print();
+		
+		void debugBuffer();
+		
+		void logBuffer(){
+			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
+			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
+			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
+			*outputSS << simtime << "," << getName() << ",BuffOcc%," << buffOcc_Percent << std::endl;
+			*outputSS << simtime << "," << getName() << ",AckPak%," << AckPak_Percent << std::endl;
+			*outputSS << simtime << "," << getName() << ",DataPak%," << DataPak_Percent << std::endl;
+		}
 };
 #endif

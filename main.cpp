@@ -150,7 +150,6 @@ int parseInputs(net &Network, std::string inputFile) {
 				tcp_enum = TAHOE;
 			}
 			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * BYTES_PER_MB, (float) cFlow["start"].GetDouble(), tcp_enum);
-			//Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) cFlow["size"].GetDouble() * (1 << 8), (float) cFlow["start"].GetDouble(), tcp_enum);
 #ifndef NDEBUG
 			*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
 #endif
@@ -250,8 +249,11 @@ int main(int argc, char *argv[]) {
 	parseInputs(*Network, inputFile);
 #ifndef NDEBUG
 	*debugSS << "Loaded Network Topology." << std::endl << std::endl << std::endl;
+	//Start Debug Logging
+	*debugSS << "Category,SimulationTime,Descriptions,Key,Value,Pairs" << std::endl;
 #endif
-	
+
+
 	Network->run();
 
 	return 0;

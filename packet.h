@@ -65,7 +65,7 @@ class data_pak : public Packet{
 		//returns the ack number of the Packet
 		int getAckNum(){return seqNum+getSize();};
 		void print(){
-			*debugSS << "Data packet for flow " << pFlow->getName() << ". SeqNum " << getSeqNum() << ". AckNum " << getAckNum() << ". Flow size: " << pFlow->getSize() << std::endl;
+			*debugSS << "Data packet for flow " << pFlow->getName() << ",SeqNum," << getSeqNum() << ",AckNum," << getAckNum() << ",Flow size," << pFlow->getSize() << std::endl;
 		};
 };
 
@@ -84,7 +84,7 @@ class ack_pak : public Packet{
 		//returns the ack number of the Packet
 		int getAckNum(){return ackNum;};
 		void print(){
-			*debugSS << "Ack packet for flow " << pFlow->getName() << ". SeqNum " << getSeqNum() << ". AckNum " << getAckNum() << ". Flow size: " << pFlow->getSize() << std::endl;
+			*debugSS << "Ack packet for flow " << pFlow->getName() << ",SeqNum," << getSeqNum() << ",AckNum," << getAckNum() << ",Flow size," << pFlow->getSize() << std::endl;
 		};
 };
 /*

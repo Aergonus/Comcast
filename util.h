@@ -16,6 +16,8 @@
 
 // External Variables 
 extern float simtime;
+extern int eventsHandled;
+extern int eventsCreated;
 extern bool debug;
 extern std::ostream *debugSS;
 extern std::ostream *errorSS;

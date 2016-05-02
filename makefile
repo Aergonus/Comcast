@@ -32,7 +32,8 @@ debug :
 	$(CXX) -Wall -std=c++11 -g -o $(app) main.cpp net.cpp flow.cpp router.cpp link.cpp host.cpp
 
 clean :
-	rm -f *.exe *.o *.stackdump *~
+	rm -f *.exe *.o *.stackdump *~ *.out
+# Added *.out for output txt files
 
 backup :
 	test - d backups || mkdir backups

@@ -21,7 +21,7 @@
 // Calculate the total delay for a Packet along the Link
 float Link::calcDelay(){
 	// need to check for Packet! Or create one for Routers to call
-	return (float)(occupancy/rate + delay);
+	return (float)((occupancy/rate) + delay*nBuffPaks);
 }
 
 // Calculate the Link rate
@@ -40,38 +40,65 @@ float Link::get_link_flow_rate() {
 bool Link::receive_pak(Packet *p, Node *n){
 	assert((n == n1)||(n == n2));
 	if(buffer.empty()){
-	*debugSS << "Empty!" << occupancy << std::endl;
+	// Buffer is empty -> Store and Send
+		*debugSS << "BufferDebug,"<<simtime<<",";
+		debugBuffer();
+		
+		*debugSS<<"Empty!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
 		// Initiate Packet transmission by inserting into buffer and priority queue
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
 		occupancy += p->getSize();
+		if (p->getSeqNum() != -1) {
+			nDataPaks++;
+		} else {
+			nAckPaks++;
+		}
+		nBuffPaks++;
+		logBuffer();
+		
+		*debugSS << "BufferDebug,"<<simtime<<",";
+		debugBuffer();
+		
 		float pDelay = calcDelay();
 		event_send_pak *e = new event_send_pak(pDelay, this);
 		Network->addEvent(e);
-		*debugSS << "Created in Link receivepak\t";
+		*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
 		return true;
-
-	// Stores Packet in buffer if occupied	
 	} else if (occupancy + p->getSize() <= buffer_size) {
-	*debugSS << "Occupied!." << occupancy << std::endl;
+	// Stores Packet in buffer if occupied	
+		*debugSS << "BufferDebug,"<<simtime<<",";
+		debugBuffer();
+		*debugSS<<"Occupied!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
 		// Stamp destination
 		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
 		occupancy += p->getSize();
-		// record buffer occupancy
-		*outputSS << getName() << ", " << occupancy << ", " << simtime << ", buffer_occ" << std::endl; 
+		if (p->getSeqNum() != -1) {
+			nDataPaks++;
+		} else {
+			nAckPaks++;
+		}
+		nBuffPaks++;
+		logBuffer();
+		
+		*debugSS << "BufferDebug,"<<simtime<<",";
+		debugBuffer();
+		
 		float pDelay = calcDelay();
+		// record buffer occupancy
+		*debugSS<<"BufferedPak!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
 		event_send_pak *e = new event_send_pak(pDelay, this);
 		Network->addEvent(e);
-		*debugSS << "Created in Link receivepak\t";
+		*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
-
 		return true;
 	// Packet dropped
 	} else {
 		// record time when a Packet is dropped
-		*outputSS << getName() << ", " << simtime << ", , Packet_loss" << std::endl; 		
-		*debugSS << "Dropped ";
+		*debugSS << "BufferDebug,"<<simtime<<",";
+		debugBuffer();
+		*debugSS << "DroppedPak!," << simtime << ",";
 		p->print();
 		delete p;
 		return false; 
@@ -82,15 +109,27 @@ bool Link::receive_pak(Packet *p, Node *n){
 void Link::send_pak(){
 	std::pair <Packet*,Node*> sent = buffer.front();
 	occupancy -= (sent.first)->getSize(); // Upon receiving, the buffer is decremented
+	if (sent.first->getSeqNum() != -1) {
+		nDataPaks--;
+	} else {
+		nAckPaks--;
+	}
+	nBuffPaks--;
+	logBuffer();
+	
 	bytes_sent += sent.first->getSize();
 	buffer.pop(); // Pop before sending new packet
 	(sent.second)->receive_pak(sent.first); // Currently we only have receive_pak for Hosts.
 	//record Link Flowrate after Packet transmission event
-	*outputSS << getName() << ", " << get_link_flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
+	//*outputSS << getName() << ", " << get_link_flow_rate() << ", " << simtime << ", Link_Flow_rate" << std::endl;  
 	return;
 }
 
 // Used by all Nodes to send to other side of Link
 Node* Link::getOtherNode(Node *n){
 	return (n1 == n) ? n2 : n1;
-};
+}
+
+void Link::debugBuffer(){
+	*debugSS << "Buffer" << getName() << "," << simtime << ",nDataPaks," << nDataPaks << ",nAckPaks," << nAckPaks << ",nBuffPaks," << nBuffPaks << std::endl;
+}
