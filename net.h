@@ -27,8 +27,6 @@ class Node;
 #include "events/event.h"
 #include "util.h"
 
-float simtime;
-
 class net {
 	private:
 	int nFlows;	//number of Flows
@@ -77,11 +75,12 @@ class net {
 	// determines number of active Flows
 	int FlowFinished();
 	// insert into priority queue
-	int addEvent(event *e);
+	void addEvent(event *e);
 	// start the simulation
 	int run();
 	
 	// debug
 	std::string print();
+	void vomitEvents();
 };
 #endif

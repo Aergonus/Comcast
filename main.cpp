@@ -35,14 +35,14 @@ std::ostream *outputSS = &std::cout;
 int parseInputs(net &Network, std::string inputFile) {
 	rapidjson::Document root; // root is a JSON value represents the root of DOM.
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Parse a JSON file to document root." << std::endl;
+}
 #endif
-	
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
 	if (input!=NULL) {
 		char readBuffer[65536];
 		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
-		//*debugSS << "Original JSON:\n" << json << endl;
 		if (root.ParseStream(json).HasParseError()) {
 			*errorSS << "Something fucked up with parsing Root." << std::endl;
 			/*
@@ -56,13 +56,19 @@ int parseInputs(net &Network, std::string inputFile) {
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 		root.Accept(writer);
-		*debugSS << "Original JSON:\n" << buffer.GetString() << std::endl;
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "Original JSON:\n" << buffer.GetString() << std::endl;
+}
+#endif
 	} else {
 		*errorSS << "Unable to open file " << inputFile << std::endl; 
 		return -1;
 	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS<< "Parsing to root succeeded." << std::endl;
+}
 #endif
 
 	assert(root.IsObject());	// Root can be either an object or array. In our template we defined it as an object
@@ -70,10 +76,14 @@ int parseInputs(net &Network, std::string inputFile) {
 	rapidjson::Value::MemberIterator end = root.FindMember("end"); // assert(root.HasMember("Hosts")); // Old version
 	float endtime = (end != root.MemberEnd()) ? end->value.GetDouble() : 0;
 	assert(endtime >= 0);
-	Network.setEnd(endtime);
+	if (endtime > 0) {
+		Network.setEnd(endtime);
+	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Set end time of simulator: " << endtime << std::endl;
-#endif	
+}
+#endif
 	
 	{
 		assert(root.HasMember("Hosts"));
@@ -83,28 +93,37 @@ int parseInputs(net &Network, std::string inputFile) {
 		for (rapidjson::Value::ConstValueIterator itr = Hosts.Begin(); itr != Hosts.End(); ++itr) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
-		*debugSS << "Added Host " << itr->GetString() << std::endl;;
+if (debug) {
+	*debugSS << "Attempted to add Host " << itr->GetString() << std::endl;;
+}
 #endif
 		}
 	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Finished Adding Hosts." << std::endl;
+}
 #endif	
 
 	{
-		assert(root.HasMember("Routers"));
+		// Test Case 0 has no Routers
+		//assert(root.HasMember("Routers"));
 		const rapidjson::Value& Routers = root["Routers"]; 
-		assert(Routers.IsArray());
+		//assert(Routers.IsArray());
 
 		for (rapidjson::Value::ConstValueIterator itr = Routers.Begin(); itr != Routers.End(); ++itr) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
-		*debugSS << "Added Router " << itr->GetString() << std::endl;
+if (debug) {
+	*debugSS << "Attempted to add Router " << itr->GetString() << std::endl;
+}
 #endif
 		}
 	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Finished Adding Routers." << std::endl;
+}
 #endif	
 
 
@@ -112,21 +131,25 @@ int parseInputs(net &Network, std::string inputFile) {
 		assert(root.HasMember("Links"));
 		const rapidjson::Value& Links = root["Links"]; 
 		assert(Links.IsArray());
-
 		for (rapidjson::SizeType i = 0; i < Links.Size(); ++i) {
 			assert(Links[i].IsObject());
 			const rapidjson::Value& cLink = Links[i];
-			Network.addLink(cLink["id"].GetString(), cLink["Node_id1"].GetString(), cLink["Node_id2"].GetString(), 
-				(float) cLink["rate"].GetDouble(), (float) cLink["delay"].GetDouble(), (float) cLink["buffer"].GetDouble());
+			const rapidjson::Value& endpoints = cLink["endpoints"];
+			Network.addLink(cLink["id"].GetString(), endpoints[0].GetString(), endpoints[1].GetString(), 
+				(float) (cLink["rate"].GetDouble() * BYTES_PER_MEGABIT), (float) (cLink["delay"].GetDouble() / MS_PER_SEC) , (float) (cLink["buffer"].GetDouble() * BYTES_PER_KB));
 #ifndef NDEBUG
-			*debugSS <<"Added Link " << cLink["id"].GetString() << std::endl;
+if (debug) {
+	*debugSS <<"Attempted to add Link " << cLink["id"].GetString() << std::endl;
+	*debugSS <<"rate:" << (float) (cLink["rate"].GetDouble() * BYTES_PER_MEGABIT) << ", delay:" << (float) (cLink["delay"].GetDouble() / MS_PER_SEC) << ", buffer:" << (float) (cLink["buffer"].GetDouble() * BYTES_PER_KB) << std::endl;
+}
 #endif
 		}
 	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Finished Adding Links." << std::endl;
+}
 #endif	
-
 
 	{
 		assert(root.HasMember("Flows"));
@@ -136,8 +159,8 @@ int parseInputs(net &Network, std::string inputFile) {
 		for (rapidjson::SizeType i = 0; i < Flows.Size(); ++i) {
 			assert(Flows[i].IsObject());
 			const rapidjson::Value& cFlow = Flows[i];
-			if (cFlow.HasMember("TCP")) {
-					std::string tcp_string = cFlow["TCP"].GetString();
+			if (cFlow.HasMember("protocol")) {
+					std::string tcp_string = cFlow["protocol"].GetString();
 					std::transform(tcp_string.begin(), tcp_string.end(), tcp_string.begin(), ::toupper);
 				if (tcp_string == "TAHOE") {
 					tcp_enum = TAHOE;
@@ -147,14 +170,19 @@ int parseInputs(net &Network, std::string inputFile) {
 			} else {
 				tcp_enum = TAHOE;
 			}
-			Network.addFlow(cFlow["id"].GetString(), cFlow["Node_src"].GetString(), cFlow["Node_dst"].GetString(), (float) cFlow["data_size"].GetDouble(), (float) cFlow["start_time"].GetDouble(), tcp_enum);
+			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) (cFlow["size"].GetDouble() * BYTES_PER_MB), (float) (cFlow["start"].GetDouble()), tcp_enum);
 #ifndef NDEBUG
-			*debugSS << "Added Flow " << cFlow["id"].GetString() << std::endl;
+if (debug) {
+	*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
+	*debugSS <<"size:" << (float) (cFlow["size"].GetDouble() * BYTES_PER_MB) << ", start:" << (float) (cFlow["start"].GetDouble()) << std::endl;
+}
 #endif
 		}
 	}
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Finished Adding Flows." << std::endl;
+}
 #endif
 	
 	return 0;
@@ -164,12 +192,14 @@ int main(int argc, char *argv[]) {
 	int c = -1; // getopt options
 	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
 	std::string inputFile, outputFile, debugFile;
-	std::ofstream outFile;
+	std::ofstream outFile, debFile;
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Parsing options if they exist." << std::endl;
+}
 #endif
 	// Added : in front of arguement list to suppress errors and use custom error code
-	while ((c = getopt(argc, argv, ":i:o:d")) != -1) { 
+	while ((c = getopt(argc, argv, ":i:o:d:")) != -1) { 
 		switch (c) {
 			case 'i':
 				inputFile = optarg;
@@ -195,9 +225,9 @@ int main(int argc, char *argv[]) {
 							getline(std::cin, outputFile);
 						}
 						break;
-					//case 'd':
-					//	cout << "No debug file specified. Defaulting to cout." << endl;
-					//	break;
+					case 'd':
+						std::cout << "No debug file specified. Defaulting to cout." << std::endl;
+						break;
 				}
 				break;
 			case '?':
@@ -220,28 +250,42 @@ int main(int argc, char *argv[]) {
 	if (outFile.fail()) {
 		std::cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
 		getline(std::cin, outputFile);
-		if (outputFile  == "y") {
+		if (outputFile  != "y") {
 			return -1;
 		}
 	} else {
 		outputSS = &outFile;
 	}
 #ifndef NDEBUG
-	inputFile = "./input/test_case_0.json";
-	outputFile = "./output.csv";
+if (debug) {
+	debFile.open(debugFile.c_str());
+	if (debFile.fail()) {
+		std::cerr << "Failed to open debug file " << debugFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
+		getline(std::cin, debugFile);
+	} else {
+		debugSS = &debFile;
+	}
+}
 #endif
+
 	// Create Network Simulator object 
 #ifndef NDEBUG
+if (debug) {
 	*debugSS << "Created Network Simulator object." << std::endl;
-#endif	
+}
+#endif
+	net *Network = new net();
 	
 	// Load JSON Input File
-	net *Network = new net();
 	parseInputs(*Network, inputFile);
 #ifndef NDEBUG
-	*debugSS << "Loaded Network Topology." << std::endl;
+if (debug) {
+	*debugSS << "Loaded Network Topology." << std::endl << std::endl << std::endl;
+	//Start Debug Logging
+	*debugSS << "Category,SimulationTime,Descriptions,Key,Value,Pairs" << std::endl;
+}
 #endif
-	
+
 	Network->run();
 
 	return 0;

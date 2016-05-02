@@ -15,13 +15,6 @@
 #include "Flow.h" // Included because we call one of Flow's functions
 #include "Packet.h"
 
-// Initialize and Link the Host to the network as an endpoint
-void Host::addLink(Link* l){
-	// Hosts should only have one connection
-	assert(getLinks().empty());
-	getLinks().push_back(l);
-}
-
 // Add Flow to the Host
 void Host::addFlow(Flow* f){
 	Flows.push_back(f);
@@ -42,4 +35,18 @@ Node* Host::getConnectedNode(Link *connection){
 }
 
 // Debug print Host name and address
-
+void Host::print() {
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "Host " << getName() << ":" << std::endl << "Contains Flows ";
+	for(auto const& value: getFlows()) {
+		*debugSS << value->getName() << " ";
+	}
+		*debugSS << std::endl << "Connected to Links ";
+	for(auto const& value: getLinks()) {
+		*debugSS << value->getName() << " ";
+	}
+	*debugSS << std::endl;
+}
+#endif
+}

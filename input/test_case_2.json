@@ -1,7 +1,7 @@
 {
-    "hosts": [ "S1", "S2", "S3", "T1", "T2", "T3" ],
-    "routers": [ "R1", "R2", "R3", "R4" ],
-    "links": [ 
+    "Hosts": [ "S1", "S2", "S3", "T1", "T2", "T3" ],
+    "Routers": [ "R1", "R2", "R3", "R4" ],
+    "Links": [ 
         { "id": "L1", 
           "rate": 10, 
           "delay": 10,
@@ -47,23 +47,20 @@
           "delay": 10,
           "buffer": 128,
 		  "endpoints": [ "T3", "R4" ] } ],
-    "flows": [
+    "Flows": [
         { "id": "F1",
           "src": "S1",
           "dst": "T1",
           "size": 35,
-          "start": 0.5,
-          "protocol": "UDP" },
+          "start": 0.5},
         { "id": "F2",
           "src": "S2",
           "dst": "T2",
           "size": 15,
-          "start": 10.0,
-          "protocol": "UDP" },
+          "start": 10.0},
         { "id": "F3",
           "src": "S3",
           "dst": "T3",
           "size": 30,
-          "start": 20.0,
-          "protocol": "UDP" } ]
+          "start": 20.0} ]
 }

@@ -12,8 +12,11 @@
 #include "router.h"
 #include "link.h"
 #include "flow.h"
-#include "node.h"
 #include "events/event_start_flow.h"
+
+float simtime;
+int eventsHandled;
+int eventsCreated;
 
 // Initialize
 net::net(){
@@ -56,43 +59,47 @@ Node* net::getNode(std::string id){
 }
 
 Host* net::getHost(std::string id){
-	Host* findHost = new Host(id);
-	std::vector<Host *>::iterator itr = std::find(Hosts.begin(), Hosts.end(), findHost);
-	delete findHost;
-	if (itr == Hosts.end()){
-		return NULL;
+	std::vector<Host *>::iterator itr = Hosts.begin();
+	while(itr != Hosts.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Router* net::getRouter(std::string id){
-	Router* findRouter = new Router(id);
-	std::vector<Router *>::iterator itr = std::find(Routers.begin(), Routers.end(), findRouter);
-	delete findRouter;
-	if (itr == Routers.end()){
-		return NULL;
+	std::vector<Router *>::iterator itr = Routers.begin();
+	while(itr != Routers.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Link* net::getLink(std::string id){
-	Link* findLink = new Link(id);
-	std::vector<Link *>::iterator itr = std::find(Links.begin(), Links.end(), findLink);
-	delete findLink;
-	if (itr == Links.end()){
-		return NULL;
+	std::vector<Link *>::iterator itr = Links.begin();
+	while(itr != Links.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 Flow* net::getFlow(std::string id){
-	Flow* findFlow = new Flow(id);
-	std::vector<Flow *>::iterator itr = std::find(Flows.begin(), Flows.end(), findFlow);
-	delete findFlow;
-	if (itr == Flows.end()){
-		return NULL;
+	std::vector<Flow *>::iterator itr = Flows.begin();
+	while(itr != Flows.end()) {
+		if ((*itr)->getName() == id) {
+			return *itr;
+		}
+		itr++;
 	}
-	return *itr;
+	return NULL;
 }
 
 // Checks existence of identically labeled objects
@@ -109,7 +116,7 @@ bool net::RouterExists(std::string id){
 }
 
 bool net::LinkExists(std::string id){
-	return (getLink(id) !=NULL);
+	return (getLink(id) != NULL);
 }
 
 bool net::FlowExists(std::string id){
@@ -171,8 +178,8 @@ int net::addLink(std::string id, std::string Node_id1, std::string Node_id2, flo
 		
 			// Update relations
 			Links.push_back(newLink);
-			n1->addLink(getLink(id));
-			n2->addLink(getLink(id));
+			n1->addLink(newLink);
+			n2->addLink(newLink);
 
 		} else if(!NodeExists(Node_id1)){
 			*errorSS << "Failed to create Link with id " << id << ". Node " << Node_id1 << " does not exist." << std::endl;
@@ -204,11 +211,12 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 		
 			// Update relations
 			Flows.push_back(newFlow);
-			src->addFlow(getFlow(id));
-			dst->addFlow(getFlow(id));
+			src->addFlow(newFlow);
+			dst->addFlow(newFlow);
 			
 			// TODO: Create initial events
 			event_start_flow *FlowStart = new event_start_flow(start_time, getFlow(id));
+			addEvent(FlowStart);
 			// for TCP protocols update windows and other various events. Case statement here
 
 		} else if(!NodeExists(Node_src)){
@@ -231,27 +239,73 @@ int net::FlowFinished(){
 }
 
 // Priority queue
-int net::addEvent(event *e){
+void net::addEvent(event *e){
 	e->set_Start(e->get_Start() + simtime); // Adds global time to the initialized delay
 	events.push(e);
+}
+
+void net::vomitEvents() {
+#ifndef NDEBUG
+if (debug) {
+	while(!events.empty()) {
+		event *to_handle = events.top();
+		to_handle->print();
+		events.pop();
+		delete to_handle;
+	}
+}
+#endif
 }
 
 // Runs the simulation
 int net::run(){
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "Running!," << simtime << ",hEvents," << eventsHandled << ",nEvents," << events.size() << std::endl;
+}
+#endif
+		
 		//Simulation ends at user specified time
 		if (isEnd()){
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "EndSim," << simtime << ",I'm broken!" << std::endl;
+}
+#endif
 			break;
 		}
 		//TODO: Establish precedence order? Drain buffers before pushing to them etc
 		event *to_handle = events.top();
 		if(to_handle->isValid()) {
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "Valid," << simtime << ",";
+			to_handle->print();
+	*debugSS << "UpdateTime,"<< simtime << ",Changing Simulation Time to," << to_handle->get_Start() << std::endl;
+}
+#endif
 			simtime = to_handle->get_Start();
 			to_handle->handle_event();
+		} else {
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "Invalid,"<< simtime << ",";
+			to_handle->print();
+}
+#endif
 		}
+
 		events.pop();
 		delete to_handle;
+		eventsHandled++;
 	}
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "EndSimulation," << simtime << std::endl;
+}
+#endif
+
 	return 0;
 }

@@ -25,20 +25,20 @@ class Node {
 	public: 
 		// Constructor
 		Node(const std::string name):name(name){};
-		
+		virtual ~Node(){};
 		bool isRouter;
 		std::string getName(){return name;} // Gets address of the Node
-		virtual void addLink(Link *l); // Add Link to the Node
+		void addLink(Link *l){Links.push_back(l);}; // Add Link to the Node
 		std::vector<Link *> getLinks(){return Links;}; // Gets list of Links connected to the Node
 		virtual void receive_pak(Packet *p) = 0;
-		virtual Node* getConnectedNode(Link *connection); // Gets the Link connected to the given Node
+		virtual Node* getConnectedNode(Link *connection) = 0; // Gets the Link connected to the given Node
 
 		bool operator == (Node *cmpNode){
 			return (this->getName() == cmpNode->getName());
 		};
 
 		// Debug
-		std::string print();
+		virtual void print() = 0;
 };
 
 #endif

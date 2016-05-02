@@ -1,7 +1,7 @@
 {
-    "hosts": [ "H1", "H2" ],
-    "routers": [ "R1", "R2", "R3", "R4" ],
-    "links": [ 
+    "Hosts": [ "H1", "H2" ],
+    "Routers": [ "R1", "R2", "R3", "R4" ],
+    "Links": [ 
         { "id": "L0", 
           "rate": 12.5, 
           "delay": 10,
@@ -32,11 +32,10 @@
           "delay": 10,
           "buffer": 64,
 		  "endpoints": [ "R4", "H2" ] } ],
-    "flows": [
+    "Flows": [
         { "id": "F1",
           "src": "H1",
           "dst": "H2",
           "size": 20,
-          "start": 0.5,
-          "protocol": "UDP" } ]
+          "start": 0.5} ]
 }

@@ -18,7 +18,7 @@
 #include "util.h"
 
 class Node;
-class event;
+class event_TO;
 class Packet;
 class net;
 
@@ -50,16 +50,14 @@ class Flow {
 		int CWND, ssThresh, gotAcks;
 		
 		// TimeOut Calculations
-		int timedAck;
+		int timedAck, maxSeqSent;
 		float recordTime, estRTT, devRTT, sampRTT, TO;
-		event *tcpTO;
+		event_TO *tcpTO;
 		
 		// Packet size calculation
 		int calcPakSize(int currSeq);
 		
 		// Flow rate calculation
-		// Time elapsed
-		float time_elapsed;
 		// Last update time
 		float update_time;
 		// Bytes sent
@@ -70,6 +68,7 @@ class Flow {
 	Flow(std::string name) : name(name) {};
 	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp, net *sim)
 		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp), Network(sim) {
+		update_time = startTime;
 		if (mode == TAHOE) {
 			algo = new TAHOE_TCP();
 		} else if (mode == RENO) {
@@ -94,9 +93,9 @@ class Flow {
 	void timeout_Flow();
 	// Packet injection
 	void send_All_Paks();
-	Packet* send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype);
+	bool send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype);
 	// Packet received at Host
-	Packet* receive_Pak(Packet *p);
+	void receive_Pak(Packet *p);
 	// determine if Flow ended
 	bool noFlow(){return nextSeq >= size;};
 	void nolove();
@@ -106,6 +105,40 @@ class Flow {
 	};
 	
 	//debug and reporting
-	std::string print();
+	void print();
+	
+	void logCWND() {
+		*outputSS << simtime << "," << getName() << ",CWND," << CWND << std::endl;
+	}
+	void logSSThresh() {
+#ifndef NDEBUG
+if (debug) {
+	*outputSS << simtime << "," << getName() << ",ssThresh," << ssThresh << std::endl;
+}
+#endif
+	}
+	void logRTTO() {
+		*outputSS << simtime << "," << getName() << ",sampRTT," << sampRTT << std::endl;
+#ifndef NDEBUG
+if (debug) {
+		*outputSS << simtime << "," << getName() << ",estRTT," << estRTT << std::endl;
+		*outputSS << simtime << "," << getName() << ",devRTT," << devRTT << std::endl;
+}
+#endif
+		*outputSS << simtime << "," << getName() << ",TO," << TO << std::endl;
+	}
+	
+	void logFlowRate(){
+	// Calculates the Flow rate for logging
+		// Time elapsed since last update
+		float time_elapsed = simtime - update_time;
+		// Flow rate is bytes sent over elapsed time (s)
+		float f_rate = bytes_sent/time_elapsed;
+		// Reset the bytes sent and most recent update time
+		bytes_sent = 0;
+		update_time = simtime;
+		// Log Format 
+		*outputSS << simtime << "," << getName() << ",FlowRate," << f_rate << std::endl;
+	}
 };
 #endif
