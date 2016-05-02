@@ -1,9 +1,9 @@
 #Comcast MakeFile
-app : = Comcast.exe
+app := Comcast.exe
 
-	CXX : = g++
-	CXXFLAGS : = -std = c++11
-	LDFLAGS : = -c -Wall $(CXXFLAGS)
+CXX := g++
+CXXFLAGS := -std=c++11
+LDFLAGS := -c -Wall $(CXXFLAGS)
 
 all : $(app)
 
@@ -13,7 +13,7 @@ $(app) : main.o flow.o net.o router.o link.o host.o
 main.o : main.cpp rapidjson/document.h rapidjson/error/en.h  rapidjson/filereadstream.h rapidjson/stringbuffer.h rapidjson/writer.h net.h
 	$(CXX) $(LDFLAGS) main.cpp
 	
-net.o : net.cpp net.h host.h router.h link.h flow.h node.h events/event_start_flow.h util.h
+net.o : net.cpp net.h host.h router.h link.h flow.h node.h events/event_start_flow.h events/event_log.h util.h
 	$(CXX) $(LDFLAGS) net.cpp
 
 flow.o : flow.cpp flow.h tcp.h util.h net.h link.h packet.h events/event.h

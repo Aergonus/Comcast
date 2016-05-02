@@ -98,12 +98,15 @@ class Link {
 		void logBuffer(){
 #ifndef NDEBUG
 if (debug) {
+// Debug is wack for now, disabled so output isn't as long
+/*
 			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
 			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
 			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
 			*outputSS << simtime << "," << getName() << ",BuffOcc%," << buffOcc_Percent << std::endl;
 			*outputSS << simtime << "," << getName() << ",AckPak%," << AckPak_Percent << std::endl;
 			*outputSS << simtime << "," << getName() << ",DataPak%," << DataPak_Percent << std::endl;
+*/
 }
 #endif
 			*outputSS << simtime << "," << getName() << ",BuffOcc," << occupancy << std::endl;

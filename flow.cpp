@@ -38,7 +38,7 @@ bool Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
 	Node *pakDst = (pakSrc == src) ? dst : src;
 	// Packet Generation depending on type
 	if (ptype == DATA) {
-		p = new data_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);	
+		p = new data_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	} else if (ptype == ACK) {
 		p = new ack_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	}
@@ -204,7 +204,7 @@ if (debug) {
 #endif
 			// Record Flowrate upon receiving good ACK
 			bytes_sent += p->getAckNum() - sendBase;
-			logFlowRate();
+			//logFlowRate();
 
 			sendBase = p->getAckNum();
 			if (sendBase == size) {
@@ -234,7 +234,7 @@ if (debug) {
 				estRTT = (1-ALPHA_TIMEOUT) * estRTT + ALPHA_TIMEOUT * sampRTT; 
 				devRTT = (1-BETA_TIMEOUT) * devRTT + BETA_TIMEOUT * abs(sampRTT - estRTT);
 				TO = estRTT + 4 * devRTT + 0.100; // Add 100 ms to avoid converge
-				logRTTO();
+				//logRTTO();
 				
 #ifndef NDEBUG
 if (debug) {
@@ -298,7 +298,7 @@ if (debug) {
 				int pakSize = calcPakSize(sendBase);
 				send_Pak(sendBase, pakSize, dst, DATA);
 				
-				logRTTO();
+				//logRTTO();
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,this);
 				Network->addEvent(tcpTO);
@@ -311,11 +311,11 @@ if (debug) {
 			} else if(dupAcks > 3) {
 				// More than 3 dupAcks go into cwnd increase
 				algo->tripDups(&CWND);
-				logCWND();
-				send_All_Paks(); // Shouldn't send anything
+				//logCWND();
+				//send_All_Paks(); // Shouldn't send anything
 				
 				// Move TO window to when packets are sent 
-				logRTTO();
+				//logRTTO();
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,this);
 				Network->addEvent(tcpTO);

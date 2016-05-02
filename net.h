@@ -66,6 +66,12 @@ class net {
 	Link* getLink(std::string id);
 	Flow* getFlow(std::string id);
 	
+	// gets vector of objects
+	std::vector<Host *> getHosts(){return Hosts;};
+	std::vector<Router *> getRouters(){return Routers;};
+	std::vector<Link *> getLinks(){return Links;};
+	std::vector<Flow *> getFlows(){return Flows;};
+	
 	// adds an object after verifying uniqueness
 	int addHost(std::string id);
 	int addRouter(std::string id);
@@ -82,5 +88,8 @@ class net {
 	// debug
 	std::string print();
 	void vomitEvents();
+	
+	// Logging events
+	void log_Throughput();
 };
 #endif
