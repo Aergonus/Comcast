@@ -88,5 +88,8 @@ class net {
 	// debug
 	std::string print();
 	void vomitEvents();
+	
+	// Logging events
+	void log_Throughput();
 };
 #endif

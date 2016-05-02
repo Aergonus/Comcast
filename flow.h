@@ -113,7 +113,10 @@ class Flow {
 	void logSSThresh() {
 #ifndef NDEBUG
 if (debug) {
+// Debug is wack for now, disabled so output isn't as long
+/*
 	*outputSS << simtime << "," << getName() << ",ssThresh," << ssThresh << std::endl;
+*/
 }
 #endif
 	}
@@ -121,8 +124,10 @@ if (debug) {
 		*outputSS << simtime << "," << getName() << ",sampRTT," << sampRTT << std::endl;
 #ifndef NDEBUG
 if (debug) {
+/*
 		*outputSS << simtime << "," << getName() << ",estRTT," << estRTT << std::endl;
 		*outputSS << simtime << "," << getName() << ",devRTT," << devRTT << std::endl;
+*/
 }
 #endif
 		*outputSS << simtime << "," << getName() << ",TO," << TO << std::endl;

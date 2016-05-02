@@ -204,7 +204,7 @@ if (debug) {
 #endif
 			// Record Flowrate upon receiving good ACK
 			bytes_sent += p->getAckNum() - sendBase;
-			logFlowRate();
+			//logFlowRate();
 
 			sendBase = p->getAckNum();
 			if (sendBase == size) {
@@ -311,11 +311,11 @@ if (debug) {
 			} else if(dupAcks > 3) {
 				// More than 3 dupAcks go into cwnd increase
 				algo->tripDups(&CWND);
-				logCWND();
-				send_All_Paks(); // Shouldn't send anything
+				//logCWND();
+				//send_All_Paks(); // Shouldn't send anything
 				
 				// Move TO window to when packets are sent 
-				logRTTO();
+				//logRTTO();
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,this);
 				Network->addEvent(tcpTO);

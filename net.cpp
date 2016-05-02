@@ -13,6 +13,7 @@
 #include "link.h"
 #include "flow.h"
 #include "events/event_start_flow.h"
+#include "events/event_log.h"
 
 float simtime;
 int eventsHandled;
@@ -257,8 +258,35 @@ if (debug) {
 #endif
 }
 
+void net::log_Throughput(){
+	for(auto&& f: Flows){
+		f->logFlowRate();
+	}
+	for(auto&& l: Links){
+		l->logLinkRate();
+	}
+	event_log *e = new event_log(LOGGING_INTERVAL,this);
+	addEvent(e);
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+		e->print();
+}
+#endif
+};
+
 // Runs the simulation
 int net::run(){
+	// Create initial logging event
+	event_log *e = new event_log(LOGGING_INTERVAL,this);
+	addEvent(e);
+#ifndef NDEBUG
+if (debug) {
+	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+		e->print();
+}
+#endif
+
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
 #ifndef NDEBUG

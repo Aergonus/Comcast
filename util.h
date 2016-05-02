@@ -73,4 +73,8 @@ const int BYTES_PER_MEGABIT = 125000;
 /** Milliseconds per second. */
 const int MS_PER_SEC = 1000;
 
+/** Log throughput every interval */
+static const float LOGGING_INTERVAL = 0.1;
+
+
 #endif // UTIL_H
