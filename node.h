@@ -10,24 +10,29 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <map>
 #include <vector>
 #include <string>
+#include "Link.h"
 #include "util.h"
 
-class Link;
 class Packet;
 
 class Node {
 	private:
 		std::string name; //Node id
 		std::vector<Link *> Links; // list of Links connected to Node
-
+		std::map<std::string, Node *> neighbors; //map <link id, nodes>
 	public: 
 		// Constructor
 		Node(const std::string name):name(name){};
 		virtual ~Node(){};
 		bool isRouter;
 		std::string getName(){return name;} // Gets address of the Node
+		void addNeighbor(Link *l, Node *n){
+			neighbors.insert({l->getName(),n});
+			addLink(l);
+		}
 		void addLink(Link *l){Links.push_back(l);}; // Add Link to the Node
 		std::vector<Link *> getLinks(){return Links;}; // Gets list of Links connected to the Node
 		virtual void receive_pak(Packet *p, Link *l) = 0;

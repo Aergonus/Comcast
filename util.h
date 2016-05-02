@@ -76,5 +76,7 @@ const int MS_PER_SEC = 1000;
 /** Log throughput every interval */
 static const float LOGGING_INTERVAL = 0.1;
 
+/** Update Routing if older than this time */
+static const float STALE_ROUTING_TIMEOUT = 10;
 
 #endif // UTIL_H

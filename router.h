@@ -26,20 +26,7 @@ class Router: public Node{
 
 	// Maps id of a Link to the connected Node
 	std::map<std::string, Node*> neighbors;
-	
-    //map <neighbor id, link cost>
-    std::map<std::string, float> costVec;
-	
-	// ------------------------------------------------------------------------
-    float ctrl_Updated; //keep track of the time last control packet was sent
 
-    Link* received_from_;
-	
-    //each row represents each router's dist_ + cost_ vector
-    std::map<std::string, std::map<std::string, float> > routing_table_;
-
-	// ------------------------------------------------------------------------
-	
   public:
     Router(std::string id): Node(id){};
 	Router(std::string id, net *sim): Node(id), Network(sim){
@@ -51,22 +38,7 @@ class Router: public Node{
 	Node* getConnectedNode(Link *);
 	
 	// Receives incoming Packet
-	void receive_pak(Packet *p);
-	
-	// ------------------------------------------------------------------------
-    Router(std::string id);
-    virtual void SendPacket(Packet, float);
-    virtual void ReceivePacket(Link&, Packet, float);
-    bool allowedToTransmit();
-    Link& GetRoute(std::string); // looks up the routing table and returns the link (first link ref is the link back to the src)
-    void UpdateTable(std::string); // updates the routing table every x time step
-    void UpdateCost();
-    void SendControl();
-    void ReceiveControl(Packet p);
-    std::map<std::string, float> RoutingVector() const;
-    Link& Greedy(std::string);
-    void Init(); //initializes the routing table
-	// ------------------------------------------------------------------------
+	void receive_pak(Packet *p, Link *l);
 	
 	// Debug
 	void print();

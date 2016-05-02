@@ -70,7 +70,7 @@ class Link {
 		// Calculate Flowrate in Link
 		float get_link_flow_rate();
 		
-		// This is weirdly weighted, should use number of packets
+		// This is weirdly weighted, should use number of packets //maybe? // Since we changed prop delay this should be right
 		float get_cost() {return (occupancy / rate) + delay;};
 		
 		// Get name for Link

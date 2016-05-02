@@ -10,7 +10,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include "flow.h" // DEBUG ONLY 
+#include <map> // Needed for Control Packets
+#include "flow.h" // Data/Ack Debug Print Only
+#include "router.h" // Crtl Debug Print Only
 #include "util.h"
 
 class Node;
@@ -87,13 +89,19 @@ class ack_pak : public Packet{
 			*debugSS << "Ack packet for flow " << pFlow->getName() << ",SeqNum," << getSeqNum() << ",AckNum," << getAckNum() << ",Flow size," << pFlow->getSize() << std::endl;
 		};
 };
-/*
-class rout_pak : public Packet{
+
+class crtl_pak : public Packet{
 	public: 
 		std::map<std::string, std::map<std::string, float> > routing_table;
+		std::map<std::string, float> updatedDVTime;
 		
-		rout_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, std::map<std::string, std::map<std::string, float> > rt) 
-			: Packet(src, dst, type, size, killswitch), rt(routing_table) {};
+		crtl_pak(Node *src, Node *dst, packet_type type, int size, int killswitch, std::map<std::string, std::map<std::string, float> > rt, std::map<std::string, float> uDVT)
+			: Packet(src, dst, size, killswitch, type), routing_table(rt), updatedDVTime(uDVT) {}
+		~crtl_pak(){};
+		
+		void print(){
+			*debugSS << "Crtl packet for Router " << getSrc()->getName() << std::endl;
+		};
 };
-*/
+
 #endif
