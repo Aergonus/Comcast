@@ -1,9 +1,9 @@
 #Comcast MakeFile
-app : = Comcast.exe
+app := Comcast.exe
 
-	CXX : = g++
-	CXXFLAGS : = -std = c++11
-	LDFLAGS : = -c -Wall $(CXXFLAGS)
+CXX := g++
+CXXFLAGS := -std=c++11
+LDFLAGS := -c -Wall $(CXXFLAGS)
 
 all : $(app)
 
