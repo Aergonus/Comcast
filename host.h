@@ -34,8 +34,6 @@ class Host : public Node {
 		void addFlow(Flow *f);
 		
 		std::vector<Flow *> getFlows(){return Flows;};
-		// Add a Link for the Host
-		void addLink(Link *l);
 		
 		// Sends a Packet into the network via the Host's Link
 		// Called by the Flow and the TLA
@@ -44,7 +42,7 @@ class Host : public Node {
 		Node* getConnectedNode(Link *);
 		
 		// Receives incoming Packet
-		void receive_pak(Packet *p);
+		void receive_pak(Packet *p, Link *l);
 		
 		// Debug
 		void print();

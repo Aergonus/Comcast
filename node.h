@@ -30,7 +30,7 @@ class Node {
 		std::string getName(){return name;} // Gets address of the Node
 		void addLink(Link *l){Links.push_back(l);}; // Add Link to the Node
 		std::vector<Link *> getLinks(){return Links;}; // Gets list of Links connected to the Node
-		virtual void receive_pak(Packet *p) = 0;
+		virtual void receive_pak(Packet *p, Link *l) = 0;
 		virtual Node* getConnectedNode(Link *connection) = 0; // Gets the Link connected to the given Node
 
 		bool operator == (Node *cmpNode){

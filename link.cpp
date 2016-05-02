@@ -161,7 +161,7 @@ void Link::send_pak(){
 	logLinkRate();
 	
 	buffer.pop(); // Pop before sending new packet
-	(sent.second)->receive_pak(sent.first);
+	(sent.second)->receive_pak(sent.first, this);
 }
 
 // Used by all Nodes to send to other side of Link
