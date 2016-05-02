@@ -38,7 +38,7 @@ bool Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
 	Node *pakDst = (pakSrc == src) ? dst : src;
 	// Packet Generation depending on type
 	if (ptype == DATA) {
-		p = new data_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);	
+		p = new data_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	} else if (ptype == ACK) {
 		p = new ack_pak(pakSrc, pakDst, pSize, KS_POISION_CONSTANT, ptype, pakNum, this);
 	}
@@ -234,7 +234,7 @@ if (debug) {
 				estRTT = (1-ALPHA_TIMEOUT) * estRTT + ALPHA_TIMEOUT * sampRTT; 
 				devRTT = (1-BETA_TIMEOUT) * devRTT + BETA_TIMEOUT * abs(sampRTT - estRTT);
 				TO = estRTT + 4 * devRTT + 0.100; // Add 100 ms to avoid converge
-				logRTTO();
+				//logRTTO();
 				
 #ifndef NDEBUG
 if (debug) {
@@ -298,7 +298,7 @@ if (debug) {
 				int pakSize = calcPakSize(sendBase);
 				send_Pak(sendBase, pakSize, dst, DATA);
 				
-				logRTTO();
+				//logRTTO();
 				tcpTO->invalidate();
 				tcpTO = new event_TO(TO,this);
 				Network->addEvent(tcpTO);
