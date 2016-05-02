@@ -43,10 +43,12 @@ class Link {
 		int nAckPaks;
 		int nDataPaks;
 		int nBuffPaks;
+		int nDroppedPaks;
+		
+		bool direction;
+		int nFlips;
 		
 		// Link Flow rate calculation
-		// Time elapsed
-		float time_elapsed;
 		// Last update time
 		float update_time;
 		// Bytes sent
@@ -56,7 +58,9 @@ class Link {
 		// CONSTRUCTOR
 		Link(std::string id) :name(id) {};
 		Link(std::string id, Node *Node1, Node *Node2, float rate, float delay, float buffer, net *sim)
-			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
+			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){
+			direction = true; // Sending Data
+			};
 		
 		// FUNCTIONS
 
@@ -92,12 +96,35 @@ class Link {
 		void debugBuffer();
 		
 		void logBuffer(){
+#ifndef NDEBUG
+if (debug) {
 			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
 			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
 			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
 			*outputSS << simtime << "," << getName() << ",BuffOcc%," << buffOcc_Percent << std::endl;
 			*outputSS << simtime << "," << getName() << ",AckPak%," << AckPak_Percent << std::endl;
 			*outputSS << simtime << "," << getName() << ",DataPak%," << DataPak_Percent << std::endl;
+}
+#endif
+			*outputSS << simtime << "," << getName() << ",BuffOcc," << occupancy << std::endl;
 		}
+		
+		void logDrops(){
+			*outputSS << simtime << "," << getName() << ",nDroppedPaks," << nDroppedPaks << std::endl;
+		};
+		
+		void logLinkRate(){
+		// Calculates the Link rate for logging
+			// Time elapsed since last update
+			float time_elapsed = simtime - update_time;
+			// Link rate is bytes sent over elapsed time (s)
+			float l_rate = bytes_sent/time_elapsed;
+			// Reset the bytes sent and most recent update time
+			bytes_sent = 0;
+			update_time = simtime;
+			// Log Format 
+			*outputSS << simtime << "," << getName() << ",LinkRate," << l_rate << std::endl;
+		}
+
 };
 #endif

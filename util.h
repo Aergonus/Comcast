@@ -67,8 +67,8 @@ const int KB_PER_MB = 1 << 10;
 const int BYTES_PER_MB = BYTES_PER_KB * KB_PER_MB;
 
 /** Conversion factor between megabits to bytes. */
-const int BYTES_PER_MEGABIT =
-		BYTES_PER_KB * KB_PER_MB / BITS_PER_BYTE;
+const int BYTES_PER_MEGABIT = 125000; 
+		// BYTES_PER_KB * KB_PER_MB / BITS_PER_BYTE;
 
 /** Milliseconds per second. */
 const int MS_PER_SEC = 1000;

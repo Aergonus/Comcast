@@ -36,13 +36,17 @@ Node* Host::getConnectedNode(Link *connection){
 
 // Debug print Host name and address
 void Host::print() {
+#ifndef NDEBUG
+if (debug) {
 	*debugSS << "Host " << getName() << ":" << std::endl << "Contains Flows ";
-		for(auto const& value: getFlows()) {
-			*debugSS << value->getName() << " ";
-		}
-	*debugSS << std::endl << "Connected to Links ";
-		for(auto const& value: getLinks()) {
-			*debugSS << value->getName() << " ";
-		}
+	for(auto const& value: getFlows()) {
+		*debugSS << value->getName() << " ";
+	}
+		*debugSS << std::endl << "Connected to Links ";
+	for(auto const& value: getLinks()) {
+		*debugSS << value->getName() << " ";
+	}
 	*debugSS << std::endl;
+}
+#endif
 }

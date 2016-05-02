@@ -245,6 +245,8 @@ void net::addEvent(event *e){
 }
 
 void net::vomitEvents() {
+#ifndef NDEBUG
+if (debug) {
 	while(!events.empty()) {
 		event *to_handle = events.top();
 		to_handle->print();
@@ -252,19 +254,25 @@ void net::vomitEvents() {
 		delete to_handle;
 	}
 }
+#endif
+}
 
 // Runs the simulation
 int net::run(){
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
 #ifndef NDEBUG
-		*debugSS << "Running!," << simtime << ",hEvents," << eventsHandled << ",nEvents," << events.size() << std::endl;
+if (debug) {
+	*debugSS << "Running!," << simtime << ",hEvents," << eventsHandled << ",nEvents," << events.size() << std::endl;
+}
 #endif
 		
 		//Simulation ends at user specified time
 		if (isEnd()){
 #ifndef NDEBUG
-			*debugSS << "EndSim," << simtime << ",I'm broken!" << std::endl;
+if (debug) {
+	*debugSS << "EndSim," << simtime << ",I'm broken!" << std::endl;
+}
 #endif
 			break;
 		}
@@ -272,16 +280,20 @@ int net::run(){
 		event *to_handle = events.top();
 		if(to_handle->isValid()) {
 #ifndef NDEBUG
-			*debugSS << "Valid," << simtime << ",";
+if (debug) {
+	*debugSS << "Valid," << simtime << ",";
 			to_handle->print();
-			*debugSS << "UpdateTime,"<< simtime << ",Changing Simulation Time to," << to_handle->get_Start() << std::endl;
+	*debugSS << "UpdateTime,"<< simtime << ",Changing Simulation Time to," << to_handle->get_Start() << std::endl;
+}
 #endif
 			simtime = to_handle->get_Start();
 			to_handle->handle_event();
 		} else {
 #ifndef NDEBUG
-			*debugSS << "Invalid,"<< simtime << ",";
+if (debug) {
+	*debugSS << "Invalid,"<< simtime << ",";
 			to_handle->print();
+}
 #endif
 		}
 
@@ -289,7 +301,11 @@ int net::run(){
 		delete to_handle;
 		eventsHandled++;
 	}
+#ifndef NDEBUG
+if (debug) {
 	*debugSS << "EndSimulation," << simtime << std::endl;
-	
+}
+#endif
+
 	return 0;
 }
