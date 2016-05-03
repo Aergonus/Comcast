@@ -126,7 +126,7 @@ if (debug) {
 			bytes_sent = 0;
 			update_time = simtime;
 			// Log Format 
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"LinkRate,"<<l_rate<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-LinkRate,"<<l_rate<<std::endl;
 		}
 
 };
