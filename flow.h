@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef FLOW_H
@@ -14,13 +14,14 @@
 #include <cctype>
 #include <string>
 #include <algorithm>
+
 #include "tcp.h"
 #include "util.h"
 
-class Node;
-class event_TO;
-class Packet;
 class net;
+class Node;
+class Packet;
+class event_TO;
 
 class Flow {
 	//friend class Packet;
@@ -108,29 +109,28 @@ class Flow {
 	void print();
 	
 	void logCWND() {
-		*outputSS << simtime << "," << getName() << ",CWND," << CWND << std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-CWND,"<<CWND<<std::endl;
 	}
 	void logSSThresh() {
 #ifndef NDEBUG
 if (debug) {
 // Debug is wack for now, disabled so output isn't as long
-/*
-	*outputSS << simtime << "," << getName() << ",ssThresh," << ssThresh << std::endl;
-*/
+	*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-ssThresh,"<<ssThresh<<std::endl;
 }
 #endif
 	}
 	void logRTTO() {
-		*outputSS << simtime << "," << getName() << ",sampRTT," << sampRTT << std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-sampRTT,"<<sampRTT<<std::endl;
 #ifndef NDEBUG
 if (debug) {
 /*
-		*outputSS << simtime << "," << getName() << ",estRTT," << estRTT << std::endl;
-		*outputSS << simtime << "," << getName() << ",devRTT," << devRTT << std::endl;
+// Debug is wack for now, disabled so output isn't as long
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-estRTT,"<<estRTT<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-devRTT,"<<devRTT<<std::endl;
 */
 }
 #endif
-		*outputSS << simtime << "," << getName() << ",TO," << TO << std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-TO,"<<TO<<std::endl;
 	}
 	
 	void logFlowRate(){
@@ -143,7 +143,12 @@ if (debug) {
 		bytes_sent = 0;
 		update_time = simtime;
 		// Log Format 
-		*outputSS << simtime << "," << getName() << ",FlowRate," << f_rate << std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-FlowRate,"<<f_rate<<std::endl;
 	}
+	
+	void logPakDelay(float createTime){
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-PakDelay,"<<simtime - createTime<<std::endl;
+	}
+
 };
 #endif

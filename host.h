@@ -5,7 +5,7 @@
  * They send Packets from Flows through Links to another Host.
  * 
  * @author Jaeryung Song, Kangqiao Lei, Eric Nguyen
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef HOST_H

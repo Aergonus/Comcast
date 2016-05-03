@@ -4,7 +4,7 @@
  * Purpose: Initializes flow for packet sending
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef EVENT_START_FLOW_H

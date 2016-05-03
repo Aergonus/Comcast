@@ -4,7 +4,7 @@
  * Purpose: Timeout Event for Flow
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef EVENT_TO_H
@@ -27,7 +27,7 @@ class event_TO : public event {
 	float getTO(){return timeout_val;}
 	
 	void print(){
-		*debugSS << getType() << ",EventID," << getID() <<",StartTime," << get_Start() << ",isValid," << isValid() << ",TO," << timeout_val << std::endl;
+		*debugSS<<getType()<<",EventID,"<<getID()<<",StartTime,"<<get_Start()<<",isValid,"<<isValid()<<",TO,"<<timeout_val<<std::endl;
 	};
 	
 	void handle_event(){

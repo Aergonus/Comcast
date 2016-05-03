@@ -1,10 +1,10 @@
 /**
  * ECE408 
  * event_send_pak.h
- * Purpose: Send Packet Event
+ * Purpose: Sent Packet Event 
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef EVENT_SEND_PAK_H

@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author EuiSeong Han, Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #include <queue>
@@ -14,7 +14,6 @@
 
 #include "Flow.h"
 #include "net.h"
-#include "Node.h"
 #include "Link.h"
 #include "Packet.h"
 #include "events/event_TO.h"
@@ -25,7 +24,7 @@ int Flow::calcPakSize(int currSeq){
 	int nPakSize = (size - currSeq <= MAX_SEG_SIZE) ? (size - currSeq) : MAX_SEG_SIZE;
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CalcNextPak,"<<simtime<<",seqNum,"<<currSeq << ",ackNum," << nPakSize << std::endl;
+	*debugSS<<"CalcNextPak,"<<simtime<<",seqNum,"<<currSeq<<",ackNum,"<<nPakSize<<std::endl;
 }
 #endif
 	return nPakSize;
@@ -45,7 +44,7 @@ bool Flow::send_Pak(int pakNum, int pSize, Node *pakSrc, packet_type ptype){
 	// Injects the Packet into the Link
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreatePak,"<<simtime<<",Created in Flow sendpak,";
+	*debugSS<<"CreatePak,"<<simtime<<",Created in Flow sendpak,";
 	p->print();
 }
 #endif
@@ -69,13 +68,13 @@ void Flow::send_All_Paks(){
 			recordTime = simtime;
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TimedACK,"<<simtime<<",nSeqNum,"<<timedAck<<",recordTime,"<<recordTime<<std::endl;
+	*debugSS<<"TimedACK,"<<simtime<<",nSeqNum,"<<timedAck<<",recordTime,"<<recordTime<<std::endl;
 }
 #endif
 		}
 		maxSeqSent = nextSeq > maxSeqSent ? nextSeq : maxSeqSent;
 	}
-	//*outputSS << simtime << "," << getName() << ",nPakLoss," << nDroppedPaks << std::endl;
+	//*outputSS<<simtime<<","<<getName()<<",nPakLoss,"<<nDroppedPaks<<std::endl;
 }
 
 // Flow initialization
@@ -116,7 +115,7 @@ void Flow::start_Flow(){
 	Network->addEvent(tcpTO);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent," << simtime << ",";
+	*debugSS<<"CreateEvent,"<<simtime<<",";
 	tcpTO->print();
 }
 #endif
@@ -127,9 +126,10 @@ void Flow::receive_Pak(Packet *p){
 	if(p->type == DATA){
 	// Receiver receives the DATA
 		// Would have to add 500ms timeout if waiting to send delayed acks
+		logPakDelay(p->getCT());
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "GotData,"<<simtime<<",";
+	*debugSS<<"GotData,"<<simtime<<",";
 		p->print();
 }
 #endif
@@ -137,7 +137,7 @@ if (debug) {
 		if (ackStack.empty()) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "EmptyAckStack,"<<simtime<< std::endl;
+	*debugSS<<"EmptyAckStack,"<<simtime<<std::endl;
 }
 #endif
 			ackStack.insert(std::make_pair(p->getSeqNum(),p->getAckNum())); 
@@ -146,11 +146,11 @@ if (debug) {
 		} else if(p->getSeqNum() == ackStack.begin()->second) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Pushed AckStack,"<<simtime;
+	*debugSS<<"Pushed AckStack,"<<simtime;
 	for (const auto &p : ackStack) {
-		*debugSS << ",ackStack[" << p.first << "] = " << p.second;
+		*debugSS<<",ackStack["<<p.first<<"] = "<<p.second;
 	}
-	*debugSS << std::endl;
+	*debugSS<<std::endl;
 }
 #endif
 			ackStack.erase(ackStack.begin());
@@ -165,11 +165,11 @@ if (debug) {
 			expectedSeq = it->second;
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Popped AckStack,"<<simtime;
+	*debugSS<<"Popped AckStack,"<<simtime;
 	for (const auto &p : ackStack) {
-		*debugSS << ",ackStack[" << p.first << "] = " << p.second;
+		*debugSS<<",ackStack["<<p.first<<"] = "<<p.second;
 	}
-	*debugSS << std::endl;
+	*debugSS<<std::endl;
 }
 #endif
 			send_Pak(expectedSeq, ACK_PACKET_SIZE, src, ACK);
@@ -178,11 +178,11 @@ if (debug) {
 		} else if(p->getSeqNum() > ackStack.begin()->second) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Gap detected!," << simtime;
+	*debugSS<<"Gap detected!,"<<simtime;
 	for (const auto &p : ackStack) {
-		*debugSS << ",ackStack[" << p.first << "] = " << p.second;
+		*debugSS<<",ackStack["<<p.first<<"] = "<<p.second;
 	}
-	*debugSS << std::endl;
+	*debugSS<<std::endl;
 }
 #endif
 			ackStack.insert(std::make_pair(p->getSeqNum(),p->getAckNum()));
@@ -198,7 +198,7 @@ if (debug) {
 			// Receive expected ACK number (sendbase + 1)
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "ExpectedAckReceived,"<<simtime<<",";
+	*debugSS<<"ExpectedAckReceived,"<<simtime<<",";
 		p->print();
 }
 #endif
@@ -211,9 +211,9 @@ if (debug) {
 				// Check if Flow finished
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Processed," << simtime << ",";
+	*debugSS<<"Processed,"<<simtime<<",";
 				p->print();
-	*debugSS << "FlowFinished," << simtime << getName() << std::endl;
+	*debugSS<<"FlowFinished,"<<simtime<<getName()<<std::endl;
 }
 #endif
 				Network->FlowFinished();
@@ -238,7 +238,7 @@ if (debug) {
 				
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "UpdateRTT," << simtime << "," << getName() << ",sampRTT," << sampRTT << ",TO," << TO << std::endl;
+	*debugSS<<"UpdateRTT,"<<simtime<<","<<getName()<<",sampRTT,"<<sampRTT<<",TO,"<<TO<<std::endl;
 }
 #endif
 				timedAck = -1;
@@ -252,7 +252,7 @@ if (debug) {
 			} else if (CWND >= ssThresh) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CongestAvoid," << simtime << ",CWND," << CWND << ",SSTHRESH," << ssThresh << ",GotACKS," << gotAcks << std::endl;
+	*debugSS<<"CongestAvoid,"<<simtime<<",CWND,"<<CWND<<",SSTHRESH,"<<ssThresh<<",GotACKS,"<<gotAcks<<std::endl;
 }
 #endif
 				// Max Probing/Congestion avoidance
@@ -276,7 +276,7 @@ if (debug) {
 			Network->addEvent(tcpTO);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent," << simtime << ",";
+	*debugSS<<"CreateEvent,"<<simtime<<",";
 			tcpTO->print();
 }
 #endif
@@ -284,7 +284,7 @@ if (debug) {
 			// Received a duplicate ack, increase the counter
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "DupAck," << sendBase << std::endl;
+	*debugSS<<"DupAck,"<<sendBase<<std::endl;
 }
 #endif
 			dupAcks++;
@@ -304,7 +304,7 @@ if (debug) {
 				Network->addEvent(tcpTO);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent," << simtime << ",";
+	*debugSS<<"CreateEvent,"<<simtime<<",";
 		tcpTO->print();
 }
 #endif
@@ -321,7 +321,7 @@ if (debug) {
 				Network->addEvent(tcpTO);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent," << simtime << ",";
+	*debugSS<<"CreateEvent,"<<simtime<<",";
 		tcpTO->print();
 }
 #endif
@@ -331,7 +331,7 @@ if (debug) {
 		} else if (p->getAckNum() < sendBase) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "OUT OF ORDER " << p->getAckNum() << std::endl; 
+	*debugSS<<"OUT OF ORDER "<<p->getAckNum()<<std::endl; 
 }
 #endif
 		}
@@ -339,7 +339,7 @@ if (debug) {
 	// Packet no longer useful, eliminate
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Processed," << simtime << ",";
+	*debugSS<<"Processed,"<<simtime<<",";
 	p->print();
 }
 #endif
@@ -351,7 +351,7 @@ void Flow::timeout_Flow() {
 	// Debug for timeout events
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Timeout," << simtime << ",AckNumTO," <<(sendBase + calcPakSize(sendBase)) << ",oldCWND," << CWND << ",oldSSThresh," << ssThresh << std::endl;
+	*debugSS<<"Timeout,"<<simtime<<",AckNumTO,"<<(sendBase + calcPakSize(sendBase))<<",oldCWND,"<<CWND<<",oldSSThresh,"<<ssThresh<<std::endl;
 }
 #endif
 	if (ssThresh != INT_MAX) {logSSThresh();}
@@ -371,7 +371,7 @@ if (debug) {
 	Network->addEvent(tcpTO);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent," << simtime << ",";
+	*debugSS<<"CreateEvent,"<<simtime<<",";
 		tcpTO->print();
 }
 #endif
@@ -384,10 +384,10 @@ if (debug) {
 void Flow::print() {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Flow " << getName() << ". nextSeq " << nextSeq << " . sendBase " << sendBase << ". dupAcks " << dupAcks 
-		<< ". CWND " << CWND << ". ssThresh " << ssThresh << ". gotAcks" << gotAcks
-		<< ". estRTT" << estRTT << ". devRTT" << devRTT << ". sampRTT" << sampRTT << ". TO " << TO 
-		<< std::endl;
+	*debugSS<<"Flow "<<getName()<<". nextSeq "<<nextSeq<<" . sendBase "<<sendBase<<". dupAcks "<<dupAcks 
+		<<". CWND "<<CWND<<". ssThresh "<<ssThresh<<". gotAcks"<<gotAcks
+		<<". estRTT"<<estRTT<<". devRTT"<<devRTT<<". sampRTT"<<sampRTT<<". TO "<<TO 
+		<<std::endl;
 }
 #endif
 }

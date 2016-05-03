@@ -4,24 +4,28 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
+#include <cfloat>
 #include "net.h"
-#include "host.h"
-#include "router.h"
 #include "link.h"
 #include "flow.h"
-#include "events/event_start_flow.h"
+#include "node.h"
+#include "host.h"
+#include "router.h"
 #include "events/event_log.h"
+#include "events/event_init_rt.h"
+#include "events/event_start_flow.h"
 
-float simtime;
+// Global Variables
+float simtime = FLT_MIN;
 int eventsHandled;
 int eventsCreated;
 
 // Initialize
 net::net(){
-	simtime = 0;
+	//simtime = 0;
 	fiveever = false;
 }
 
@@ -124,6 +128,11 @@ bool net::FlowExists(std::string id){
 	return (getFlow(id) != NULL);
 }
 
+void net::init_Routing(){
+	for (auto router : Routers) {
+		router->init();
+	}
+}
 
 // Add functions for all the classes
 int net::addHost(std::string id){
@@ -137,7 +146,7 @@ int net::addHost(std::string id){
 		
 		return 0;
 	} else {
-		*errorSS << "Failed to create Host with id " << id << ". ID already exists." << std::endl;
+		*errorSS<<"Failed to create Host with id "<<id<<". ID already exists."<<std::endl;
 		return -1;
 	}
 	
@@ -151,16 +160,10 @@ int net::addRouter(std::string id){
 		// Update relations
 		Routers.push_back(newRouter);
 		//Nodes.push_back(newRouter);
-		
-		// Initialization Routing Table Event
-		// event_updateRT *initialRT = new event_updateRT(0, *this); // Offset from start by -EPSILON?
-		// This is a reoccuring even that adds a new event_updateRT every CONSTANT (util) RT_refresh
-		// Note that the actual updates propogate as send/recieve Packet events
-		// Initial static cost??? @Arvind
-		
+
 		return 0;
 	} else {
-		*errorSS << "Failed to create Router with id " << id << ". ID already exists." << std::endl;
+		*errorSS<<"Failed to create Router with id "<<id<<". ID already exists."<<std::endl;
 		return -1;
 	}
 	
@@ -179,24 +182,23 @@ int net::addLink(std::string id, std::string Node_id1, std::string Node_id2, flo
 		
 			// Update relations
 			Links.push_back(newLink);
-			n1->addLink(newLink);
-			n2->addLink(newLink);
+			n1->addNeighbor(newLink, n2);
+			n2->addNeighbor(newLink, n1);
 
 		} else if(!NodeExists(Node_id1)){
-			*errorSS << "Failed to create Link with id " << id << ". Node " << Node_id1 << " does not exist." << std::endl;
+			*errorSS<<"Failed to create Link with id "<<id<<". Node "<<Node_id1<<" does not exist."<<std::endl;
 			return -1;
 		} else if(NodeExists(Node_id2)){
-			*errorSS << "Failed to create Link with id " << id << ". Node " << Node_id2 << " does not exist." << std::endl;
+			*errorSS<<"Failed to create Link with id "<<id<<". Node "<<Node_id2<<" does not exist."<<std::endl;
 			return -1;
 		}
 		return 0;
 	} else {
-		*errorSS << "Failed to create Link with id " << id << ". ID already exists." << std::endl;
+		*errorSS<<"Failed to create Link with id "<<id<<". ID already exists."<<std::endl;
 		return -1;
 	}
 }
 
-// TODO: Add TCP param and alter addFlow accordingly
 int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, float data_size, float start_time, TCP_type tcp_enum){
 	// Check if there exists a Flow with this id already
 	if (!FlowExists(id)){
@@ -206,7 +208,6 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 			Host *src = getHost(Node_src);
 			Host *dst = getHost(Node_dst);
 		
-			//TODO: Implement TCP Algo
 			Flow *newFlow = new Flow(id, src, dst, data_size, start_time, tcp_enum, this);
 			nFlows++;
 		
@@ -215,21 +216,25 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 			src->addFlow(newFlow);
 			dst->addFlow(newFlow);
 			
-			// TODO: Create initial events
 			event_start_flow *FlowStart = new event_start_flow(start_time, getFlow(id));
 			addEvent(FlowStart);
-			// for TCP protocols update windows and other various events. Case statement here
+#ifndef NDEBUG
+if (debug) {
+	*debugSS<<"CreateEvent,"<<simtime<<",CreatedInit,";
+		FlowStart->print();
+}
+#endif
 
 		} else if(!NodeExists(Node_src)){
-			*errorSS << "Failed to create Flow with id " << id << ". Node " << Node_src << " does not exist." << std::endl;
+			*errorSS<<"Failed to create Flow with id "<<id<<". Node "<<Node_src<<" does not exist."<<std::endl;
 			return -1;
 		} else if(NodeExists(Node_dst)){
-			*errorSS << "Failed to create Flow with id " << id << ". Node " << Node_dst << " does not exist." << std::endl;
+			*errorSS<<"Failed to create Flow with id "<<id<<". Node "<<Node_dst<<" does not exist."<<std::endl;
 			return -1;
 		}		
 		return 0;
 	} else {
-		*errorSS << "Failed to create Flow with id " << id << ". ID already exists." << std::endl;
+		*errorSS<<"Failed to create Flow with id "<<id<<". ID already exists."<<std::endl;
 		return -1;
 	}
 }
@@ -269,7 +274,7 @@ void net::log_Throughput(){
 	addEvent(e);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
 }
 #endif
@@ -282,8 +287,18 @@ int net::run(){
 	addEvent(e);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
+}
+#endif
+	
+	// Initialization Routing Table Event
+	event_init_rt *initialRT = new event_init_rt(-EPSILON, this);
+	addEvent(initialRT);
+#ifndef NDEBUG
+if (debug) {
+	*debugSS<<"CreateEvent,"<<simtime<<",";
+	initialRT->print();
 }
 #endif
 
@@ -291,7 +306,7 @@ if (debug) {
 	while ((!events.empty() && nFlows > 0)){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Running!," << simtime << ",hEvents," << eventsHandled << ",nEvents," << events.size() << std::endl;
+	*debugSS<<"Running!,"<<simtime<<",hEvents,"<<eventsHandled<<",nEvents,"<<events.size()<<std::endl;
 }
 #endif
 		
@@ -299,7 +314,7 @@ if (debug) {
 		if (isEnd()){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "EndSim," << simtime << ",I'm broken!" << std::endl;
+	*debugSS<<"EndSim,"<<simtime<<",I'm broken!"<<std::endl;
 }
 #endif
 			break;
@@ -309,9 +324,9 @@ if (debug) {
 		if(to_handle->isValid()) {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Valid," << simtime << ",";
+	*debugSS<<"Valid,"<<simtime<<",";
 			to_handle->print();
-	*debugSS << "UpdateTime,"<< simtime << ",Changing Simulation Time to," << to_handle->get_Start() << std::endl;
+	*debugSS<<"UpdateTime,"<<simtime<<",Changing Simulation Time to,"<<to_handle->get_Start()<<std::endl;
 }
 #endif
 			simtime = to_handle->get_Start();
@@ -319,7 +334,7 @@ if (debug) {
 		} else {
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Invalid,"<< simtime << ",";
+	*debugSS<<"Invalid,"<<simtime<<",";
 			to_handle->print();
 }
 #endif
@@ -331,7 +346,7 @@ if (debug) {
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "EndSimulation," << simtime << std::endl;
+	*debugSS<<"EndSimulation,"<<simtime<<std::endl;
 }
 #endif
 

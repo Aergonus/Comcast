@@ -4,7 +4,7 @@
  * Purpose: Network Simulator Object
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef NET_H
@@ -17,11 +17,11 @@
 
 // Forward declarations.
 class event;
-class Host;
-class Router;
 class Link;
 class Flow;
 class Node;
+class Host;
+class Router;
 
 // Custom Libraries
 #include "events/event.h"
@@ -51,6 +51,9 @@ class net {
 	float getEnd(float stop){return endtime;};
 	float setEnd(float stop){fiveever = true; return endtime = stop;};
 	bool isEnd(){return (fiveever && (simtime > endtime));};
+	
+	// Initialize Routing Event
+	void init_Routing();
 	
 	// checks for existence of identically named objeccts of the same class
 	bool NodeExists(std::string id);
