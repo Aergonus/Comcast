@@ -191,7 +191,7 @@ if (debug) {
 
 int main(int argc, char *argv[]) {
 	int c = -1; // getopt options
-	static char usageInfo[] = "[-i input_file] [-o output_file] [-d]\n"; // Prompt on invalid input
+	static char usageInfo[] = "[-i input_file] [-o output_file] [-d debug_log_file]\n"; // Prompt on invalid input
 	std::string inputFile, outputFile, debugFile;
 	std::ofstream outFile, debFile;
 #ifndef NDEBUG
