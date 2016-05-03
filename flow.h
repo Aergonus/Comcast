@@ -109,28 +109,28 @@ class Flow {
 	void print();
 	
 	void logCWND() {
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_CWND,"<<CWND<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-CWND,"<<CWND<<std::endl;
 	}
 	void logSSThresh() {
 #ifndef NDEBUG
 if (debug) {
 // Debug is wack for now, disabled so output isn't as long
-	*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_ssThresh,"<<ssThresh<<std::endl;
+	*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-ssThresh,"<<ssThresh<<std::endl;
 }
 #endif
 	}
 	void logRTTO() {
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_sampRTT,"<<sampRTT<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-sampRTT,"<<sampRTT<<std::endl;
 #ifndef NDEBUG
 if (debug) {
 /*
 // Debug is wack for now, disabled so output isn't as long
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_estRTT,"<<estRTT<<std::endl;
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_devRTT,"<<devRTT<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-estRTT,"<<estRTT<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-devRTT,"<<devRTT<<std::endl;
 */
 }
 #endif
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_TO,"<<TO<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-TO,"<<TO<<std::endl;
 	}
 	
 	void logFlowRate(){
@@ -143,11 +143,11 @@ if (debug) {
 		bytes_sent = 0;
 		update_time = simtime;
 		// Log Format 
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_FlowRate,"<<f_rate<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-FlowRate,"<<f_rate<<std::endl;
 	}
 	
 	void logPakDelay(float createTime){
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_PakDelay,"<<simtime - createTime<<std::endl;
+		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-PakDelay,"<<simtime - createTime<<std::endl;
 	}
 
 };

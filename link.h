@@ -103,17 +103,17 @@ if (debug) {
 			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
 			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
 			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_BuffOcc%,"<<buffOcc_Percent<<std::endl;
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_AckPak%,"<<AckPak_Percent<<std::endl;
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_DataPak%,"<<DataPak_Percent<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-BuffOcc%,"<<buffOcc_Percent<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-AckPak%,"<<AckPak_Percent<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-DataPak%,"<<DataPak_Percent<<std::endl;
 */
 }
 #endif
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_BuffOcc,"<<occupancy<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-BuffOcc,"<<occupancy<<std::endl;
 		}
 		
 		void logDrops(){
-			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_nDroppedPaks,"<<nDroppedPaks<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-nDroppedPaks,"<<nDroppedPaks<<std::endl;
 		};
 		
 		void logLinkRate(){

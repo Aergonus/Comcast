@@ -7,7 +7,7 @@
  * @version 0.5.0 05/03/16
  */
 
-//#define NDEBUG // Comment out to turn on debug information and assertions
+//#define NDEBUG // Comment out to turn on debug information and assertions and break the program :)
 
 // Standard Libraries Needed
 #include <cstdio>
@@ -80,12 +80,13 @@ if (debug) {
 	assert(endtime >= 0);
 	if (endtime > 0) {
 		Network.setEnd(endtime);
+	}
 #ifndef NDEBUG
 if (debug) {
 	std::cout<<"Set end time of simulator: "<<endtime<<std::endl;
 }
 #endif
-	}
+	
 	
 	{
 		assert(root.HasMember("Hosts"));
