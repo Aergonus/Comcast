@@ -5,7 +5,7 @@
  * for constants used in the simulation
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
  
 #ifndef UTIL_H
@@ -36,6 +36,9 @@ enum TCP_type {
 	RENO
 };
 
+/** "Small" value to offset from start of simulation */
+static const int EPSILON = 1;
+
 /** Default Max No of hops for Packets */
 static const int KS_POISION_CONSTANT = 5; // BLEED_OUT_STEPS
 
@@ -55,13 +58,13 @@ static const float ALPHA_TIMEOUT = .125;
 static const float BETA_TIMEOUT = .25;
 
 /** Conversion factor between bits and bytes. */
-const int BITS_PER_BYTE = 1 << 3;
+const int BITS_PER_BYTE = 1<<3;
 
 /** Conversion factor between bytes and kilobytes. */
-const int BYTES_PER_KB = 1 << 10;
+const int BYTES_PER_KB = 1<<10;
 
 /** Conversion factor between kilobytes and megabytes. */
-const int KB_PER_MB = 1 << 10;
+const int KB_PER_MB = 1<<10;
 
 /** Conversion factor between bytes and megabytes. */
 const int BYTES_PER_MB = BYTES_PER_KB * KB_PER_MB;
@@ -77,6 +80,6 @@ const int MS_PER_SEC = 1000;
 static const float LOGGING_INTERVAL = 0.1;
 
 /** Update Routing if older than this time */
-static const float STALE_ROUTING_TIMEOUT = 10;
+static const float STALE_ROUTING_TIMEOUT = 1;
 
 #endif // UTIL_H

@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei, Jaeryung Song
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #include "util.h"
@@ -29,28 +29,28 @@ class TAHOE_TCP : public TCP {
 		void tripCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",tripCWND," << ",CWND," << *currCWND << ",newCWND," << "1" << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",tripCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<"1"<<std::endl;
 }
 #endif
 			*currCWND = 1;}; // Triple duplicate acks CWND change
 		void probeCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",probeCWND," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",probeCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 1;}; // max probing cwnd
 		void slowCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",slowCWND," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",slowCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 1;}; // Slow start cwnd
 		void fastRetransmit(int *currCWND, int *currSSThresh){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",fastRetransmit," << ",CWND," << *currCWND << ",newCWND," << 1 << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",fastRetransmit,"<<",CWND,"<<*currCWND<<",newCWND,"<<1<<std::endl;
 }
 #endif
 			*currSSThresh = (*currCWND / 2) < 2 ? 2 : (*currCWND / 2);
@@ -58,14 +58,14 @@ if (debug) {
 		void tripDups(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",tripDups," << ",CWND," << *currCWND << ",newCWND," << *currCWND << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",tripDups,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND<<std::endl;
 }
 #endif
 			}; // More than 3 Dup Acks Received, as bad as timeout
 		void fastRecovery(int *currCWND, int *currSSThresh){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_TAHOE," << simtime << ",fastRecovery," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_TAHOE,"<<simtime<<",fastRecovery,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif	
 			*currCWND = *currCWND + 1;}; // Upon receiving new ack, treat as slow start
@@ -79,28 +79,28 @@ class RENO_TCP : public TCP {
 		void tripCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",tripCWND," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 3 << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",tripCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 3<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 3;}; // Triple duplicate acks CWND change
 		void probeCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",probeCWND," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",probeCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 1;}; // max probing cwnd
 		void slowCWND(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",slowCWND," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",slowCWND,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 1;}; // Slow start cwnd
 		void fastRetransmit(int *currCWND, int *currSSThresh){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",fastRetransmit," << ",CWND," << *currCWND << ",newCWND," << *currCWND / 2 << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",fastRetransmit,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND / 2<<std::endl;
 }
 #endif
 			*currSSThresh = *currCWND = (*currCWND / 2) < 2 ? 2 : (*currCWND / 2); // Fast recovery http://www.faqs.org/rfcs/rfc2001.html
@@ -108,14 +108,14 @@ if (debug) {
 		void tripDups(int *currCWND){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",tripDups," << ",CWND," << *currCWND << ",newCWND," << *currCWND + 1 << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",tripDups,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currCWND + 1<<std::endl;
 }
 #endif
 			*currCWND = *currCWND + 1;}; // More than 3 Dup Acks Received 
 		void fastRecovery(int *currCWND, int *currSSThresh){
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "TCP_RENO," << simtime << ",fastRecovery," << ",CWND," << *currCWND << ",newCWND," << *currSSThresh << std::endl;
+	*debugSS<<"TCP_RENO,"<<simtime<<",fastRecovery,"<<",CWND,"<<*currCWND<<",newCWND,"<<*currSSThresh<<std::endl;
 }
 #endif
 			*currCWND = *currSSThresh;}; // Upon receiving new ack, account for all intermediate segments and go into congestion avoidance http://www.faqs.org/rfcs/rfc2001.html

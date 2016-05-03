@@ -4,7 +4,7 @@
  * Purpose: Logging Event for Throughput
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef EVENT_LOG_H
@@ -26,7 +26,7 @@ class event_log : public event {
 	~event_log(){};
 	
 	void print(){
-		*debugSS << getType() << ",EventID," << getID() <<",StartTime," << get_Start() << ",isValid," << isValid() << ",lastUpdated," << last_updated << std::endl;
+		*debugSS<<getType()<<",EventID,"<<getID()<<",StartTime,"<<get_Start()<<",isValid,"<<isValid()<<",lastUpdated,"<<last_updated<<std::endl;
 	};
 	
 	void handle_event(){

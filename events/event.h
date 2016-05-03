@@ -4,7 +4,7 @@
  * Purpose: Barebones Base Event Object
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef EVENT_H
@@ -36,7 +36,7 @@ class event {
 	float get_Start(){return start;};
 	float set_Start(float stime){return start = stime;};
 	void print(){
-		*debugSS << getType() << ",EventID," << getID() <<",StartTime," << get_Start() << ",isValid," << isValid() << std::endl;
+		*debugSS<<getType()<<",EventID,"<<getID()<<",StartTime,"<<get_Start()<<",isValid,"<<isValid()<<std::endl;
 	};
 };
 

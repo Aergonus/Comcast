@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 #include <assert.h>
@@ -15,8 +15,6 @@
 #include "Packet.h"
 #include "Host.h"
 #include "events/event_send_pak.h"
-
-//FUNCTIONS
 
 // Calculate the total delay for a Packet along the Link
 float Link::calcDelay(){
@@ -31,14 +29,14 @@ bool Link::receive_pak(Packet *p, Node *n){
 	// Buffer is empty -> Store and Send
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "BufferDebug,"<<simtime<<",";
+	*debugSS<<"BufferDebug,"<<simtime<<",";
 		debugBuffer();
 	*debugSS<<"Empty!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
 }
 #endif
 		// Initiate Packet transmission by inserting into buffer and priority queue
 		// Stamp destination
-		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
+		buffer.push(std::make_pair(p, n));
 		occupancy += p->getSize();
 		if (p->getSeqNum() != -1) {
 				direction = true;
@@ -52,7 +50,7 @@ if (debug) {
 		
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "BufferDebug,"<<simtime<<",";
+	*debugSS<<"BufferDebug,"<<simtime<<",";
 		debugBuffer();
 }
 #endif
@@ -61,7 +59,7 @@ if (debug) {
 		Network->addEvent(e);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
 }
 #endif
@@ -70,13 +68,13 @@ if (debug) {
 	// Stores Packet in buffer if occupied	
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "BufferDebug,"<<simtime<<",";
+	*debugSS<<"BufferDebug,"<<simtime<<",";
 		debugBuffer();
 	*debugSS<<"Occupied!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
 }
 #endif
 		// Stamp destination
-		buffer.push(std::make_pair(p, (n == n1) ? n2 : n1));
+		buffer.push(std::make_pair(p, n));
 		occupancy += p->getSize();
 		if (p->getSeqNum() != -1) {
 			if (!direction) {
@@ -96,7 +94,7 @@ if (debug) {
 		
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "BufferDebug,"<<simtime<<",";
+	*debugSS<<"BufferDebug,"<<simtime<<",";
 		debugBuffer();
 }
 #endif
@@ -112,7 +110,7 @@ if (debug) {
 		Network->addEvent(e);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "CreateEvent,"<<simtime<<",Created in Link receivepak,";
+	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
 		e->print();
 }
 #endif
@@ -125,9 +123,9 @@ if (debug) {
 		// record time when a Packet is dropped
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "BufferDebug,"<<simtime<<",";
+	*debugSS<<"BufferDebug,"<<simtime<<",";
 		debugBuffer();
-	*debugSS << "DroppedPak!," << simtime << ",";
+	*debugSS<<"DroppedPak!,"<<simtime<<",";
 		p->print();
 }
 #endif
@@ -166,9 +164,9 @@ void Link::send_pak(){
 
 // Used by all Nodes to send to other side of Link
 Node* Link::getOtherNode(Node *n){
-	return (n1 == n) ? n2 : n1;
+	return (n1->getName() == n->getName()) ? n2 : n1;
 }
 
 void Link::debugBuffer(){
-	*debugSS << "Buffer" << getName() << "," << simtime << ",nDataPaks," << nDataPaks << ",nAckPaks," << nAckPaks << ",nBuffPaks," << nBuffPaks << std::endl;
+	*debugSS<<"Buffer"<<getName()<<","<<simtime<<",nDataPaks,"<<nDataPaks<<",nAckPaks,"<<nAckPaks<<",nBuffPaks,"<<nBuffPaks<<std::endl;
 }

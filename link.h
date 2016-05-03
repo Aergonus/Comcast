@@ -4,7 +4,7 @@
  * Purpose: 
  * 
  * @author Eric Nguyen, Kangqiao Lei
- * @version 0.2.0 04/19/16
+ * @version 0.5.0 05/03/16
  */
 
 #ifndef LINK_H
@@ -35,7 +35,7 @@ class Link {
 		// Maximum number of bytes allowed
 		int buffer_size;
 		// Link Buffer
-		std::queue<std::pair<Packet*,Node*>> buffer;
+		std::queue<std::pair<Packet*,Node*> > buffer;
 		// Network Simulator 
 		net *Network;
 		// Current amount of bytes in buffer
@@ -103,17 +103,17 @@ if (debug) {
 			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
 			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
 			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
-			*outputSS << simtime << "," << getName() << ",BuffOcc%," << buffOcc_Percent << std::endl;
-			*outputSS << simtime << "," << getName() << ",AckPak%," << AckPak_Percent << std::endl;
-			*outputSS << simtime << "," << getName() << ",DataPak%," << DataPak_Percent << std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_BuffOcc%,"<<buffOcc_Percent<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_AckPak%,"<<AckPak_Percent<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_DataPak%,"<<DataPak_Percent<<std::endl;
 */
 }
 #endif
-			*outputSS << simtime << "," << getName() << ",BuffOcc," << occupancy << std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_BuffOcc,"<<occupancy<<std::endl;
 		}
 		
 		void logDrops(){
-			*outputSS << simtime << "," << getName() << ",nDroppedPaks," << nDroppedPaks << std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"_nDroppedPaks,"<<nDroppedPaks<<std::endl;
 		};
 		
 		void logLinkRate(){
@@ -126,7 +126,7 @@ if (debug) {
 			bytes_sent = 0;
 			update_time = simtime;
 			// Log Format 
-			*outputSS << simtime << "," << getName() << ",LinkRate," << l_rate << std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"LinkRate,"<<l_rate<<std::endl;
 		}
 
 };

@@ -4,11 +4,12 @@
  * Purpose: Network Simulator Entry Point
  * 
  * @author Kangqiao Lei
- * @version 0.2.0 04/21/16
+ * @version 0.5.0 05/03/16
  */
 
 //#define NDEBUG // Comment out to turn on debug information and assertions
 
+// Standard Libraries Needed
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -17,16 +18,17 @@
 #include <algorithm>
 #include <unistd.h>
 
-#include "rapidjson/document.h"	 // rapidjson's DOM-style API
+// Custom JSON Libraries for Reading JSON input
+#include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
+// Custom Libraries for Simulation
 #include "net.h"
 
-//#include "rapidjson/prettywriter.h" // for stringify JSON
-
+// Global variable declaration
 bool debug = false;
 std::ostream *debugSS = &std::cout;
 std::ostream *errorSS = &std::cerr;
@@ -36,7 +38,7 @@ int parseInputs(net &Network, std::string inputFile) {
 	rapidjson::Document root; // root is a JSON value represents the root of DOM.
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Parse a JSON file to document root." << std::endl;
+	std::cout<<"Parse a JSON file to document root."<<std::endl;
 }
 #endif
 	FILE *input = fopen(inputFile.c_str(), "rb"); // "r" for non-Windows
@@ -44,7 +46,7 @@ if (debug) {
 		char readBuffer[65536];
 		rapidjson::FileReadStream json(input, readBuffer, sizeof(readBuffer));
 		if (root.ParseStream(json).HasParseError()) {
-			*errorSS << "Something fucked up with parsing Root." << std::endl;
+			*errorSS<<"Something fucked up with parsing Root."<<std::endl;
 			/*
 			fprintf(*errorSS, "\nError(offset %u): %s\n", 
 				(unsigned)root.GetErrorOffset(),
@@ -58,16 +60,16 @@ if (debug) {
 		root.Accept(writer);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Original JSON:\n" << buffer.GetString() << std::endl;
+	std::cout<<"Original JSON:\n"<<buffer.GetString()<<std::endl;
 }
 #endif
 	} else {
-		*errorSS << "Unable to open file " << inputFile << std::endl; 
+		*errorSS<<"Unable to open file "<<inputFile<<std::endl; 
 		return -1;
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS<< "Parsing to root succeeded." << std::endl;
+	std::cout<<"Parsing to root succeeded."<<std::endl;
 }
 #endif
 
@@ -78,12 +80,12 @@ if (debug) {
 	assert(endtime >= 0);
 	if (endtime > 0) {
 		Network.setEnd(endtime);
-	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Set end time of simulator: " << endtime << std::endl;
+	std::cout<<"Set end time of simulator: "<<endtime<<std::endl;
 }
 #endif
+	}
 	
 	{
 		assert(root.HasMember("Hosts"));
@@ -94,14 +96,14 @@ if (debug) {
 			Network.addHost(itr->GetString());
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Attempted to add Host " << itr->GetString() << std::endl;;
+	std::cout<<"Attempted to add Host "<<itr->GetString()<<std::endl;;
 }
 #endif
 		}
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Finished Adding Hosts." << std::endl;
+	std::cout<<"Finished Adding Hosts."<<std::endl;
 }
 #endif	
 
@@ -115,14 +117,14 @@ if (debug) {
 			Network.addRouter(itr->GetString());
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Attempted to add Router " << itr->GetString() << std::endl;
+	std::cout<<"Attempted to add Router "<<itr->GetString()<<std::endl;
 }
 #endif
 		}
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Finished Adding Routers." << std::endl;
+	std::cout<<"Finished Adding Routers."<<std::endl;
 }
 #endif	
 
@@ -139,15 +141,14 @@ if (debug) {
 				(float) (cLink["rate"].GetDouble() * BYTES_PER_MEGABIT), (float) (cLink["delay"].GetDouble() / MS_PER_SEC) , (float) (cLink["buffer"].GetDouble() * BYTES_PER_KB));
 #ifndef NDEBUG
 if (debug) {
-	*debugSS <<"Attempted to add Link " << cLink["id"].GetString() << std::endl;
-	*debugSS <<"rate:" << (float) (cLink["rate"].GetDouble() * BYTES_PER_MEGABIT) << ", delay:" << (float) (cLink["delay"].GetDouble() / MS_PER_SEC) << ", buffer:" << (float) (cLink["buffer"].GetDouble() * BYTES_PER_KB) << std::endl;
+	std::cout<<"Attempted to add Link "<<cLink["id"].GetString()<<". Parameters - rate:"<<(float) (cLink["rate"].GetDouble() * BYTES_PER_MEGABIT)<<", delay:"<<(float) (cLink["delay"].GetDouble() / MS_PER_SEC)<<", buffer:"<<(float) (cLink["buffer"].GetDouble() * BYTES_PER_KB)<<std::endl;
 }
 #endif
 		}
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Finished Adding Links." << std::endl;
+	std::cout<<"Finished Adding Links."<<std::endl;
 }
 #endif	
 
@@ -173,15 +174,14 @@ if (debug) {
 			Network.addFlow(cFlow["id"].GetString(), cFlow["src"].GetString(), cFlow["dst"].GetString(), (float) (cFlow["size"].GetDouble() * BYTES_PER_MB), (float) (cFlow["start"].GetDouble()), tcp_enum);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Attempted to add Flow " << cFlow["id"].GetString() << std::endl;
-	*debugSS <<"size:" << (float) (cFlow["size"].GetDouble() * BYTES_PER_MB) << ", start:" << (float) (cFlow["start"].GetDouble()) << std::endl;
+	std::cout<<"Attempted to add Flow "<<cFlow["id"].GetString()<<". Parameters - size:"<<(float) (cFlow["size"].GetDouble() * BYTES_PER_MB)<<", start:"<<(float) (cFlow["start"].GetDouble())<<std::endl;
 }
 #endif
 		}
 	}
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Finished Adding Flows." << std::endl;
+	std::cout<<"Finished Adding Flows."<<std::endl;
 }
 #endif
 	
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 	std::ofstream outFile, debFile;
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Parsing options if they exist." << std::endl;
+	*outputSS<<"Parsing options if they exist."<<std::endl;
 }
 #endif
 	// Added : in front of arguement list to suppress errors and use custom error code
@@ -215,40 +215,40 @@ if (debug) {
 				switch (optopt) {
 					case 'i':
 						if (inputFile.empty()) {
-							std::cout << "Please specify the network topology input file:\n";
+							std::cout<<"Please specify the network topology input file:\n";
 							getline(std::cin, inputFile);
 						}
 						break;
 					case 'o':
 						if (outputFile.empty()) {
-							std::cout << "Please specify the output file:\n";
+							std::cout<<"Please specify the output file:\n";
 							getline(std::cin, outputFile);
 						}
 						break;
 					case 'd':
-						std::cout << "No debug file specified. Defaulting to cout." << std::endl;
+						std::cout<<"No debug file specified. Defaulting to cout."<<std::endl;
 						break;
 				}
 				break;
 			case '?':
-				*errorSS << "Error Invalid option: " << c << std::endl;
+				*errorSS<<"Error Invalid option: "<<c<<std::endl;
 				return -1;
 				break;
 			default:
-				*errorSS << "Usage: " << argv[0] << " " <<  usageInfo << std::endl;
+				*errorSS<<"Usage: "<<argv[0]<<" "<<usageInfo<<std::endl;
 		}
 	}
 	if (inputFile.empty()) {
-		std::cout << "Please specify the network topology input file:\n";
+		std::cout<<"Please specify the network topology input file:\n";
 		getline(std::cin, inputFile);
 	}
 	if (outputFile.empty()) {
-		std::cout << "Please specify the output file:\n";
+		std::cout<<"Please specify the output file:\n";
 		getline(std::cin, outputFile);
 	}
 	outFile.open(outputFile.c_str());
 	if (outFile.fail()) {
-		std::cerr << "Failed to open output file " << outputFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
+		std::cerr<<"Failed to open output file "<<outputFile<<". Are you sure you want to use cout? (y/N)"<<std::endl;
 		getline(std::cin, outputFile);
 		if (outputFile  != "y") {
 			return -1;
@@ -260,7 +260,7 @@ if (debug) {
 if (debug) {
 	debFile.open(debugFile.c_str());
 	if (debFile.fail()) {
-		std::cerr << "Failed to open debug file " << debugFile << ". Are you sure you want to use cout? (y/N)" << std::endl;
+		std::cerr<<"Failed to open debug file "<<debugFile<<". Are you sure you want to use cout? (y/N)"<<std::endl;
 		getline(std::cin, debugFile);
 	} else {
 		debugSS = &debFile;
@@ -268,21 +268,25 @@ if (debug) {
 }
 #endif
 
-	// Create Network Simulator object 
+	
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Created Network Simulator object." << std::endl;
+	//Start Debug Logging
+	*debugSS<<"Category,SimulationTime,Descriptions,Key,Value,Pairs"<<std::endl;
 }
 #endif
+	// Create Network Simulator object 
 	net *Network = new net();
-	
+#ifndef NDEBUG
+if (debug) {
+	std::cout<<"Created Network Simulator object."<<std::endl;
+}
+#endif	
 	// Load JSON Input File
 	parseInputs(*Network, inputFile);
 #ifndef NDEBUG
 if (debug) {
-	*debugSS << "Loaded Network Topology." << std::endl << std::endl << std::endl;
-	//Start Debug Logging
-	*debugSS << "Category,SimulationTime,Descriptions,Key,Value,Pairs" << std::endl;
+	std::cout<<"Loaded Network Topology."<<std::endl<<std::endl;
 }
 #endif
 
