@@ -13,10 +13,10 @@
 #include <utility>
 
 #include "net.h"
-#include "Flow.h"
-#include "Link.h"
-#include "Packet.h"
-#include "events/event_TO.h"
+#include "flow.h"
+#include "link.h"
+#include "packet.h"
+#include "events/event_to.h"
 
 // Calculates the Packet size
 // Has to deal with lack Packet being possibly smaller than the max_seg_size
@@ -216,6 +216,9 @@ void Flow::receive_Pak(Packet *p){
 				logRTTO();
 				logCWND();
 				logSSThresh();
+				
+				// Invalidate Timeout Event
+				tcpTO->invalidate();
 				
 				// Update Network Simulator (which can end when all flows finish)
 				Network->FlowFinished();

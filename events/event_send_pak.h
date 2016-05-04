@@ -11,7 +11,7 @@
 #define EVENT_SEND_PAK_H
 
 #include "event.h"
-#include "../Link.h"
+#include "../link.h"
 
 class event_send_pak:public event{
 	private:

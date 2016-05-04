@@ -7,8 +7,8 @@
  * @version 0.5.0 05/03/16
  */
 
-#include "Node.h"
-#include "Link.h"
+#include "node.h"
+#include "link.h"
 
 void Node::addNeighbor(Link *l, Node *n){
 	neighbors.insert({l->getName(),n});

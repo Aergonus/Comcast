@@ -9,14 +9,14 @@
 
 #include <cfloat>
 
-#include "Router.h"
+#include "router.h"
 #include "net.h"
-#include "Host.h"
-#include "Link.h"
-#include "Packet.h"
+#include "host.h"
+#include "link.h"
+#include "packet.h"
 
 void Router::receiveControl(Packet *p, Link *l){
-	float pakCost = time - p->getCT();
+	//float pakCost = simtime - p->getCT();
 	
 	if (debug){
 		*debugSS<<"ReceiveControl,"<<simtime<<","<<this->getName();

@@ -11,9 +11,9 @@
 #include <vector>
 
 #include "net.h"
-#include "Link.h"
-#include "Packet.h"
-#include "Host.h"
+#include "link.h"
+#include "packet.h"
+#include "host.h"
 #include "events/event_send_pak.h"
 
 float Link::calcDelay(){

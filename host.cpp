@@ -11,10 +11,10 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Host.h"
-#include "Link.h"
-#include "Flow.h"
-#include "Packet.h"
+#include "host.h"
+#include "link.h"
+#include "flow.h"
+#include "packet.h"
 
 // Add Flow to the Host
 void Host::addFlow(Flow* f){
