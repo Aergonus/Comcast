@@ -11,14 +11,14 @@
 #define EVENT_SEND_PAK_H
 
 #include "event.h"
-#include "../Link.h"
+#include "../link.h"
 
-class event_send_pak : public event {
+class event_send_pak:public event{
 	private:
 	Link *l;
 	
 	public:
-	event_send_pak(float time, Link *l):event(time), l(l) {
+	event_send_pak(float time, Link *l):event(time), l(l){
 		setType("Send Packet Event");
 	};
 	~event_send_pak(){};

@@ -9,136 +9,135 @@
 
 #include <cfloat>
 
-#include "Router.h"
+#include "router.h"
 #include "net.h"
-#include "Host.h"
-#include "Link.h"
-#include "Packet.h"
+#include "host.h"
+#include "link.h"
+#include "packet.h"
 
 void Router::receiveControl(Packet *p, Link *l){
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"ReceiveControl,"<<simtime<<","<<this->getName();
-	for (const auto &z : updatedDVTime) {
-		*debugSS<<",m["<<z.first<<"] = "<<z.second;
+	//float pakCost = simtime - p->getCT();
+	
+	if (debug){
+		*debugSS<<"ReceiveControl,"<<simtime<<","<<this->getName();
+		for (const auto &z:updatedDVTime){
+			*debugSS<<",m["<<z.first<<"] = "<<z.second;
+		}
+		*debugSS<<std::endl;
+		*debugSS<<"ReceiveControl,"<<simtime<<","<<this->getName()<<"Pak";
+		for (const auto &z:(*p->getuDVT())){
+			*debugSS<<",m["<<z.first<<"] = "<<z.second;
+		}
+		*debugSS<<std::endl;
 	}
-	*debugSS<<std::endl;
-	*debugSS<<"ReceiveControl,"<<simtime<<","<<this->getName()<<"Pak";
-	for (const auto &z : (*p->getuDVT())) {
-		*debugSS<<",m["<<z.first<<"] = "<<z.second;
-	}
-	*debugSS<<std::endl;
-}
-#endif
-	for(auto uDVT : (*p->getuDVT())){
+
+	for(auto uDVT:(*p->getuDVT())){
 		// Don't need to check for me DV since it won't ever be more updated, it'll just be ignored
 		if(uDVT.first == this->getName()){
 			continue;
 		}
-		auto itr = updatedDVTime.find(uDVT.first); 
+		auto itr = updatedDVTime.find(uDVT.first);
 		if (itr != updatedDVTime.end()){ // If it is an immediate neighbor 
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CheckDVT,"<<simtime<<","<<this->getName()<<uDVT.first<<",Pak,"<<uDVT.second<<",Have,"<<itr->second<<std::endl;
-}
-#endif
-			if (uDVT.second > itr->second) { // and the packet has newer cv
+
+			if (debug){
+				*debugSS<<"CheckDVT,"<<simtime<<","<<this->getName()<<uDVT.first<<",Pak,"<<uDVT.second<<",Have,"<<itr->second<<std::endl;
+			}
+
+			if (uDVT.second > itr->second){ // and the packet has newer cv
 				itr->second = uDVT.second;
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"DVBefore,"<<simtime<<","<<getName();
-	for (const auto &z : routing_table.at(uDVT.first)) {
-		*debugSS<<",m["<<z.first<<"] = "<<z.second;
-	}
-	*debugSS<<std::endl;
-	*debugSS<<"DVPacket,"<<simtime<<","<<getName();
-	for (auto &z : (*p->getRT()).at(uDVT.first)) {
-		*debugSS<<",m["<<z.first<<"] = "<<z.second;
-	}
-	*debugSS<<std::endl;
-}
-#endif
+
+				if (debug){
+					*debugSS<<"DVBefore,"<<simtime<<","<<getName();
+					for (const auto &z:routing_table.at(uDVT.first)){
+						*debugSS<<",m["<<z.first<<"] = "<<z.second;
+					}
+					*debugSS<<std::endl;
+					*debugSS<<"DVPacket,"<<simtime<<","<<getName();
+					for (auto &z:(*p->getRT()).at(uDVT.first)){
+						*debugSS<<",m["<<z.first<<"] = "<<z.second;
+					}
+					*debugSS<<std::endl;
+				}
+
 				routing_table.at(uDVT.first) = (*p->getRT()).at(uDVT.first); // update rt
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"DVAfter,"<<simtime<<","<<getName();
-	for (const auto &z : routing_table.at(uDVT.first)) {
-		*debugSS<<",m["<<z.first<<"] = "<<z.second;
-	}
-	*debugSS<<std::endl;
-}
-#endif
+
+				if (debug){
+					*debugSS<<"DVAfter,"<<simtime<<","<<getName();
+					for (const auto &z:routing_table.at(uDVT.first)){
+						*debugSS<<",m["<<z.first<<"] = "<<z.second;
+					}
+					*debugSS<<std::endl;
+				}
 			}
 		}
 	}
-
 }
 
 bool Router::updateCost(){
-#ifndef NDEBUG
-if (debug) {
+
+if (debug){
 	*debugSS<<"UpdateCost,"<<simtime<<","<<getName()<<std::endl;
 }
-#endif
+
 	// Only changes me's DV in table
 	bool updated = false;
-	//*errorSS<<"Updating CV for "<<getName()<<std::endl;
+	// *errorSS<<"Updating CV for "<<getName()<<std::endl;
 	// Update own cost vector
-	for(auto &neighbor : getNeighbors()){
+	for(auto &neighbor:getNeighbors()){
 		// CostVector[myself] = 0
-		if (neighbor.second->getName() == this->getName()) {
-			//*errorSS<<"Found myself!"<<std::endl;
+		if (neighbor.second->getName() == this->getName()){
+			// *errorSS<<"Found myself!"<<std::endl;
 			costVec.at(this->getName()) = 0; // getLink(this->getName())->get_cost();
 		}
-		//*errorSS<<"Checking "<<neighbor.first<<std::endl;
+		// *errorSS<<"Checking "<<neighbor.first<<std::endl;
 		// Get Link Cost for Routers only (Hosts guaranteed to be connected 0) 
-		if (neighbor.second->isRouter) {
-		//*errorSS<<"Router "<<neighbor.second->getName()<<std::endl;
+		if (neighbor.second->isRouter){
+		// *errorSS<<"Router "<<neighbor.second->getName()<<std::endl;
 			costVec.at(neighbor.second->getName()) = getLink(neighbor.first)->get_cost();
-#ifndef NDEBUG
-if (debug) {
+
+if (debug){
 	*debugSS<<"CVReport,"<<simtime<<","<<getName();
-	for (const auto &p : costVec) {
+	for (const auto &p:costVec){
 		*debugSS<<",m["<<p.first<<"] = "<<p.second;
 	}
 	*debugSS<<std::endl;
 }
-#endif
+
 		} else {
-		//*errorSS<<"Host "<<neighbor.second->getName()<<std::endl;
+		// *errorSS<<"Host "<<neighbor.second->getName()<<std::endl;
 			// For our simulation Keep connected Hosts at cost 0. Assuming best connection to connected host
-			//costVec.at(neighbor.second->getName()) = getLink(neighbor.second->getName())->get_cost();
+			// costVec.at(neighbor.second->getName()) = getLink(neighbor.second->getName())->get_cost();
 		}
-		//*errorSS<<"Processed "<<neighbor.second->getName()<<std::endl;
+		// *errorSS<<"Processed "<<neighbor.second->getName()<<std::endl;
 	}
-	//*errorSS<<"Updating RT for "<<getName()<<std::endl;
-	for(auto &r : routing_table){
-		for(auto &c : r.second){
+	// *errorSS<<"Updating RT for "<<getName()<<std::endl;
+	for(auto &r:routing_table){
+		for(auto &c:r.second){
 			// Don't need to calculate cost to itself
 			if(r.first == this->getName()){
-				//*errorSS<<"Found myself!"<<std::endl;
+				// *errorSS<<"Found myself!"<<std::endl;
 				continue;
 			}
-			//*errorSS<<"Looking at,"<<r.first<<",\t"<<c.first<<","<<routing_table.at(this->getName()).at(c.first)<<std::endl;
+			// *errorSS<<"Looking at,"<<r.first<<",\t"<<c.first<<","<<routing_table.at(this->getName()).at(c.first)<<std::endl;
 			float tCost = c.second + costVec.at(r.first);
-			//*errorSS<<"tCost,"<<tCost<<",\t"<<c.first<<","<<routing_table.at(this->getName()).at(c.first)<<std::endl;
+			// *errorSS<<"tCost,"<<tCost<<",\t"<<c.first<<","<<routing_table.at(this->getName()).at(c.first)<<std::endl;
 			if (tCost < routing_table.at(this->getName()).at(c.first)){
 				routing_table.at(this->getName()).at(c.first) = tCost;
 				// Get the Link name associated with the connected neighbor router
 				std::string lid;
-				for (auto &itr : getNeighbors()){
+				for (auto &itr:getNeighbors()){
 					if (r.first == itr.second->getName()){
 						lid = itr.first;
 						break;
 					}
 				}
-				//*errorSS<<"NextHop,"<<c.first<<",lid,"<<lid<<std::endl;
+				// *errorSS<<"NextHop,"<<c.first<<",lid,"<<lid<<std::endl;
 				next_hop.at(c.first) = lid;
 				updated = true;
 			}
 		}
 	}
-	//*errorSS<<"Finished RT for "<<getName()<<std::endl;
+	// *errorSS<<"Finished RT for "<<getName()<<std::endl;
 	updatedDVTime.at(this->getName()) = simtime;
 	// Send updates of DVT 
 	/*
@@ -158,14 +157,14 @@ void Router::fwdPak(Packet *p, Link *fromLink){
 	if(itr->second == "DNE"){
 		// No information initially, greedy search
 		float min_cost = 0.99*FLT_MAX;
-		for (auto checkLink : getLinks()){
+		for (auto checkLink:getLinks()){
 			// Don't ping pong back packet
 			if (checkLink->getName() == fromLink->getName())
 				{continue;}
 			// If connected to dst Host, send!
-			if (!(getNeighbors().at(checkLink->getName())->isRouter)) {
+			if (!(getNeighbors().at(checkLink->getName())->isRouter)){
 				if (getNeighbors().at(checkLink->getName())->getName() == hostId){
-					checkLink->receive_pak(p,getNeighbors().at(checkLink->getName()));// Equivalent to getConnectedNode(checkLink);
+					checkLink->receive_pak(p,getNeighbors().at(checkLink->getName())); // Equivalent to getConnectedNode(checkLink);
 					return;
 				} else {
 					continue;
@@ -178,7 +177,7 @@ void Router::fwdPak(Packet *p, Link *fromLink){
 		}
 		
 		// Ok... fine let's play pong
-		if (min_link == "") {
+		if (min_link == ""){
 			l = fromLink;
 		} else {
 			l = getLink(min_link);
@@ -191,16 +190,16 @@ void Router::fwdPak(Packet *p, Link *fromLink){
 
 void Router::sendCtrl(){
 	Packet *p;
-	for (auto l : getLinks()) {
+	for (auto l:getLinks()){
 		Node *rdst = this->getConnectedNode(l);
-		if (rdst->isRouter) {
+		if (rdst->isRouter){
 			p = new crtl_pak(this, rdst, ROUTING_PACKET_SIZE, KS_POISION_CONSTANT, ROUTING, routing_table, updatedDVTime);
-#ifndef NDEBUG
-if (debug) {
+
+if (debug){
 	*debugSS<<"CreatePak,"<<simtime<<",Created in Router sendCrtl,";
 	p->print();
 }
-#endif
+
 			// Injects the Packet into the Link
 			l->receive_pak(p,rdst);
 		}
@@ -208,21 +207,21 @@ if (debug) {
 }
 
 void Router::receive_pak(Packet *p, Link *l){
-	//*errorSS<<"Received Pak"<<std::endl;
+	// *errorSS<<"Received Pak"<<std::endl;
 	if (p->type == ROUTING){
-		//*errorSS<<"Received Rout Pak"<<std::endl;
+		// *errorSS<<"Received Rout Pak"<<std::endl;
 		// Update DVT entries with received information
-		receiveControl(p,l); 
-		//updateCost();
+		receiveControl(p,l);
+		// updateCost();
 		// Doesn't need to update since updates don't sent until STALE_ROUTING_TIMEOUT
 		// It will receive some packet before that and update its cost then (avoids unnecessary computing)
-		// Buffers information for now; we do not propogate information to keep routing congestion low
+		// Buffers information for now;we do not propogate information to keep routing congestion low
 	} else {
-		//*errorSS<<"Received Data"<<std::endl;
+		// *errorSS<<"Received Data"<<std::endl;
 		// Every time receive packet update own cost vector
 		updateCost();
 		// Hacky avoid loops 
-		if(p->perishSong() > 0) {
+		if(p->perishSong() > 0){
 			fwdPak(p,l);
 		} else {
 			delete p;
@@ -237,16 +236,16 @@ void Router::receive_pak(Packet *p, Link *l){
 }
 
 void Router::init(){
-#ifndef NDEBUG
-if (debug) {
+
+if (debug){
 	*debugSS<<"InitRouter,"<<simtime<<","<<getName()<<",Start"<<std::endl;
 }
-#endif
+
 	std::map<std::string, float> myDV;
-	for (auto &hosts : Network->getHosts()){
+	for (auto &hosts:Network->getHosts()){
 		myDV.insert({hosts->getName(), 0.99*FLT_MAX}); // set distance to max for unconnected hosts, max*.99 to account for adding overflow
 	}
-	for(auto &links : getLinks()){
+	for(auto &links:getLinks()){
 		Node *n = this->getConnectedNode(links);
 		if(!(n->isRouter)){
 			myDV[n->getName()] = 0; // set distance to 0 if connected to host
@@ -256,9 +255,9 @@ if (debug) {
 	routing_table.insert({this->getName(), myDV});
 	
 	std::map<std::string, float> innerDV;
-	for (auto &nodes : getNeighbors()){ // for all neighboring nodes
-		if (nodes.second->isRouter) { // Hosts do not have a routing table
-			for (auto &hosts : Network->getHosts()){
+	for (auto &nodes:getNeighbors()){ // for all neighboring nodes
+		if (nodes.second->isRouter){ // Hosts do not have a routing table
+			for (auto &hosts:Network->getHosts()){
 				innerDV.insert({hosts->getName(), 0.99*FLT_MAX}); // set distance to max for routers, max*.99 to account for adding overflow
 			}
 			routing_table.insert({nodes.second->getName(), innerDV});
@@ -269,8 +268,8 @@ if (debug) {
 	}
 	updatedDVTime.insert({this->getName(), simtime}); // Initialize my own updateDVTime
 	
-	for (auto &nodes : getNeighbors()){ //initialize the cost vector <neighboring router id, link cost>
-		if (nodes.second->isRouter) { 
+	for (auto &nodes:getNeighbors()){ // initialize the cost vector <neighboring router id, link cost>
+		if (nodes.second->isRouter){ 
 			costVec.insert({nodes.second->getName(), getLink(nodes.first)->get_cost()}); // initialize cost vector for neighbor
 		} else {
 			// if host the cost will be "0"
@@ -278,9 +277,9 @@ if (debug) {
 		}
 	}
 	
-	for (auto &hosts : Network->getHosts()){
-		for(auto &links : getLinks()){
-			if (hosts->getName() == getNeighbors().at(links->getName())->getName()) {
+	for (auto &hosts:Network->getHosts()){
+		for(auto &links:getLinks()){
+			if (hosts->getName() == getNeighbors().at(links->getName())->getName()){
 				next_hop.insert({hosts->getName(), links->getName()});
 			} else {
 				next_hop.insert({hosts->getName(), "DNE"}); // Does Not Exist
@@ -288,9 +287,9 @@ if (debug) {
 		}
 	}
 	updateCost();
-#ifndef NDEBUG
-if (debug) {
+
+if (debug){
 	*debugSS<<"InitRouter,"<<simtime<<","<<getName()<<",End"<<std::endl;
 }
-#endif
+
 }

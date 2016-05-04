@@ -24,14 +24,14 @@ extern std::ostream *errorSS;
 extern std::ostream *outputSS;
 
 /** Types of Packets in this simulation. */
-enum packet_type {
+enum packet_type{
 	DATA,
 	ACK,
 	ROUTING
 };
 
 /** Type of TCP implemented */
-enum TCP_type {
+enum TCP_type{
 	TAHOE,
 	RENO
 };
@@ -70,7 +70,7 @@ const int KB_PER_MB = 1<<10;
 const int BYTES_PER_MB = BYTES_PER_KB * KB_PER_MB;
 
 /** Conversion factor between megabits to bytes. */
-const int BYTES_PER_MEGABIT = 125000; 
+const int BYTES_PER_MEGABIT = 125000;
 		// BYTES_PER_KB * KB_PER_MB / BITS_PER_BYTE;
 
 /** Milliseconds per second. */
@@ -80,6 +80,6 @@ const int MS_PER_SEC = 1000;
 static const float LOGGING_INTERVAL = 0.1;
 
 /** Update Routing if older than this time */
-static const float STALE_ROUTING_TIMEOUT = 1;
+static const float STALE_ROUTING_TIMEOUT = .3;
 
 #endif // UTIL_H

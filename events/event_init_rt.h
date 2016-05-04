@@ -13,12 +13,12 @@
 #include "event.h"
 #include "../net.h"
 
-class event_init_rt : public event {
+class event_init_rt:public event{
 	private:
 	net *Network;
 	
 	public:
-	event_init_rt(float time, net *n):event(time), Network(n) {
+	event_init_rt(float time, net *n):event(time), Network(n){
 		setType("Init RT Event");
 	};
 	~event_init_rt(){};

@@ -15,12 +15,12 @@ class Link;
 
 #include "node.h" // includes map
 
-class Router: public Node{
+class Router:public Node{
   private:
 	// Network Simulator 
 	net *Network;
 
-	float ctrl_Updated; //keep track of the time last control packet was sent
+	float ctrl_Updated; // keep track of the time last control packet was sent
 
 /*
 			DVT
@@ -33,7 +33,7 @@ R3	datadatadata...	data
 Rm
 (neighbors routers ONLY)
 	Data contains distance to host
-//each row represents each router's dist_ + cost_ vector
+// each row represents each router's dist_ + cost_ vector
 */
 	std::map<std::string, std::map<std::string, float> > routing_table;
 	std::map<std::string, float> updatedDVTime; // Time of update to each DV in routing table
@@ -42,7 +42,7 @@ Rm
 			NH Lookup
 	H1	H2	H3	...	Hn	(ALL HOSTS in network)
 me 	n	n	n	...	node
-//Maps Host id to Link id
+// Maps Host id to Link id
 */
 	std::map<std::string, std::string> next_hop;
 	
@@ -59,8 +59,8 @@ me	R1	R2	R3	...	Rm	H?		(All Neighbors)
 	void sendCtrl();
 	
   public:
-	Router(std::string id): Node(id){};
-	Router(std::string id, net *sim): Node(id), Network(sim){
+	Router(std::string id):Node(id){};
+	Router(std::string id, net *sim):Node(id), Network(sim){
 		isRouter = true;
 	};
 	~Router(){};

@@ -27,29 +27,29 @@ class Router;
 #include "events/event.h"
 #include "util.h"
 
-class net {
+class net{
 	private:
-	int nFlows;	//number of Flows
+	int nFlows; // number of Flows
 	bool fiveever; // 5ever? or is there a stop time
-	float endtime;	// end of simulation
+	float endtime; // end of simulation
 	
-	//Lists of objects for each class
+	// Lists of objects for each class
 	std::priority_queue<event*, std::vector<event*>, compareEvents> events;
-	std::vector<Host *> Hosts; 
-	std::vector<Router *> Routers; 
-	std::vector<Link *> Links; 
-	std::vector<Flow *> Flows; 
+	std::vector<Host *> Hosts;
+	std::vector<Router *> Routers;
+	std::vector<Link *> Links;
+	std::vector<Flow *> Flows;
 	
 	public:
-	//initializes net
+	// initializes net
 	net();
-	//clears net
+	// clears net
 	~net();
 	
-	//float getTime(){return time;};
+	// float getTime(){return time;};
 	float setTime(float ntime){return simtime = ntime;};
 	float getEnd(float stop){return endtime;};
-	float setEnd(float stop){fiveever = true; return endtime = stop;};
+	float setEnd(float stop){fiveever = true;return endtime = stop;};
 	bool isEnd(){return (fiveever && (simtime > endtime));};
 	
 	// Initialize Routing Event

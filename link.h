@@ -19,11 +19,10 @@
 
 // Forward Declaration
 class Node;
-//class Host;
 class Packet;
 class net;
 
-class Link {
+class Link{
 	private:
 		std::string name;
 		// Node 1 and Node 2 endpoints of Link
@@ -45,9 +44,6 @@ class Link {
 		int nBuffPaks;
 		int nDroppedPaks;
 		
-		bool direction;
-		int nFlips;
-		
 		// Link Flow rate calculation
 		// Last update time
 		float update_time;
@@ -56,28 +52,27 @@ class Link {
 
 	public:
 		// CONSTRUCTOR
-		Link(std::string id) :name(id) {};
+		Link(std::string id):name(id){};
 		Link(std::string id, Node *Node1, Node *Node2, float rate, float delay, float buffer, net *sim)
-			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){
-			direction = true; // Sending Data
-			};
+			:name(id), n1(Node1), n2(Node2), rate(rate), delay(delay), buffer_size(buffer), Network(sim){};
+		~Link(){};
 		
 		// FUNCTIONS
-
-		//Calculate delay for first Packet in queue
+		
+		// Calculate delay for Packet
 		float calcDelay();
 		
 		// Calculate Flowrate in Link
 		float get_link_flow_rate();
 		
-		// This is weirdly weighted, should use number of packets //maybe? // Since we changed prop delay this should be right
-		float get_cost() {return (occupancy / rate) + delay;};
+		// This is weirdly weighted, should use number of packets // maybe? // Since we changed prop delay this should be right
+		float get_cost(){return (occupancy / rate) + delay;};
 		
 		// Get name for Link
 		std::string getName(){return name;};
 		
-		// Pushes Packet onto Link Buffer from end Node; 
-		// returns TRUE on success; FALSE on full buffer;
+		// Pushes Packet onto Link Buffer from end Node;
+		// returns TRUE on success;FALSE on full buffer;
 		// origin is a pointer to the Packet's transmitting Node;
 		bool receive_pak(Packet *p, Node *n);
 		
@@ -90,25 +85,20 @@ class Link {
 		bool operator== (Link *cmpLink){
 			return (this->getName() == cmpLink->getName());
 		};
-		//DEBUG/LOGGING FUNCTIONS
+		// DEBUG/LOGGING FUNCTIONS
 		void print();
 		
 		void debugBuffer();
 		
 		void logBuffer(){
-#ifndef NDEBUG
-if (debug) {
-// Debug is wack for now, disabled so output isn't as long
 /*
-			float buffOcc_Percent = buffer_size == 0 ? 0 : (float) occupancy/buffer_size;
-			float AckPak_Percent = nBuffPaks == 0 ? 0 : (float) nAckPaks/nBuffPaks;
-			float DataPak_Percent = nBuffPaks == 0 ? 0 : (float) nDataPaks/nBuffPaks;
+			float buffOcc_Percent = buffer_size == 0 ? 0:(float) occupancy/buffer_size;
+			float AckPak_Percent = nBuffPaks == 0 ? 0:(float) nAckPaks/nBuffPaks;
+			float DataPak_Percent = nBuffPaks == 0 ? 0:(float) nDataPaks/nBuffPaks;
 			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-BuffOcc%,"<<buffOcc_Percent<<std::endl;
 			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-AckPak%,"<<AckPak_Percent<<std::endl;
 			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-DataPak%,"<<DataPak_Percent<<std::endl;
 */
-}
-#endif
 			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-BuffOcc,"<<occupancy<<std::endl;
 		}
 		
