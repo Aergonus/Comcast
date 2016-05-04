@@ -1,6 +1,5 @@
 # Graphing Output Files
 *.csv
-*.png
 *.out
 
 # Compiler generated 

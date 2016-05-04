@@ -2,9 +2,9 @@
 # Basch Script to run Comcast
 clear 
 
-#echo "Cleaning and Rebuilding Comcast"
-#make clean
-#make
+echo "Cleaning and Rebuilding Comcast"
+make clean
+make
 
 echo "Welcome to Comcast (´·w·`)"
 
