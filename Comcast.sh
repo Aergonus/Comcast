@@ -15,7 +15,7 @@ echo "Running Test Case 1"
 ./Comcast.exe -i ./input/test_case_0.json -o TC1_Output.csv -d TC1_debug.csv
 
 echo "Running Test Case 2"
-./Comcast.exe -i ./input/test_case_0.json -o TC1_Output.csv -d TC2_debug.csv
+./Comcast.exe -i ./input/test_case_0.json -o TC2_Output.csv -d TC2_debug.csv
 
 echo "Comcast has successfully extorted you for your $ $ $"
 echo "If you would like to donate more to Comcast please execute"
