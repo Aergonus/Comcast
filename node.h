@@ -18,14 +18,14 @@
 class Link;
 class Packet;
 
-class Node {
+class Node{
 	private:
 		std::string name; // Node id
 		std::vector<Link *> Links; // List of Links connected to Node
 		std::map<std::string, Node *> neighbors; // Maps id of a Link to the connected Node
 		void addLink(Link *l){Links.push_back(l);}; // Add Link to the Node
 		
-	public: 
+	public:
 		// Constructor
 		Node(const std::string name):name(name){};
 		virtual ~Node(){};

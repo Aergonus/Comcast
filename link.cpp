@@ -16,139 +16,83 @@
 #include "Host.h"
 #include "events/event_send_pak.h"
 
-// Calculate the total delay for a Packet along the Link
 float Link::calcDelay(){
-	// need to check for Packet! Or create one for Routers to call
-	return (float)((occupancy/rate) + delay);// *nBuffPaks); // Fuck this lol *nFlips has a bug too //TODO:
+// Calculate the total delay for a Packet along the Link for external use
+	return (float)((occupancy/rate) + delay);
 }
 
-// Receive Packet from Flow(Hosts)/Routers
 bool Link::receive_pak(Packet *p, Node *n){
+// Receive Packet from Flow(Hosts)/Routers
 	assert((n == n1)||(n == n2));
 	if(buffer.empty()){
-	// Buffer is empty -> Store and Send
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferDebug,"<<simtime<<",";
-		debugBuffer();
-	*debugSS<<"Empty!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
-}
-#endif
+		// Buffer is empty -> Store and Send immediately
+		if (debug){
+			*debugSS<<"BufferDebug,"<<simtime<<",";
+				debugBuffer();
+			*debugSS<<"Empty!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
+		}
+		
 		// Initiate Packet transmission by inserting into buffer and priority queue
 		// Stamp destination
 		buffer.push(std::make_pair(p, n));
 		occupancy += p->getSize();
-		if (p->getSeqNum() != -1) {
-				direction = true;
+		if (p->getType() == DATA){
 			nDataPaks++;
-		} else {
-				direction = false;
+		} else if(p->getType() == ACK){
 			nAckPaks++;
 		}
 		nBuffPaks++;
 		logBuffer();
 		
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferDebug,"<<simtime<<",";
-		debugBuffer();
-}
-#endif
-		float pDelay = calcDelay();
-		event_send_pak *e = new event_send_pak(pDelay, this);
+		event_send_pak *e = new event_send_pak((p->getSize()/rate), this);
 		Network->addEvent(e);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
-		e->print();
-}
-#endif
 		return true;
-	} else if (occupancy + p->getSize() <= buffer_size) {
-	// Stores Packet in buffer if occupied	
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferDebug,"<<simtime<<",";
-		debugBuffer();
-	*debugSS<<"Occupied!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
-}
-#endif
+	} else if (occupancy + p->getSize() <= buffer_size){
+		// Stores Packet in buffer if occupied
+		if (debug){
+			*debugSS<<"BufferDebug,"<<simtime<<",";
+				debugBuffer();
+			*debugSS<<"Occupied!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
+		}
+		
 		// Stamp destination
 		buffer.push(std::make_pair(p, n));
 		occupancy += p->getSize();
-		if (p->getSeqNum() != -1) {
-			if (!direction) {
-				direction = true;
-				nFlips++;
-			}
+		if (p->getType() == DATA){
 			nDataPaks++;
-		} else {
-			if (direction) {
-				direction = false;
-				nFlips++;
-			}
+		} else if(p->getType() == ACK){
 			nAckPaks++;
 		}
 		nBuffPaks++;
 		logBuffer();
 		
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferDebug,"<<simtime<<",";
-		debugBuffer();
-}
-#endif
-
-		float pDelay = calcDelay();
-		// record buffer occupancy
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferedPak!,"<<simtime<<",nBufferedPackets,"<<nBuffPaks<<",Link Buffer Occupancy,"<<occupancy<<",MaxBuffSize,"<<buffer_size<<std::endl;
-}
-#endif
-		event_send_pak *e = new event_send_pak(pDelay, this);
-		Network->addEvent(e);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
-		e->print();
-}
-#endif
+		if (debug){
+			*debugSS<<"BufferDebug,"<<simtime<<",";
+				debugBuffer();
+		}
 		return true;
 	} else {
 		// Packet dropped
 		nDroppedPaks++;
 		logDrops();
-		
-		// record time when a Packet is dropped
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"BufferDebug,"<<simtime<<",";
-		debugBuffer();
-	*debugSS<<"DroppedPak!,"<<simtime<<",";
-		p->print();
-}
-#endif
+		if (debug){
+			*debugSS<<"BufferDebug,"<<simtime<<",";
+				debugBuffer();
+			*debugSS<<"DroppedPak!,"<<simtime<<",";
+				p->print();
+		}
 		delete p;
-		return false; 
+		return false;
 	}
 }
 
-// Transmit Packet from Link to next Node - Misnomer really means sent_pak
 void Link::send_pak(){
+// Transmit Packet from Link to next Node - Misnomer really means sent_pak
 	std::pair <Packet*,Node*> sent = buffer.front();
 	occupancy -= (sent.first)->getSize(); // Upon receiving, the buffer is decremented
-	if (sent.first->getSeqNum() != -1) {
-		if (!direction) {
-			direction = true;
-			nFlips--;
-		}
+	if (sent.first->getType() == DATA){
 		nDataPaks--;
-	} else {
-		if (direction) {
-			direction = false;
-			nFlips--;
-		}
+	} else if(sent.first->getType() == ACK){
 		nAckPaks--;
 	}
 	nBuffPaks--;
@@ -156,15 +100,21 @@ void Link::send_pak(){
 	
 	// Record Link Rate after Packet Transmission
 	bytes_sent += sent.first->getSize();
-	//logLinkRate();
 	
 	buffer.pop(); // Pop before sending new packet
+	if (!buffer.empty()){
+		// Prep send packet event
+		std::pair <Packet*,Node*> toSend = buffer.front();
+		float pDelay = (toSend.first->getSize()/rate) + ((sent.second->getName() != toSend.first->getDst()->getName()) ? delay:0);
+		event_send_pak *e = new event_send_pak(pDelay, this);
+		Network->addEvent(e);
+	}
 	(sent.second)->receive_pak(sent.first, this);
 }
 
 // Used by all Nodes to send to other side of Link
 Node* Link::getOtherNode(Node *n){
-	return (n1->getName() == n->getName()) ? n2 : n1;
+	return (n1->getName() == n->getName()) ? n2:n1;
 }
 
 void Link::debugBuffer(){

@@ -1,5 +1,7 @@
 # Graphing Output Files
 *.csv
+*.png
+*.out
 
 # Compiler generated 
 *.exe
@@ -12,3 +14,4 @@
 
 # Temporary Workspace
 unused/
+report/

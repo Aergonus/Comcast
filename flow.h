@@ -23,13 +23,13 @@ class Node;
 class Packet;
 class event_TO;
 
-class Flow {
-	//friend class Packet;
+class Flow{
+	// friend class Packet;
 	
 	private:
-		std::string name; //Packet name
-		Node* src; //Packet source
-		Node* dst; //Packet destination
+		std::string name; // Packet name
+		Node* src; // Packet source
+		Node* dst; // Packet destination
 		int size;
 		float start;
 
@@ -40,12 +40,13 @@ class Flow {
 		// Network Simulator 
 		net *Network;
 		
-		// Reliable Data Transfer 
+		// Transmission Control Block (TCB Reliable Data Transfer Vars)
 		// Sender
 		int nextSeq, sendBase, dupAcks;
 		std::map<int,int> ackStack; // Really AckVec or AckList, but it rhymes
 		// Receiver
-		int expectedSeq;
+		int expectedSeq, paksReceived;
+		float dupWait, pakRTT;
 		
 		// Congestion Control
 		int CWND, ssThresh, gotAcks;
@@ -65,25 +66,26 @@ class Flow {
 		float bytes_sent;
 		
 	public:
-	//Constructors
-	Flow(std::string name) : name(name) {};
+	// Constructors
+	Flow(std::string name):name(name){};
 	Flow(std::string name, Node *src, Node *dst, int FlowSize, float startTime, TCP_type tcp, net *sim)
-		: name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp), Network(sim) {
+		:name(name), src(src), dst(dst), size(FlowSize), start(startTime), mode(tcp), Network(sim){
 		update_time = startTime;
-		if (mode == TAHOE) {
+		if (mode == TAHOE){
 			algo = new TAHOE_TCP();
-		} else if (mode == RENO) {
+		} else if (mode == RENO){
 			algo = new RENO_TCP();
 		}
 	};
+	~Flow(){delete algo;}
 
-	//function to obtain the origin of the Flow
+	// function to obtain the origin of the Flow
 	Node* getSrc(){return src;};
-	//function to obtain the destination of the Flow
+	// function to obtain the destination of the Flow
 	Node* getDst(){return dst;};
-	//function to obtain the name of the Flow
+	// function to obtain the name of the Flow
 	std::string getName(){return name;};
-	//function to obtain the size of the Flow
+	// function to obtain the size of the Flow
 	int getSize(){return size;};
 	
 	// obtain Flowrate
@@ -105,31 +107,26 @@ class Flow {
 		return (this->getName() == cmpFlow->getName());
 	};
 	
-	//debug and reporting
+	// debug and reporting
 	void print();
 	
-	void logCWND() {
+	void logCWND(){
 		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-CWND,"<<CWND<<std::endl;
 	}
-	void logSSThresh() {
-#ifndef NDEBUG
-if (debug) {
-// Debug is wack for now, disabled so output isn't as long
-	*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-ssThresh,"<<ssThresh<<std::endl;
-}
-#endif
+	
+	void logSSThresh(){
+		if (debug){
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-ssThresh,"<<ssThresh<<std::endl;
+		}
 	}
-	void logRTTO() {
+	
+	void logRTTO(){
 		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-sampRTT,"<<sampRTT<<std::endl;
-#ifndef NDEBUG
-if (debug) {
-/*
-// Debug is wack for now, disabled so output isn't as long
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-estRTT,"<<estRTT<<std::endl;
-		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-devRTT,"<<devRTT<<std::endl;
-*/
-}
-#endif
+		if (debug){
+			// Debug is wack for now, disabled so output isn't as long
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-estRTT,"<<estRTT<<std::endl;
+			*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-devRTT,"<<devRTT<<std::endl;
+		}
 		*outputSS<<simtime<<","<<getName()<<","<<getName()<<"-TO,"<<TO<<std::endl;
 	}
 	

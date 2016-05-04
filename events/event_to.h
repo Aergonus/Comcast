@@ -13,13 +13,13 @@
 #include "event.h"
 #include "../flow.h"
 
-class event_TO : public event {
+class event_TO:public event{
 	private:
 	float timeout_val;
 	Flow *f;
 	
 	public:
-	event_TO(float time, Flow *f):event(time), timeout_val(time), f(f) {
+	event_TO(float time, Flow *f):event(time), timeout_val(time), f(f){
 		setType("TO Event");
 	};
 	~event_TO(){};

@@ -13,7 +13,7 @@
 #include <string>
 #include "../util.h"
 
-class event {
+class event{
 	private:
 	float start;
 	bool valid;
@@ -21,7 +21,7 @@ class event {
 	std::string etype;
 	
 	public:
-	event(float stime):start(stime) {
+	event(float stime):start(stime){
 		id = eventsCreated++;
 		valid = true;
 	};
@@ -41,9 +41,9 @@ class event {
 };
 
 // Sorting rule for the event* priority queue 
-struct compareEvents {
-  bool operator() (event *eventA, event *eventB) const {
-	if (eventA->isValid() ^ eventB->isValid()) { // XOR 
+struct compareEvents{
+  bool operator() (event *eventA, event *eventB) const{
+	if (eventA->isValid() ^ eventB->isValid()){ // XOR 
 		return eventA->isValid(); // Want to have invalidated events on top
 	} else {
 		return eventA->get_Start() > eventB->get_Start();

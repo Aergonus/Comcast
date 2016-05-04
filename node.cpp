@@ -21,8 +21,8 @@ Node* Node::getConnectedNode(Link *connection){
 
 Link* Node::getLink(std::string lid){
 	std::vector<Link *>::iterator itr = Links.begin();
-	while(itr != Links.end()) {
-		if ((*itr)->getName() == lid) {
+	while(itr != Links.end()){
+		if ((*itr)->getName() == lid){
 			return *itr;
 		}
 		itr++;

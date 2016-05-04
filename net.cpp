@@ -25,33 +25,31 @@ int eventsCreated;
 
 // Initialize
 net::net(){
-	//simtime = 0;
 	fiveever = false;
 }
 
 // Clears the net
 net::~net(){
 	// Iterate through list and delete
-	for(auto iter = Hosts.begin(); iter != Hosts.end(); ++iter){
+	for(auto iter = Hosts.begin();iter != Hosts.end();++iter){
 		delete *iter;
 	}
 	Hosts.clear();
-	for(auto iter = Routers.begin(); iter != Routers.end(); ++iter){
+	for(auto iter = Routers.begin();iter != Routers.end();++iter){
 		delete *iter;
 	}
 	Routers.clear();
-	for(auto iter = Links.begin(); iter != Links.end(); ++iter){
+	for(auto iter = Links.begin();iter != Links.end();++iter){
 		delete *iter;
 	}
 	Links.clear();
-	//When Flows reference TCP protocols, have to deallocate those too
-	for(auto iter = Flows.begin(); iter != Flows.end(); ++iter){
+	for(auto iter = Flows.begin();iter != Flows.end();++iter){
 		delete *iter;
 	}
 	Flows.clear();
 }
 
-//Get statements for each class
+// Get statements for each class
 Node* net::getNode(std::string id){
 	if (HostExists(id)){
 		return getHost(id);
@@ -65,8 +63,8 @@ Node* net::getNode(std::string id){
 
 Host* net::getHost(std::string id){
 	std::vector<Host *>::iterator itr = Hosts.begin();
-	while(itr != Hosts.end()) {
-		if ((*itr)->getName() == id) {
+	while(itr != Hosts.end()){
+		if ((*itr)->getName() == id){
 			return *itr;
 		}
 		itr++;
@@ -76,8 +74,8 @@ Host* net::getHost(std::string id){
 
 Router* net::getRouter(std::string id){
 	std::vector<Router *>::iterator itr = Routers.begin();
-	while(itr != Routers.end()) {
-		if ((*itr)->getName() == id) {
+	while(itr != Routers.end()){
+		if ((*itr)->getName() == id){
 			return *itr;
 		}
 		itr++;
@@ -87,8 +85,8 @@ Router* net::getRouter(std::string id){
 
 Link* net::getLink(std::string id){
 	std::vector<Link *>::iterator itr = Links.begin();
-	while(itr != Links.end()) {
-		if ((*itr)->getName() == id) {
+	while(itr != Links.end()){
+		if ((*itr)->getName() == id){
 			return *itr;
 		}
 		itr++;
@@ -98,8 +96,8 @@ Link* net::getLink(std::string id){
 
 Flow* net::getFlow(std::string id){
 	std::vector<Flow *>::iterator itr = Flows.begin();
-	while(itr != Flows.end()) {
-		if ((*itr)->getName() == id) {
+	while(itr != Flows.end()){
+		if ((*itr)->getName() == id){
 			return *itr;
 		}
 		itr++;
@@ -109,11 +107,11 @@ Flow* net::getFlow(std::string id){
 
 // Checks existence of identically labeled objects
 bool net::NodeExists(std::string id){
-	return (getNode(id) != NULL);	
+	return (getNode(id) != NULL);
 }
 
 bool net::HostExists(std::string id){
-	return (getHost(id) != NULL);	
+	return (getHost(id) != NULL);
 }
 
 bool net::RouterExists(std::string id){
@@ -129,7 +127,7 @@ bool net::FlowExists(std::string id){
 }
 
 void net::init_Routing(){
-	for (auto router : Routers) {
+	for (auto router:Routers){
 		router->init();
 	}
 }
@@ -142,7 +140,7 @@ int net::addHost(std::string id){
 
 		// Update relations
 		Hosts.push_back(newHost);
-		//Nodes.push_back(newHost);
+		// Nodes.push_back(newHost);
 		
 		return 0;
 	} else {
@@ -159,7 +157,7 @@ int net::addRouter(std::string id){
 
 		// Update relations
 		Routers.push_back(newRouter);
-		//Nodes.push_back(newRouter);
+		// Nodes.push_back(newRouter);
 
 		return 0;
 	} else {
@@ -218,13 +216,6 @@ int net::addFlow(std::string id, std::string Node_src, std::string Node_dst, flo
 			
 			event_start_flow *FlowStart = new event_start_flow(start_time, getFlow(id));
 			addEvent(FlowStart);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",CreatedInit,";
-		FlowStart->print();
-}
-#endif
-
 		} else if(!NodeExists(Node_src)){
 			*errorSS<<"Failed to create Flow with id "<<id<<". Node "<<Node_src<<" does not exist."<<std::endl;
 			return -1;
@@ -239,45 +230,41 @@ if (debug) {
 	}
 }
 
-// Decrement the number of active Flows when one is done transmitting
 int net::FlowFinished(){
+// Decrement the number of active Flows when one is done transmitting
 	return --nFlows;
 }
 
-// Priority queue
 void net::addEvent(event *e){
 	e->set_Start(e->get_Start() + simtime); // Adds global time to the initialized delay
 	events.push(e);
-}
-
-void net::vomitEvents() {
-#ifndef NDEBUG
-if (debug) {
-	while(!events.empty()) {
-		event *to_handle = events.top();
-		to_handle->print();
-		events.pop();
-		delete to_handle;
+	if (debug){
+		*debugSS<<"CreateEvent,"<<simtime<<",";
+		e->print();
 	}
 }
-#endif
+
+void net::vomitEvents(){
+// Careful using this. It will cause the run while loop to segfault if called within there (which you probably will)
+	if (debug){
+		while(!events.empty()){
+			event *to_handle = events.top();
+			to_handle->print();
+			events.pop();
+			delete to_handle;
+		}
+	}
 }
 
 void net::log_Throughput(){
-	for(auto&& f: Flows){
+	for(auto&& f:Flows){
 		f->logFlowRate();
 	}
-	for(auto&& l: Links){
+	for(auto&& l:Links){
 		l->logLinkRate();
 	}
 	event_log *e = new event_log(LOGGING_INTERVAL,this);
 	addEvent(e);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
-		e->print();
-}
-#endif
 };
 
 // Runs the simulation
@@ -285,70 +272,51 @@ int net::run(){
 	// Create initial logging event
 	event_log *e = new event_log(LOGGING_INTERVAL,this);
 	addEvent(e);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",Created in Link receivepak,";
-		e->print();
-}
-#endif
 	
 	// Initialization Routing Table Event
 	event_init_rt *initialRT = new event_init_rt(-EPSILON, this);
 	addEvent(initialRT);
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"CreateEvent,"<<simtime<<",";
-	initialRT->print();
-}
-#endif
 
 	// Ends if there are no Flows left
 	while ((!events.empty() && nFlows > 0)){
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"Running!,"<<simtime<<",hEvents,"<<eventsHandled<<",nEvents,"<<events.size()<<std::endl;
-}
-#endif
+		if (debug){
+			*debugSS<<"Running!,"<<simtime<<",hEvents,"<<eventsHandled<<",nEvents,"<<events.size()<<std::endl;
+		}
 		
-		//Simulation ends at user specified time
+		// Simulation ends at user specified time
 		if (isEnd()){
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"EndSim,"<<simtime<<",I'm broken!"<<std::endl;
-}
-#endif
+			if (debug){
+				*debugSS<<"EndSim,"<<simtime<<",I'm broken!"<<std::endl;
+			}
 			break;
 		}
-		//TODO: Establish precedence order? Drain buffers before pushing to them etc
+		
+		// TODO:Establish precedence order? Drain buffers before pushing to them etc
 		event *to_handle = events.top();
-		if(to_handle->isValid()) {
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"Valid,"<<simtime<<",";
-			to_handle->print();
-	*debugSS<<"UpdateTime,"<<simtime<<",Changing Simulation Time to,"<<to_handle->get_Start()<<std::endl;
-}
-#endif
+		if(to_handle->isValid()){
+			if (debug){
+				*debugSS<<"Valid,"<<simtime<<",";
+						to_handle->print();
+				*debugSS<<"UpdateTime,"<<simtime<<",Changing Simulation Time to,"<<to_handle->get_Start()<<std::endl;
+			}
+			
 			simtime = to_handle->get_Start();
 			to_handle->handle_event();
 		} else {
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"Invalid,"<<simtime<<",";
-			to_handle->print();
-}
-#endif
+			if (debug){
+				*debugSS<<"Invalid,"<<simtime<<",";
+						to_handle->print();
+			}
 		}
-
+		
+		// If use vomitEvents debug, this will fail
 		events.pop();
 		delete to_handle;
 		eventsHandled++;
 	}
-#ifndef NDEBUG
-if (debug) {
-	*debugSS<<"EndSimulation,"<<simtime<<std::endl;
-}
-#endif
 
+	if (debug){
+		*debugSS<<"EndSimulation,"<<simtime<<std::endl;
+	}
 	return 0;
 }

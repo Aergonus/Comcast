@@ -13,12 +13,12 @@
 #include "event.h"
 #include "../flow.h"
 
-class event_start_flow : public event {
+class event_start_flow:public event{
 	private:
 	Flow *f;
 	
 	public:
-	event_start_flow(float time, Flow *f):event(time), f(f) {
+	event_start_flow(float time, Flow *f):event(time), f(f){
 		setType("Start Flow Event");
 	};
 	~event_start_flow(){};

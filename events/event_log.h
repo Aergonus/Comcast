@@ -13,13 +13,13 @@
 #include "event.h"
 #include "../net.h"
 
-class event_log : public event {
+class event_log:public event{
 	private:
 	float last_updated;
 	net *Network;
 	
 	public:
-	event_log(float time, net *n):event(time), Network(n) {
+	event_log(float time, net *n):event(time), Network(n){
 		setType("LoggingEvent");
 		last_updated = simtime;
 	};

@@ -20,13 +20,13 @@ class Link;
 class Flow;
 class Packet;
 
-class Host : public Node {
-	 private: 
-		std::vector<Flow *> Flows; 
+class Host:public Node{
+	 private:
+		std::vector<Flow *> Flows;
 
-	 public: 
+	 public:
 		// The constructor creates the Host, initially unconnected and without Flows.
-		Host(std::string name): Node(name){
+		Host(std::string name):Node(name){
 			isRouter = false;
 		};
 		~Host(){};
@@ -34,10 +34,6 @@ class Host : public Node {
 		void addFlow(Flow *f);
 		
 		std::vector<Flow *> getFlows(){return Flows;};
-		
-		// Sends a Packet into the network via the Host's Link
-		// Called by the Flow and the TLA
-		//virtual bool send_Pak(Packet);
 		
 		Node* getConnectedNode(Link *);
 		
